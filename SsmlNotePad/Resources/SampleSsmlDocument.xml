@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+  <emphasis>Test PromptEmphasis.NotSet</emphasis>
+  <emphasis level="strong">Test PromptEmphasis.Strong</emphasis>
+  <emphasis level="moderate">Test PromptEmphasis.Moderate</emphasis>
+  <emphasis level="none">Test PromptEmphasis.None</emphasis>
+  <emphasis level="reduced">Test PromptEmphasis.Reduced</emphasis>
+    <prosody>Test PromptVolume.NotSet</prosody>
+  <prosody volume="silent">Test PromptVolume.Silent</prosody>
+  <prosody volume="x-soft">Test PromptVolume.ExtraSoft</prosody>
+  <prosody volume="soft">Test PromptVolume.Soft</prosody>
+  <prosody volume="medium">Test PromptVolume.Medium</prosody>
+  <prosody volume="loud">Test PromptVolume.Loud</prosody>
+  <prosody volume="x-loud">Test PromptVolume.ExtraLoud</prosody>
+  <prosody volume="default">Test PromptVolume.Default</prosody>
+  <prosody>Test PromptRate.NotSet</prosody>
+  <prosody rate="x-fast">Test PromptRate.ExtraFast</prosody>
+  <prosody rate="fast">Test PromptRate.Fast</prosody>
+  <prosody rate="medium">Test PromptRate.Medium</prosody>
+  <prosody rate="slow">Test <p>
+    <s>Another</s></p> PromptRate.Slow</prosody>
+  <prosody rate="x-slow">Test PromptRate.ExtraSlow</prosody>
+  <sub alias="Example substitute&#x2abb;&#xA;	WithMultipleLines!">
+    Example textToSpeak
+    With multiple line
+  </sub>
+  <say-as interpret-as="characters">Example for SpellOut</say-as>
+  Example for NumberOrdinal:<say-as interpret-as="ordinal">12</say-as>
+  Example for NumberCardinal:<say-as interpret-as="cardinal">12</say-as>
+  Example for Date:<say-as interpret-as="date">1/12/2000</say-as>
+  Example for DayMonthYear:<say-as interpret-as="date" format="dmy">1/12/2000</say-as>
+  Example for MonthDayYear:<say-as interpret-as="date" format="mdy">1/12/2000</say-as>
+  Example for YearMonthDay:<say-as interpret-as="date" format="ymd">1/12/2000</say-as>
+  Example for YearMonth:<say-as interpret-as="date" format="ym">1/12/2000</say-as>
+  Example for MonthYear:<say-as interpret-as="date" format="my">1/12/2000</say-as>
+  Example for MonthDay:<say-as interpret-as="date" format="md">1/12/2000</say-as>
+  Example for DayMonth:<say-as interpret-as="date" format="dm">1/12/2000</say-as>
+  Example for Year:<say-as interpret-as="date" format="y">1/12/2000</say-as>
+  Example for Month:<say-as interpret-as="date" format="m">1/12/2000</say-as>
+  Example for Day:<say-as interpret-as="date" format="d">1/12/2000</say-as>
+  Example for Time:<say-as interpret-as="time">11:30:45</say-as>
+  Example for Time24:<say-as interpret-as="time" format="hms24">11:30:45</say-as>
+  Example for Time12:<say-as interpret-as="time" format="hms12">11:30:45</say-as>
+  Example for Telephone:<say-as interpret-as="telephone">11:30:45</say-as>
+  Example for Text:11:30:45
+  <phoneme ph="duˈbwɑ">DuBois</phoneme>
+    <voice name="Microsoft David Desktop">
+      <s>Example with voice by name</s>
+    </voice>
+    <p>
+      <voice>Voice NotSet NotSet</voice>
+      <voice age="10">Voice NotSet Child</voice>
+      <voice age="15">Voice NotSet Teen</voice>
+      <voice age="30">Voice NotSet Adult</voice>
+      <voice age="65">Voice NotSet Senior</voice>
+      <voice gender="male">Voice Male NotSet</voice>
+      <voice gender="male" age="10">Voice Male Child</voice>
+      <voice gender="male" age="15">Voice Male Teen</voice>
+      <voice gender="male" age="30">Voice Male Adult</voice>
+      <voice gender="male" age="65">Voice Male Senior</voice>
+      <voice gender="female">Voice Female NotSet</voice>
+      <voice gender="female" age="10">Voice Female Child</voice>
+      <voice gender="female" age="15">Voice Female Teen</voice>
+      <voice gender="female" age="30">Voice Female Adult</voice>
+      <voice gender="female" age="65">Voice Female Senior</voice>
+      <voice gender="neutral">Voice Neutral NotSet</voice>
+      <voice gender="neutral" age="10">Voice Neutral Child</voice>
+      <voice gender="neutral" age="15">Voice Neutral Teen</voice>
+      <voice gender="neutral" age="30">Voice Neutral Adult</voice>
+      <voice gender="neutral" age="65">Voice Neutral Senior</voice>
+    </p>
+  <voice gender="female" age="15" variant="3">
+    <s xml:lang="en-US">Example with voice with alt and sentence with current culture.</s>
+  </voice>
+  <voice xml:lang="es-US">Hola!</voice>
+  <p xml:lang="es">
+    <s>Invariant culture</s>
+  </p>
+  <p xml:lang="zh-CN">
+    Nested<s xml:lang="en-US">Cultures</s>
+  </p>
+  <break />
+  <break strength="none" /> - After None break
+  <break strength="x-weak" /> - After ExtraSmall brea
+  <break strength="weak" /> - After Small break
+  <break strength="medium" /> - After Medium break
+    <break strength="strong" /> - After Large break
+  <break strength="x-strong" /> - After ExtraLarge break
+  <break time="0ms" />
+  <break time="1000ms" />
+  <break time="60000ms" />
+  <mark name="Bookmark Test" />
+  <audio src="http://tempuri.org/temp.wav" />
+  <audio src="file:///C:/Temp/temp.wav" />
+  <audio src="file:///C:/Temp/temp.wav">Alternate Text</audio>
+  <emphasis level="strong">
+    <prosody rate="fast" volume="x-loud">SampleStyle</prosody>
+  </emphasis>
+</speak>

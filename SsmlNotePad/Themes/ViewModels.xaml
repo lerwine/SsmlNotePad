@@ -1,0 +1,5 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ViewModel="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel"
+                    xmlns:local="clr-namespace:Erwine.Leonard.T.SsmlNotePad">
+    <ViewModel:MainWindowVM x:Key="MainWindowViewModel" />
+</ResourceDictionary>

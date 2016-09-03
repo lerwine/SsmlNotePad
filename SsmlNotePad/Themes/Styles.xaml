@@ -1,0 +1,99 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Erwine.Leonard.T.SsmlNotePad">
+    <Style x:Key="StatusButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+        <Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Width" Value="32" />
+    </Style>
+    <Style x:Key="DialogButtonStyle" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+        <Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+        <Setter Property="Margin" Value="{DynamicResource DialogButtonMargin}" />
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="Height" Value="{DynamicResource DialogButtonHeight}" />
+        <Setter Property="Width" Value="{DynamicResource DialogButtonWidth}" />
+    </Style>
+    <Style x:Key="CommandIconPath" TargetType="Path">
+        <Setter Property="Stretch" Value="Uniform" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="Fill" Value="{StaticResource MenuIconForegroundBrush}" />
+    </Style>
+    <Style x:Key="StatusIconPath" TargetType="Path" BasedOn="{StaticResource CommandIconPath}">
+        <Setter Property="Data" Value="{StaticResource StatusAnnotationsCompleteAndOk32xMDColorIcon_bgGeometry}" />
+    </Style>
+    <Style x:Key="CriticalIconPath" TargetType="Path" BasedOn="{StaticResource StatusIconPath}">
+        <Setter Property="Data" Value="{DynamicResource StatusAnnotationsCritical32xSMColorIcon_bgGeometry}" />
+        <Setter Property="Fill" Value="{DynamicResource CriticalIconForegroundBrush}" />
+    </Style>
+    <Style x:Key="ErrorIconPath" TargetType="Path" BasedOn="{StaticResource StatusIconPath}">
+        <Setter Property="Data" Value="{StaticResource StatusAnnotationsAlert32xSMColorIcon_bgGeometry}" />
+        <Setter Property="Fill" Value="{DynamicResource ErrorIconForegroundBrush}" />
+    </Style>
+    <Style x:Key="WarningIconPath" TargetType="Path" BasedOn="{StaticResource StatusIconPath}">
+        <Setter Property="Data" Value="{StaticResource StatusAnnotationsWarning32xSMColorIcon_bgGeometry}" />
+        <Setter Property="Fill" Value="{DynamicResource WarningIconForegroundBrush}" />
+    </Style>
+    <Style x:Key="InformationIconPath" TargetType="Path" BasedOn="{StaticResource StatusIconPath}">
+        <Setter Property="Data" Value="{StaticResource StatusAnnotationsInformation32xSMColorIcon_bgGeometry}" />
+        <Setter Property="Fill" Value="{StaticResource InformationForegroundBrush}" />
+    </Style>
+    <Style x:Key="ModifiedIconPath" TargetType="Path" BasedOn="{StaticResource StatusIconPath}">
+        <Setter Property="Data" Value="{StaticResource SaveIconGeometry}" />
+        <Setter Property="Fill" Value="{StaticResource WarningIconForegroundBrush}" />
+    </Style>
+    <Style x:Key="NewIconPath" TargetType="Path" BasedOn="{StaticResource StatusIconPath}">
+        <Setter Property="Data" Value="{StaticResource StatusAnnotationsRequired32xSMColorIcon_bgGeometry}" />
+        <Setter Property="Fill" Value="{StaticResource InformationForegroundBrush}" />
+    </Style>
+    <Style x:Key="CriticalStatusButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ResourceKey=StatusButtonStyle}">
+        <Setter Property="BorderBrush" Value="{DynamicResource CriticalIconForegroundBrush}" />
+    </Style>
+    <Style x:Key="ErrorStatusButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ResourceKey=StatusButtonStyle}">
+        <Setter Property="BorderBrush" Value="{DynamicResource ErrorIconForegroundBrush}" />
+    </Style>
+    <Style x:Key="WarningStatusButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ResourceKey=StatusButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource WarningIconBackgroundBrush}" />
+    </Style>
+    <Style x:Key="InformationStatusButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ResourceKey=StatusButtonStyle}">
+        <Setter Property="BorderBrush" Value="{DynamicResource InformationForegroundBrush}" />
+        <Setter Property="Background" Value="{DynamicResource InformationBackgroundBrush}" />
+    </Style>
+    <Style x:Key="ModifiedStatusButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ResourceKey=StatusButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource WarningIconBackgroundBrush}" />
+    </Style>
+    <Style x:Key="NewStatusButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ResourceKey=StatusButtonStyle}">
+        <Setter Property="BorderBrush" Value="{DynamicResource InformationForegroundBrush}" />
+        <Setter Property="Background" Value="{DynamicResource InformationBackgroundBrush}" />
+    </Style>
+    <Style x:Key="ValidatingTextBoxStyle" TargetType="{x:Type TextBox}">
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="true">
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                <Setter Property="Background" Value="{DynamicResource ErrorFieldBackgroundBrush}" />
+            </Trigger>
+            <!--<Trigger Property="Validation.HasError" Value="false">
+                <Setter Property="ToolTip" Value=""/>
+                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
+            </Trigger>-->
+        </Style.Triggers>
+    </Style>
+
+    <SolidColorBrush x:Key="TextBox.Static.Border" Color="#FFABAdB3"/>
+    <SolidColorBrush x:Key="TextBox.MouseOver.Border" Color="#FF7EB4EA"/>
+    <SolidColorBrush x:Key="TextBox.Focus.Border" Color="#FF569DE5"/>
+</ResourceDictionary>

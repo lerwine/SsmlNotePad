@@ -1,9 +1,21 @@
-﻿<Application x:Class="SsmlNotePad.App"
+﻿<Application
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:SsmlNotePad"
+             xmlns:local="clr-namespace:Erwine.Leonard.T.SsmlNotePad"
+             xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="Erwine.Leonard.T.SsmlNotePad.App"
+    xmlns:vm="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <System:String x:Key="ApplicationTitle">SSML Notepad</System:String>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes\Basic.xaml" />
+                <ResourceDictionary Source="Themes\ColorDefinitions.xaml" />
+                <ResourceDictionary Source="Themes\Icons.xaml" />
+                <ResourceDictionary Source="Themes\Styles.xaml" />
+                <ResourceDictionary Source="Themes\Generic.xaml" />
+                <ResourceDictionary Source="Themes\ViewModels.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

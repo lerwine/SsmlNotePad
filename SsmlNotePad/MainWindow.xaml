@@ -1,12 +1,252 @@
-﻿<Window x:Class="SsmlNotePad.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SsmlNotePad"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        xmlns:local="clr-namespace:Erwine.Leonard.T.SsmlNotePad"
+        xmlns:ViewModel="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:Converter="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter" x:Name="window" x:Class="Erwine.Leonard.T.SsmlNotePad.MainWindow"
+        mc:Ignorable="d" DataContext="{DynamicResource MainWindowViewModel}"
+        Title="{DynamicResource ApplicationTitle}" Height="800" Width="600">
+    <Window.Resources>
+        <Converter:FileSaveStatusToStyleConverter x:Key="FileSaveStatusToPathStyleConverter" SaveErrorStyle="{DynamicResource ErrorIconPath}" 
+                                                  SaveSuccessStyle="{DynamicResource StatusIconPath}" 
+                                                  SaveWarningStyle="{DynamicResource WarningIconPath}" 
+                                                  NullStyle="{DynamicResource StatusIconPath}" 
+                                                  NewStyle="{DynamicResource ModifiedIconPath}" 
+                                                  ModifiedStyle="{DynamicResource NewIconPath}"/>
+        <Converter:FileSaveStatusToStyleConverter x:Key="FileSaveStatusToButtonStyleConverter" 
+                                                  SaveWarningStyle="{DynamicResource WarningStatusButtonStyle}" 
+                                                  SaveSuccessStyle="{DynamicResource StatusButtonStyle}" 
+                                                  SaveErrorStyle="{DynamicResource ErrorStatusButtonStyle}" 
+                                                  NullStyle="{DynamicResource StatusButtonStyle}" 
+                                                  NewStyle="{DynamicResource NewStatusButtonStyle}" 
+                                                  ModifiedStyle="{DynamicResource ModifiedStatusButtonStyle}"/>
+        <Converter:StatusTypeToStyleConverter x:Key="StatusTypeToPathStyleConverter" CriticalStyle="{DynamicResource CriticalIconPath}" 
+                                              ErrorStyle="{DynamicResource ErrorIconPath}" 
+                                              InformationStyle="{DynamicResource InformationIconPath}" 
+                                              NoneStyle="{DynamicResource StatusIconPath}" 
+                                              NullStyle="{DynamicResource StatusIconPath}" 
+                                              WarningStyle="{DynamicResource WarningIconPath}"/>
+        <Converter:StatusTypeToStyleConverter x:Key="StatusTypeToButtonStyleConverter" 
+                                              CriticalStyle="{DynamicResource CriticalStatusButtonStyle}" 
+                                              ErrorStyle="{DynamicResource ErrorStatusButtonStyle}" 
+                                              InformationStyle="{DynamicResource InformationStatusButtonStyle}" 
+                                              NoneStyle="{DynamicResource StatusButtonStyle}" 
+                                              NullStyle="{DynamicResource StatusButtonStyle}" 
+                                              WarningStyle="{DynamicResource WarningStatusButtonStyle}" />
+        <Converter:BooleanToTextWrappingConverter x:Key="BooleanToTextWrappingConverter"/>
+        <Converter:BooleanToScrollBarVisibilityConverter x:Key="BooleanToHorizontalScrollBarVisibilityConverter" TrueValue="Disabled" FalseValue="Auto"/>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.New" CanExecute="CommandBindingNew_CanExecute" Executed="CommandBindingNew_Executed" />
+        <CommandBinding Command="ApplicationCommands.Open" CanExecute="CommandBindingOpen_CanExecute" Executed="CommandBindingOpen_Executed" />
+        <CommandBinding Command="ApplicationCommands.Save" CanExecute="CommandBindingSave_CanExecute" Executed="CommandBindingSave_Executed" />
+        <CommandBinding Command="ApplicationCommands.SaveAs" CanExecute="CommandBindingSaveAs_CanExecute" Executed="CommandBindingSaveAs_Executed" />
+        <CommandBinding Command="ApplicationCommands.Close" CanExecute="CommandBinding_CloseCanExecute" Executed="CommandBindingClose_Executed" />
+        <CommandBinding Command="ApplicationCommands.Find" CanExecute="CommandBindingFind_CanExecute" Executed="CommandBindingFind_Executed" />
+        <CommandBinding Command="ApplicationCommands.Replace" CanExecute="CommandBindingReplace_CanExecute" Executed="CommandBindingReplace_Executed" />
+        <CommandBinding Command="ApplicationCommands.Properties" CanExecute="CommandBindingProperties_CanExecute" Executed="CommandBindingProperties_Executed" />
+        <CommandBinding Command="ApplicationCommands.Help" CanExecute="CommandBindingHelp_CanExecute" Executed="CommandBindingHelp_Executed" />
+    </Window.CommandBindings>
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Menu x:Name="menu" Grid.ColumnSpan="2">
+            <MenuItem Header="File">
+                <MenuItem Header="_New" Command="ApplicationCommands.New" />
+                <MenuItem Header="_Open" Command="ApplicationCommands.Open" />
+                <MenuItem Header="_Save" Command="ApplicationCommands.Save" />
+                <MenuItem Header="Save _As" Command="ApplicationCommands.SaveAs" />
+                <Separator />
+                <MenuItem Header="E_xit" Command="ApplicationCommands.Close" />
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Undo" Command="ApplicationCommands.Undo" />
+                <MenuItem Header="Red_o" Command="ApplicationCommands.Redo" />
+                <Separator />
+                <MenuItem Header="Cu_t" Command="ApplicationCommands.Cut" />
+                <MenuItem Header="_Copy" Command="ApplicationCommands.Copy" />
+                <MenuItem Header="_Paste" Command="ApplicationCommands.Paste" />
+                <MenuItem Header="Paste _Encoded" Command="{Binding PasteEncodedCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="_Delete" Command="ApplicationCommands.Delete" />
+                <Separator />
+                <MenuItem Header="Refor_mat Document" Command="{Binding ReformatDocumentCommand, Mode=OneWay}" />
+                <Separator />
+                <MenuItem Header="Select _All" Command="ApplicationCommands.SelectAll" />
+                <MenuItem Visibility="Collapsed" Header="Select Current _Tag" Command="{Binding SelectCurrentTagCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Visibility="Collapsed" Header="_Select Current Tag Contents" Command="{Binding SelectTagContentsCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <Separator />
+                <MenuItem Header="_Go To" Command="{Binding GoToLineCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Visibility="Collapsed" Header="_Find" Command="ApplicationCommands.Find" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Visibility="Collapsed" Header="_Replace" Command="ApplicationCommands.Replace" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <Separator />
+                <MenuItem Visibility="Collapsed" Header="P_roperties" Command="ApplicationCommands.Properties" />
+                <MenuItem Header="Line Wrap" ToolTip="Line Wrapping" IsCheckable="True" IsChecked="{Binding LineWrapEnabled}" />
+            </MenuItem>
+            <MenuItem Header="_Insert">
+                <MenuItem Header="_Paragraph" Command="{Binding InsertParagraphCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="_Sentence" Command="{Binding InsertSentenceCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="Substitution" Command="{Binding SubstitutionCommand}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="Spell _Out" Command="{Binding SubstitutionCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="Say _As" Command="{Binding SayAsCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="_Female Voice" Command="{Binding InsertFemaleVoiceCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="_Male Voice" Command="{Binding InsertMaleVoiceCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="Gender _Neutral Voice" Command="{Binding InsertGenderNeutralVoiceCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="Bookmark" Command="{Binding InsertBookmarkCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="Au_dio File" Command="{Binding InsertAudioFileCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Visibility="Collapsed" Header="_Dictate" Command="{Binding DictateCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
+                <MenuItem Header="Select after _Insert" ToolTip="Select inserted text after an insert operation." IsCheckable="True" IsChecked="{Binding SelectAfterInsert}" />
+            </MenuItem>
+            <MenuItem Header="_Synthesis">
+                <MenuItem Header="Speak to Default Audio Device" Command="{Binding SpeakToDefaultDeviceCommand, Mode=OneWay}" />
+                <MenuItem Header="Generate WAV file" Command="{Binding GenerateWavFileCommand, Mode=OneWay}" />
+                <MenuItem Visibility="Collapsed" Header="Default Settings" Command="{Binding DefaultSynthSettingsCommand, Mode=OneWay}" />
+            </MenuItem>
+            <MenuItem Visibility="Collapsed" Header="_Help">
+                <MenuItem Header="Get _Help" Command="ApplicationCommands.Help" />
+                <MenuItem Header="_About SSML Notepad" Command="{Binding AboutSsmlNotePadCommand, Mode=OneWay}" />
+            </MenuItem>
+        </Menu>
+        <Border Grid.Row="1" Grid.ColumnSpan="2">
+            <WrapPanel>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Save Changes" Command="{Binding SaveDocumentCommand, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource SaveIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Speak text to default audio device" Command="{Binding SpeakToDefaultDeviceCommand, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource SpeakIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" Command="ApplicationCommands.Cut">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource CutIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" Command="ApplicationCommands.Copy">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource CopyIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" Command="ApplicationCommands.Paste">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource PasteIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Paste Encoded" Command="{Binding PasteEncodedCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource ClipboardCheckIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" Command="ApplicationCommands.Delete">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource DeleteIconGeometry}" />
+                </Button>
+                <Button Visibility="Collapsed" Style="{DynamicResource StatusButtonStyle}" ToolTip="Select Current Tag" Command="{Binding SelectCurrentTagCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource CodeTagsIconGeometry}" />
+                </Button>
+                <Button Visibility="Collapsed" Style="{DynamicResource StatusButtonStyle}" ToolTip="Select Tag Contents" Command="{Binding SelectTagContentsCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource XmlIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Reformat Document" Command="{Binding ReformatDocumentCommand, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource LinesTextCode16xSMIcon_bgGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Insert Paragraph" Command="{Binding InsertParagraphCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource PargraphIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Insert Sentence" Command="{Binding InsertSentenceCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource RayEndIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Say As" Command="{Binding SayAsCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource SayAsIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Substitute" Command="{Binding SubstitutionCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource ShuffleIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Spell Out" Command="{Binding SpellOutCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource AppbarSwapGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Insert Bookmark" Command="{Binding InsertBookmarkCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource AddBookmarkIcon2Geometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Insert Male Voice" Command="{Binding InsertMaleVoiceCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource MaleVoiceIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Insert Female Voice" Command="{Binding InsertFemaleVoiceCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource FemaleVoiceIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Insert Gender Neutral Voice" Command="{Binding InsertGenderNeutralVoiceCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource GenderNeutralIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Insert Audio File" Command="{Binding InsertAudioFileCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource MusicFileIconGeometry}" ToolTip="Insert Audio File" />
+                </Button>
+                <!--<Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Dictate" Command="{Binding DictateCommand, Mode=OneWay}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource ListenIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource PlayAudioIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource Schema32xSMIcon_bgGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource StatusAnnotationsPlay32xSMColorIcon_bgGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource ToolsIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource MatrixIconGeometry}" />
+                </Button>
+                <Button Style="{DynamicResource StatusButtonStyle}">
+                    <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource WrapIconGeometry}" />
+                </Button>-->
+                <CheckBox Content="Select after Insert" ToolTip="Select inserted text after an insert operation." IsChecked="{Binding SelectAfterInsert}" FontSize="10" />
+                <CheckBox Content="Wrap Lines" ToolTip="Line Wrapping" IsChecked="{Binding LineWrapEnabled}" Margin="8,0,0,0" FontSize="10" />
+            </WrapPanel>
+        </Border>
+        <ItemsControl Grid.Row="2" x:Name="lineNumbersItemsControl" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" ItemsSource="{Binding LineNumbers}">
+            <ItemsControl.Template>
+                <ControlTemplate TargetType="{x:Type ItemsControl}">
+                    <Border BorderThickness="0" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+                        <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                    </Border>
+                </ControlTemplate>
+            </ItemsControl.Template>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid IsItemsHost="True"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock HorizontalAlignment="Right" Margin="{Binding Margin}" Text="{Binding Number}" Padding="2,0" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBox Grid.Row="2" x:Name="contentsTextBox" Grid.Column="1" TextWrapping="{Binding LineWrapEnabled, Converter={StaticResource BooleanToTextWrappingConverter}}" AcceptsReturn="True" AcceptsTab="True"
+                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="{Binding LineWrapEnabled, Converter={StaticResource BooleanToHorizontalScrollBarVisibilityConverter}}" 
+                 LayoutUpdated="contentsTextBox_LayoutUpdated" Text="{Binding Text}" />
+        <Border Grid.Row="3" Grid.ColumnSpan="2" Grid.RowSpan="2" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="2" Padding="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{DynamicResource StatusButtonStyle}" VerticalAlignment="Center" ToolTip="{Binding ValidationToolTip, Mode=OneWay}" Command="{Binding ShowValidationMessagesCommand, Mode=OneWay}">
+                        <Path Style="{Binding ValidationStatus, Converter={StaticResource StatusTypeToPathStyleConverter}}" />
+                    </Button>
+                    <Button Style="{DynamicResource InformationStatusButtonStyle}" VerticalAlignment="Center" Margin="8,0,4,0" Command="{Binding ShowFileSaveMessagesCommand, Mode=OneWay}">
+                        <Path Style="{Binding FileSaveStatus, Converter={StaticResource FileSaveStatusToPathStyleConverter}}" />
+                    </Button>
+                    <TextBlock Text="{Binding FileSaveToolBarMessage, Mode=OneWay}" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Grid.Column="1" Text="L " Margin="8,0,0,0" />
+                <TextBlock Grid.Column="2" Text="{Binding CurrentLineNumber}" />
+                <TextBlock Grid.Column="3" Text=", C " />
+                <TextBlock Grid.Column="4" Text="{Binding CurrentColNumber}" />
+            </Grid>
+        </Border>
     </Grid>
 </Window>

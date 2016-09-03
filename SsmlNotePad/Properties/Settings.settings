@@ -1,7 +1,66 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Erwine.Leonard.T.SsmlNotePad.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="XmlBaseURI" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Resources</Value>
+    </Setting>
+    <Setting Name="BlankSsmlFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">BlankSsmlDocument.xml</Value>
+    </Setting>
+    <Setting Name="SampleSsmlFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">SampleSsmlDocument.xml</Value>
+    </Setting>
+    <Setting Name="VsiFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Visual-Studio-Intellisense.xsd</Value>
+    </Setting>
+    <Setting Name="SsmlSchemaFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">WindowsPhoneSynthesis.xsd</Value>
+    </Setting>
+    <Setting Name="SsmlSchemaCoreFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">WindowsPhoneSynthesis-core.xsd</Value>
+    </Setting>
+    <Setting Name="XhtmlSchemaFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Xhtml.xsd</Value>
+    </Setting>
+    <Setting Name="XmlSchemaFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">xml.xsd</Value>
+    </Setting>
+    <Setting Name="SchemaInstanceFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">XMLSchema-instance.xsd</Value>
+    </Setting>
+    <Setting Name="XsdSchemaFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">xsdschema.xsd</Value>
+    </Setting>
+    <Setting Name="XsltSchemaFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Xslt.xsd</Value>
+    </Setting>
+    <Setting Name="SsmlFileExtension" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">.ssml</Value>
+    </Setting>
+    <Setting Name="LastSaveFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="SSMLSchemaNamespaceURI" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://www.w3.org/2001/10/synthesis</Value>
+    </Setting>
+    <Setting Name="SSMLSchemaDocumentationUrl" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://www.w3.org/TR/speech-synthesis/</Value>
+    </Setting>
+    <Setting Name="SSMLDocTypeTag" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">&lt;!DOCTYPE speak PUBLIC "-//W3C//DTD SYNTHESIS 1.0//EN"  "http://www.w3.org/TR/speech-synthesis/synthesis.dtd"&gt; </Value>
+    </Setting>
+    <Setting Name="SSMLDocTypeURI" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://www.w3.org/TR/speech-synthesis/synthesis.dtd</Value>
+    </Setting>
+    <Setting Name="SSMLFileTypeDescriptionLong" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Speech Synthesis Markup Language Source</Value>
+    </Setting>
+    <Setting Name="SSMLFileTypeDescriptionShort" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Speech Synthesis Markup</Value>
+    </Setting>
+    <Setting Name="SSMLMimeType" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">application/ssml+xml</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

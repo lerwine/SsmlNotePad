@@ -7,7 +7,7 @@
     <ProjectGuid>{DF5E8EA4-72EB-4011-A628-06488179CC94}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SsmlNotePad</RootNamespace>
+    <RootNamespace>Erwine.Leonard.T.SsmlNotePad</RootNamespace>
     <AssemblyName>SsmlNotePad</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -37,6 +37,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Speech" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -55,6 +57,96 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Common\BufferedTextReader.cs" />
+    <Compile Include="Common\XmlEncodeOption.cs" />
+    <Compile Include="Common\XmlHelper.cs" />
+    <Compile Include="Markup.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Markup.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Process\BackgroundJobManager.cs" />
+    <Compile Include="Process\BackgroundJobWorker.cs" />
+    <Compile Include="Process\LineNumberGenerator.cs" />
+    <Compile Include="Process\MarkupValidator.cs" />
+    <Compile Include="Process\SpeakText.cs" />
+    <Compile Include="Process\Utility.cs" />
+    <Compile Include="Process\XmlEncodingType.cs" />
+    <Compile Include="Process\XmlTextParsing\AttributeToken.cs" />
+    <Compile Include="Process\XmlTextParsing\CharacterDataToken.cs" />
+    <Compile Include="Process\XmlTextParsing\DocumentTypeToken.cs" />
+    <Compile Include="Process\XmlTextParsing\ElementToken.cs" />
+    <Compile Include="Process\XmlTextParsing\InvalidToken.cs" />
+    <Compile Include="Process\XmlTextParsing\ITokenContainer.cs" />
+    <Compile Include="Process\XmlTextParsing\LinkedToken.cs" />
+    <Compile Include="Process\XmlTextParsing\ProcessingInstructionToken.cs" />
+    <Compile Include="Process\XmlTextParsing\CharacterTokenType.cs" />
+    <Compile Include="Process\XmlTextParsing\XmlToken.cs" />
+    <Compile Include="Process\XmlTextParsing\XmlTokenSet.cs" />
+    <Compile Include="Process\XmlTextParsing\XmlTokenType.cs" />
+    <Compile Include="StringExtensions.cs" />
+    <Compile Include="ViewModel\AudioFileVM.cs" />
+    <Compile Include="ViewModel\Converter\BooleanToStringConverter.cs" />
+    <Compile Include="ViewModel\Converter\FileSaveStatusToStyleConverter.cs" />
+    <Compile Include="ViewModel\Converter\SpeechStateToStringConverter.cs" />
+    <Compile Include="ViewModel\FileSaveStatus.cs" />
+    <Compile Include="ViewModel\MainWindowVM.cs" />
+    <Compile Include="ViewModel\SpeechMessageVM.cs" />
+    <Compile Include="ViewModel\SpeechProgressVM.cs" />
+    <Compile Include="ViewModel\SpeechState.cs" />
+    <Compile Include="ViewModel\SubstitutionVM.cs" />
+    <Compile Include="ViewModel\ValueAndDurationQueueVM.cs" />
+    <Compile Include="ViewModel\TimeSpanVM.cs" />
+    <Compile Include="ViewModel\VoiceVM.cs" />
+    <Compile Include="ViewModel\XmlValidationMessageVM.cs" />
+    <Compile Include="ViewModel\Command\AttachedItemCommand.cs" />
+    <Compile Include="ViewModel\Command\BaseCommand.cs" />
+    <Compile Include="ViewModel\Command\IHandlableEventArgs.cs" />
+    <Compile Include="ViewModel\Command\RelayCommand.cs" />
+    <Compile Include="ViewModel\Converter\BooleanToScrollBarVisibilityConverter.cs" />
+    <Compile Include="ViewModel\Converter\BooleanToTextWrappingConverter.cs" />
+    <Compile Include="ViewModel\Converter\BooleanToVisibilityConverter.cs" />
+    <Compile Include="ViewModel\Converter\ExceptionToStringConverter.cs" />
+    <Compile Include="ViewModel\Converter\InverseBooleanConverter.cs" />
+    <Compile Include="ViewModel\Converter\ObjectToVisibilityConverter.cs" />
+    <Compile Include="ViewModel\Converter\StatusTypeToStyleConverter.cs" />
+    <Compile Include="ViewModel\Converter\StringToVisibilityConverter.cs" />
+    <Compile Include="ViewModel\Converter\XmlNodeTypeConverter.cs" />
+    <Compile Include="ViewModel\Converter\XmlNodeTypeToStringConverter.cs" />
+    <Compile Include="ViewModel\Converter\XmlNodeTypeToVisibilityConverter.cs" />
+    <Compile Include="ViewModel\LineNumberVM.cs" />
+    <Compile Include="ViewModel\ObservableViewModelCollection.cs" />
+    <Compile Include="ViewModel\ReadOnlyObservableViewModelCollection.cs" />
+    <Compile Include="ViewModel\XmlValidationStatus.cs" />
+    <Compile Include="ViewModel\ThemeGallery\ThemeGalleryItemVM.cs" />
+    <Compile Include="ViewModel\ThemeGallery\ThemeGalleryVM.cs" />
+    <Compile Include="ViewModel\ValidatingViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelValidateState.cs" />
+    <Compile Include="ViewModel\ViewModelValidationMessageVM.cs" />
+    <Compile Include="View\AudioFileWindow.xaml.cs">
+      <DependentUpon>AudioFileWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\GoToLineWindow.xaml.cs">
+      <DependentUpon>GoToLineWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SpeechMessageDetailControl.xaml.cs">
+      <DependentUpon>SpeechMessageDetailControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SpeechProgressWindow.xaml.cs">
+      <DependentUpon>SpeechProgressWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SubstitutionWindow.xaml.cs">
+      <DependentUpon>SubstitutionWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ThemeGalleryControl.xaml.cs">
+      <DependentUpon>ThemeGalleryControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ValidationMessageControl.xaml.cs">
+      <DependentUpon>ValidationMessageControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ValidationMessagesWindow.xaml.cs">
+      <DependentUpon>ValidationMessagesWindow.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -67,6 +159,62 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Themes\Basic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\ColorDefinitions.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Icons.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Styles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\ViewModels.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\AudioFileWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\GoToLineWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SpeechMessageDetailControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SpeechProgressWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SubstitutionWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ThemeGalleryControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ValidationMessageControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ValidationMessagesWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -82,18 +230,72 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Markup.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Markup.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="Process\XmlTextParsing\ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <Content Include="Resources\synthesis.dtd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Visual-Studio-Intellisense.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\WindowsPhoneSynthesis-core.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\WindowsPhoneSynthesis.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Xhtml.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\xml.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\XMLSchema-instance.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\xsdschema.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Xslt.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\BlankSsmlDocument.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\SampleSsmlDocument.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DataModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -8,22 +8,202 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SsmlNotePad.Properties
-{
-
-
+namespace Erwine.Leonard.T.SsmlNotePad.Properties {
+    
+    
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
-    {
-
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-
-        public static Settings Default
-        {
-            get
-            {
+        
+        public static Settings Default {
+            get {
                 return defaultInstance;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Resources")]
+        public string XmlBaseURI {
+            get {
+                return ((string)(this["XmlBaseURI"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("BlankSsmlDocument.xml")]
+        public string BlankSsmlFileName {
+            get {
+                return ((string)(this["BlankSsmlFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SampleSsmlDocument.xml")]
+        public string SampleSsmlFileName {
+            get {
+                return ((string)(this["SampleSsmlFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Visual-Studio-Intellisense.xsd")]
+        public string VsiFileName {
+            get {
+                return ((string)(this["VsiFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("WindowsPhoneSynthesis.xsd")]
+        public string SsmlSchemaFileName {
+            get {
+                return ((string)(this["SsmlSchemaFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("WindowsPhoneSynthesis-core.xsd")]
+        public string SsmlSchemaCoreFileName {
+            get {
+                return ((string)(this["SsmlSchemaCoreFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Xhtml.xsd")]
+        public string XhtmlSchemaFileName {
+            get {
+                return ((string)(this["XhtmlSchemaFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("xml.xsd")]
+        public string XmlSchemaFileName {
+            get {
+                return ((string)(this["XmlSchemaFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("XMLSchema-instance.xsd")]
+        public string SchemaInstanceFileName {
+            get {
+                return ((string)(this["SchemaInstanceFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("xsdschema.xsd")]
+        public string XsdSchemaFileName {
+            get {
+                return ((string)(this["XsdSchemaFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Xslt.xsd")]
+        public string XsltSchemaFileName {
+            get {
+                return ((string)(this["XsltSchemaFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(".ssml")]
+        public string SsmlFileExtension {
+            get {
+                return ((string)(this["SsmlFileExtension"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastSaveFolder {
+            get {
+                return ((string)(this["LastSaveFolder"]));
+            }
+            set {
+                this["LastSaveFolder"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://www.w3.org/2001/10/synthesis")]
+        public string SSMLSchemaNamespaceURI {
+            get {
+                return ((string)(this["SSMLSchemaNamespaceURI"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://www.w3.org/TR/speech-synthesis/")]
+        public string SSMLSchemaDocumentationUrl {
+            get {
+                return ((string)(this["SSMLSchemaDocumentationUrl"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<!DOCTYPE speak PUBLIC \"-//W3C//DTD SYNTHESIS 1.0//EN\"  \"http://www.w3.org/TR/spe" +
+            "ech-synthesis/synthesis.dtd\"> ")]
+        public string SSMLDocTypeTag {
+            get {
+                return ((string)(this["SSMLDocTypeTag"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://www.w3.org/TR/speech-synthesis/synthesis.dtd")]
+        public string SSMLDocTypeURI {
+            get {
+                return ((string)(this["SSMLDocTypeURI"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Speech Synthesis Markup Language Source")]
+        public string SSMLFileTypeDescriptionLong {
+            get {
+                return ((string)(this["SSMLFileTypeDescriptionLong"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Speech Synthesis Markup")]
+        public string SSMLFileTypeDescriptionShort {
+            get {
+                return ((string)(this["SSMLFileTypeDescriptionShort"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("application/ssml+xml")]
+        public string SSMLMimeType {
+            get {
+                return ((string)(this["SSMLMimeType"]));
             }
         }
     }

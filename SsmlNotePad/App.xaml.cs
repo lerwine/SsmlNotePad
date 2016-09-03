@@ -6,12 +6,30 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace SsmlNotePad
+namespace Erwine.Leonard.T.SsmlNotePad
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
     {
+        public static TWindow GetWindowByDataContext<TWindow, TDataContext>(TDataContext obj)
+            where TWindow : Window
+            where TDataContext : class
+        {
+            if (obj == null)
+                throw new ArgumentNullException("obj");
+            
+            if (App.Current.CheckAccess())
+                return App.Current.Windows.Cast<Window>().OfType<TWindow>().FirstOrDefault(w => w.DataContext != null && ReferenceEquals(w.DataContext, obj));
+
+            return App.Current.Dispatcher.Invoke(() => GetWindowByDataContext<TWindow, TDataContext>(obj));
+        }
+
+        public static ViewModel.MainWindowVM MainWindowViewModel
+        {
+            get { return App.Current.FindResource("MainWindowViewModel") as ViewModel.MainWindowVM; }
+        }
     }
+
 }
