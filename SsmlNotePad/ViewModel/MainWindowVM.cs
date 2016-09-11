@@ -17,7 +17,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
     public class MainWindowVM : DependencyObject
     {
         private object _syncRoot = new object();
-
+        private bool _lineNumbersUpdated = false;
         private Process.BackgroundJobManager<Process.LineNumberGenerator, int> _lineNumberUpdater;
         private Process.BackgroundJobManager<Process.MarkupValidator, XmlValidationStatus> _markupValidator = null;
 
@@ -25,8 +25,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             LineNumbers = new ReadOnlyObservableViewModelCollection<LineNumberVM>(_lineNumbers);
             ValidationMessages = new ReadOnlyObservableViewModelCollection<XmlValidationMessageVM>(_validationMessages);
+            SpeechGenerationStatus = new SpeechGenerationStatusVM();
             _validationMessages.CollectionChanged += ValidationMessages_CollectionChanged;
-            Text = Markup.SampleSsmlDocument;
+            ApplyNewDocument();
+        }
+
+        internal void InvalidateLineNumbers()
+        {
+            object syncRoot = _syncRoot;
+            if (syncRoot == null)
+                return;
+
+            lock (syncRoot)
+                _lineNumbersUpdated = false;
+        }
+
+        internal void ValidateDocument(string text)
+        {
+            object syncRoot = _syncRoot;
+            if (syncRoot == null)
+                return;
+
+            lock (syncRoot)
+            {
+                if (_markupValidator == null)
+                    _markupValidator = new Process.BackgroundJobManager<Process.MarkupValidator, XmlValidationStatus>(new Process.MarkupValidator(this, text, _validationMessages));
+                else
+                    _markupValidator.Replace(new Process.MarkupValidator(this, text, _validationMessages));
+            }
         }
 
         #region Commands
@@ -48,9 +74,12 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnNewDocument(object parameter)
         {
-            if (!VerifyCanReplaceCurrentFile())
-                return;
+            if (VerifyCanReplaceCurrentFile())
+                ApplyNewDocument();
+        }
 
+        private void ApplyNewDocument()
+        {
             _validationMessages.Clear();
             ValidationToolTip = "";
             FileSaveStatus = FileSaveStatus.New;
@@ -59,7 +88,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             FileSaveDetailMessage = "";
 
             Text = Markup.BlankSsmlDocument;
-            _markupValidator.Wait();
+            if (_markupValidator != null)
+                _markupValidator.Wait();
             if (FileSaveStatus == FileSaveStatus.Modified)
                 FileSaveStatus = FileSaveStatus.New;
             if (FileSaveStatus == FileSaveStatus.New)
@@ -164,22 +194,9 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.AddExtension = true;
             dialog.CheckFileExists = true;
-            dialog.DefaultExt = Properties.Settings.Default.SsmlFileExtension;
-            if (FileSaveLocation.Length > 0)
-            {
-                dialog.FileName = FileSaveLocation;
-                dialog.InitialDirectory = Path.GetDirectoryName(FileSaveLocation);
-            }
-            else if (String.IsNullOrWhiteSpace(Properties.Settings.Default.LastSaveFolder))
-                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            else
-                dialog.InitialDirectory = Properties.Settings.Default.LastSaveFolder;
             dialog.Multiselect = false;
             dialog.Title = "Open SSML Document";
-            dialog.Filter = String.Format("SSML Files (*{0})|*{0}|All Files (*.*)|*.*", Properties.Settings.Default.SsmlFileExtension);
-            dialog.FilterIndex = 0;
-            bool? result = dialog.ShowDialog(App.Current.MainWindow);
-            if (!result.HasValue || !result.Value)
+            if (!Common.FileUtility.InvokeSsmlFileDialog(dialog, App.Current.MainWindow, FileSaveLocation))
                 return;
 
             try
@@ -190,8 +207,6 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 FileSaveDetailMessage = String.Format("File loaded from {0}", dialog.FileName);
                 FileModified = false;
                 FileSaveLocation = dialog.FileName;
-                Properties.Settings.Default.LastSaveFolder = Path.GetDirectoryName(dialog.FileName);
-                Properties.Settings.Default.Save();
             }
             catch (Exception exception)
             {
@@ -211,43 +226,14 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             get
             {
-                if (this._saveDocumentCommand == null)
-                    this._saveDocumentCommand = new Command.RelayCommand(this.OnSaveDocument);
+                if (_saveDocumentCommand == null)
+                    _saveDocumentCommand = new Command.RelayCommand(OnSaveDocument);
 
-                return this._saveDocumentCommand;
+                return _saveDocumentCommand;
             }
         }
 
         protected virtual void OnSaveDocument(object parameter) { Save(parameter); }
-
-        public bool Save(object parameter = null)
-        {
-            if (FileSaveLocation.Length == 0)
-                return SaveAs(parameter);
-
-            string errorMessage = GetValidationMessageSummary();
-            if (errorMessage != null && MessageBox.Show(String.Format("{0}\r\nAre you sure you want to save?", errorMessage), "Invalid Document",
-                    MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
-                return false;
-
-            try
-            {
-                File.WriteAllText(FileSaveLocation, Text, Encoding.UTF8);
-                FileModified = false;
-                FileSaveStatus = FileSaveStatus.SaveSuccess;
-                FileSaveToolBarMessage = String.Format("{0} saved.", Path.GetFileName(FileSaveLocation));
-                FileSaveDetailMessage = String.Format("File saved to {0}", FileSaveLocation);
-            }
-            catch (Exception exception)
-            {
-                FileSaveStatus = FileSaveStatus.SaveError;
-                FileSaveToolBarMessage = String.Format("Error saving {0}.", Path.GetFileName(FileSaveLocation));
-                FileSaveDetailMessage = String.Format("Error loading from {0}: {1}", FileSaveLocation, exception.Message);
-                return false;
-            }
-
-            return true;
-        }
 
         #endregion
 
@@ -259,62 +245,14 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             get
             {
-                if (this._saveAsCommand == null)
-                    this._saveAsCommand = new Command.RelayCommand(this.OnSaveAs);
+                if (_saveAsCommand == null)
+                    _saveAsCommand = new Command.RelayCommand(OnSaveAs);
 
-                return this._saveAsCommand;
+                return _saveAsCommand;
             }
         }
 
         protected virtual void OnSaveAs(object parameter) { SaveAs(parameter); }
-
-        public bool SaveAs(object parameter = null)
-        {
-            string errorMessage = GetValidationMessageSummary();
-            if (errorMessage != null && MessageBox.Show(String.Format("{0}\r\nAre you sure you want to save?", errorMessage), "Invalid Document",
-                    MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
-                return false;
-
-            SaveFileDialog dialog = new SaveFileDialog();
-            dialog.AddExtension = true;
-            dialog.CheckFileExists = true;
-            dialog.DefaultExt = Properties.Settings.Default.SsmlFileExtension;
-            if (FileSaveLocation.Length > 0)
-            {
-                dialog.FileName = FileSaveLocation;
-                dialog.InitialDirectory = Path.GetDirectoryName(FileSaveLocation);
-            }
-            else if (String.IsNullOrWhiteSpace(Properties.Settings.Default.LastSaveFolder))
-                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            else
-                dialog.InitialDirectory = Properties.Settings.Default.LastSaveFolder;
-            dialog.Title = "Save SSML Document";
-            dialog.Filter = String.Format("SSML Files (*{0})|*{0}|All Files (*.*)|*.*", Properties.Settings.Default.SsmlFileExtension);
-            dialog.FilterIndex = 0;
-            bool? result = dialog.ShowDialog(App.Current.MainWindow);
-            if (!result.HasValue || !result.Value)
-                return false;
-            try
-            {
-                File.WriteAllText(dialog.FileName, Text, Encoding.UTF8);
-                FileModified = false;
-                FileSaveLocation = dialog.FileName;
-                Properties.Settings.Default.LastSaveFolder = Path.GetDirectoryName(dialog.FileName);
-                Properties.Settings.Default.Save();
-                FileSaveStatus = FileSaveStatus.SaveSuccess;
-                FileSaveToolBarMessage = Path.GetFileName(dialog.FileName);
-                FileSaveDetailMessage = String.Format("File saved to {0}", dialog.FileName);
-            }
-            catch (Exception exception)
-            {
-                FileSaveStatus = FileSaveStatus.SaveError;
-                FileSaveToolBarMessage = String.Format("Error saving {0}.", Path.GetFileName(dialog.FileName));
-                FileSaveDetailMessage = String.Format("Error saving from {0}: {1}", dialog.FileName, exception.Message);
-                return false;
-            }
-
-            return true;
-        }
 
         #endregion
 
@@ -380,10 +318,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             get
             {
-                if (this._pasteEncodedCommand == null)
-                    this._pasteEncodedCommand = new Command.RelayCommand(this.OnPasteEncoded);
+                if (_pasteEncodedCommand == null)
+                    _pasteEncodedCommand = new Command.RelayCommand(OnPasteEncoded);
 
-                return this._pasteEncodedCommand;
+                return _pasteEncodedCommand;
             }
         }
 
@@ -392,7 +330,11 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             TextBox textBox = parameter as TextBox;
 
             if (Clipboard.ContainsText())
+            {
                 textBox.SelectedText = Common.XmlHelper.XmlEncode(Clipboard.GetText());
+                textBox.UpdateLayout();
+                textBox.Focus();
+            }
         }
 
         #endregion
@@ -405,17 +347,20 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             get
             {
-                if (this._reformatDocumentCommand == null)
-                    this._reformatDocumentCommand = new Command.RelayCommand(this.OnReformatDocument, false, true);
+                if (_reformatDocumentCommand == null)
+                    _reformatDocumentCommand = new Command.RelayCommand(OnReformatDocument);
 
-                return this._reformatDocumentCommand;
+                return _reformatDocumentCommand;
             }
         }
 
         protected virtual void OnReformatDocument(object parameter)
         {
+            TextBox textBox = parameter as TextBox;
+
             string errorMessage;
             Text = Common.XmlHelper.ReformatDocument(Text, out errorMessage);
+            textBox.UpdateLayout();
             if (errorMessage != null)
                 MessageBox.Show(App.Current.MainWindow, errorMessage, "Format Error", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
@@ -430,10 +375,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             get
             {
-                if (this._selectCurrentTagCommand == null)
-                    this._selectCurrentTagCommand = new Command.RelayCommand(this.OnSelectCurrentTag);
+                if (_selectCurrentTagCommand == null)
+                    _selectCurrentTagCommand = new Command.RelayCommand(OnSelectCurrentTag);
 
-                return this._selectCurrentTagCommand;
+                return _selectCurrentTagCommand;
             }
         }
 
@@ -454,10 +399,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             get
             {
-                if (this._selectTagContentsCommand == null)
-                    this._selectTagContentsCommand = new Command.RelayCommand(this.OnSelectTagContents);
+                if (_selectTagContentsCommand == null)
+                    _selectTagContentsCommand = new Command.RelayCommand(OnSelectTagContents);
 
-                return this._selectTagContentsCommand;
+                return _selectTagContentsCommand;
             }
         }
 
@@ -478,10 +423,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             get
             {
-                if (this._goToLineCommand == null)
-                    this._goToLineCommand = new Command.RelayCommand(this.OnGoToLine);
+                if (_goToLineCommand == null)
+                    _goToLineCommand = new Command.RelayCommand(OnGoToLine);
 
-                return this._goToLineCommand;
+                return _goToLineCommand;
             }
         }
 
@@ -593,12 +538,13 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             TextBox textBox = parameter as TextBox;
 
-            textBox.SelectedText = String.Format("<p>{0}</p>");
+            textBox.SelectedText = String.Format("<p>{0}</p>", textBox.SelectedText);
             if (!SelectAfterInsert)
                 textBox.SelectionLength = 0;
             else
                 textBox.SelectionLength -= 7;
             textBox.SelectionStart += 3;
+            textBox.Focus();
         }
 
         #endregion
@@ -622,12 +568,13 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             TextBox textBox = parameter as TextBox;
 
-            textBox.SelectedText = String.Format("<s>{0}</s>");
+            textBox.SelectedText = String.Format("<s>{0}</s>", textBox.SelectedText);
             if (!SelectAfterInsert)
                 textBox.SelectionLength = 0;
             else
                 textBox.SelectionLength -= 7;
             textBox.SelectionStart += 3;
+            textBox.Focus();
         }
 
         #endregion
@@ -650,20 +597,21 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         protected virtual void OnSubstitution(object parameter)
         {
             TextBox textBox = parameter as TextBox;
-
-            string text;
-            int selectionOffset;
             
-            if (SubstitutionVM.TryGetSubstitution(textBox.SelectedText, App.GetWindowByDataContext<MainWindow, MainWindowVM>(this), out text, out selectionOffset))
+            int selectionOffset;
+            string text, leadingWs, trailingWs;
+            text = textBox.SelectedText.ExtractOuterWhitespace(out leadingWs, out trailingWs);
+            if (SubstitutionVM.TryGetSubstitution(text, App.GetWindowByDataContext<MainWindow, MainWindowVM>(this), out text, out selectionOffset))
             {
-                textBox.SelectedText = text;
-                textBox.SelectionStart += selectionOffset;
+                textBox.SelectedText = leadingWs + text + trailingWs;
+                textBox.SelectionStart += (leadingWs.Length + selectionOffset);
                 textBox.SelectionLength = 0;
+                textBox.Focus();
             }
         }
 
         #endregion
-
+        
         #region SpellOut Command Property Members
 
         private Command.RelayCommand _spellOutCommand = null;
@@ -682,13 +630,16 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         protected virtual void OnSpellOut(object parameter)
         {
             TextBox textBox = parameter as TextBox;
-            
-            textBox.SelectedText = String.Format("<say-as interpret-as=\"characters\">{0}</say-as>", textBox.SelectedText);
+
+            string text, leadingWs, trailingWs;
+            text = textBox.SelectedText.ExtractOuterWhitespace(out leadingWs, out trailingWs);
+            textBox.SelectedText = leadingWs + String.Format("<say-as interpret-as=\"characters\">{0}</say-as>", text) + trailingWs;
             if (!SelectAfterInsert)
                 textBox.SelectionLength = 0;
             else
                 textBox.SelectionLength -= 43;
-            textBox.SelectionStart += 34;
+            textBox.SelectionStart += (leadingWs.Length + 34);
+            textBox.Focus();
         }
 
         #endregion
@@ -711,8 +662,16 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         protected virtual void OnSayAs(object parameter)
         {
             TextBox textBox = parameter as TextBox;
-
-            MessageBox.Show("SayAs Command not implemented", "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            int selectionOffset;
+            string text, leadingWs, trailingWs;
+            text = textBox.SelectedText.ExtractOuterWhitespace(out leadingWs, out trailingWs);
+            if (SayAsVM.TryGetSayAs(text, App.GetWindowByDataContext<MainWindow, MainWindowVM>(this), out text, out selectionOffset))
+            {
+                textBox.SelectedText = leadingWs + text + trailingWs;
+                textBox.SelectionStart += (leadingWs.Length + selectionOffset);
+                textBox.SelectionLength = 0;
+                textBox.Focus();
+            }
         }
 
         #endregion
@@ -736,12 +695,15 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             TextBox textBox = parameter as TextBox;
 
-            textBox.SelectedText = String.Format("<voice gender=\"female\">{0}</voice>", textBox.SelectedText);
+            string text, leadingWs, trailingWs;
+            text = textBox.SelectedText.ExtractOuterWhitespace(out leadingWs, out trailingWs);
+            textBox.SelectedText = leadingWs + String.Format("<voice gender=\"female\">{0}</voice>", text) + trailingWs;
             if (!SelectAfterInsert)
                 textBox.SelectionLength = 0;
             else
                 textBox.SelectionLength -= 31;
-            textBox.SelectionStart += 23;
+            textBox.SelectionStart += (23 + leadingWs.Length);
+            textBox.Focus();
         }
 
         #endregion
@@ -765,12 +727,15 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             TextBox textBox = parameter as TextBox;
 
-            textBox.SelectedText = String.Format("<voice gender=\"male\">{0}</voice>", textBox.SelectedText);
+            string text, leadingWs, trailingWs;
+            text = textBox.SelectedText.ExtractOuterWhitespace(out leadingWs, out trailingWs);
+            textBox.SelectedText = leadingWs + String.Format("<voice gender=\"male\">{0}</voice>", text) + trailingWs;
             if (!SelectAfterInsert)
                 textBox.SelectionLength = 0;
             else
                 textBox.SelectionLength -= 29;
-            textBox.SelectionStart += 21;
+            textBox.SelectionStart += (21 + leadingWs.Length);
+            textBox.Focus();
         }
 
         #endregion
@@ -794,12 +759,15 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             TextBox textBox = parameter as TextBox;
 
-            textBox.SelectedText = String.Format("<voice gender=\"neutral\">{0}</voice>", textBox.SelectedText);
+            string text, leadingWs, trailingWs;
+            text = textBox.SelectedText.ExtractOuterWhitespace(out leadingWs, out trailingWs);
+            textBox.SelectedText = leadingWs + String.Format("<voice gender=\"neutral\">{0}</voice>", text) + trailingWs;
             if (!SelectAfterInsert)
                 textBox.SelectionLength = 0;
             else
                 textBox.SelectionLength -= 32;
-            textBox.SelectionStart += 24;
+            textBox.SelectionStart += (24 + leadingWs.Length);
+            textBox.Focus();
         }
 
         #endregion
@@ -823,13 +791,15 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             TextBox textBox = parameter as TextBox;
 
-
-            textBox.SelectedText = String.Format("<mark name=\"{0}\" />", Common.XmlHelper.XmlEncode(textBox.SelectedText, Common.XmlEncodeOption.DoubleQuotedAttribute));
+            string text, leadingWs, trailingWs;
+            text = textBox.SelectedText.ExtractOuterWhitespace(out leadingWs, out trailingWs);
+            textBox.SelectedText = leadingWs + String.Format("<mark name=\"{0}\" />", Common.XmlHelper.XmlEncode(Common.XmlHelper.XmlDecode(text), Common.XmlEncodeOption.DoubleQuotedAttribute)) + trailingWs;
             if (!SelectAfterInsert)
                 textBox.SelectionLength = 0;
             else
                 textBox.SelectionLength -= 16;
-            textBox.SelectionStart += 12;
+            textBox.SelectionStart += (12 + leadingWs.Length);
+            textBox.Focus();
         }
 
         #endregion
@@ -852,13 +822,15 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         protected virtual void OnInsertAudioFile(object parameter)
         {
             TextBox textBox = parameter as TextBox;
-            string text;
             int selectionOffset;
-            if (AudioFileVM.TryGetAudioFile(textBox.SelectedText, App.GetWindowByDataContext<MainWindow, MainWindowVM>(this), out text, out selectionOffset))
+            string text, leadingWs, trailingWs;
+            text = textBox.SelectedText.ExtractOuterWhitespace(out leadingWs, out trailingWs);
+            if (AudioFileVM.TryGetAudioFile(text, App.GetWindowByDataContext<MainWindow, MainWindowVM>(this), out text, out selectionOffset))
             {
-                textBox.SelectedText = text;
-                textBox.SelectionStart += selectionOffset;
+                textBox.SelectedText = leadingWs + text + trailingWs;
+                textBox.SelectionStart += (leadingWs.Length + selectionOffset);
                 textBox.SelectionLength = 0;
+                textBox.Focus();
             }
         }
 
@@ -888,60 +860,6 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
         
-        #region SpeakToDefaultDevice Command Property Members
-
-        private Command.RelayCommand _speakToDefaultDeviceCommand = null;
-
-        public Command.RelayCommand SpeakToDefaultDeviceCommand
-        {
-            get
-            {
-                if (this._speakToDefaultDeviceCommand == null)
-                    this._speakToDefaultDeviceCommand = new Command.RelayCommand(this.OnSpeakToDefaultDevice);
-
-                return this._speakToDefaultDeviceCommand;
-            }
-        }
-
-        protected virtual void OnSpeakToDefaultDevice(object parameter)
-        {
-            View.SpeechProgressWindow.Start(Text);
-        }
-
-        #endregion
-
-        #region GenerateWavFile Command Property Members
-
-        private Command.RelayCommand _generateWavFileCommand = null;
-
-        public Command.RelayCommand GenerateWavFileCommand
-        {
-            get
-            {
-                if (this._generateWavFileCommand == null)
-                    this._generateWavFileCommand = new Command.RelayCommand(this.OnGenerateWavFile);
-
-                return this._generateWavFileCommand;
-            }
-        }
-
-        protected virtual void OnGenerateWavFile(object parameter)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.AddExtension = true;
-            saveFileDialog.DefaultExt = ".wav";
-            saveFileDialog.CheckFileExists = true;
-            saveFileDialog.Filter = "WAV Files (*.wav)|*.wav|All Files (*.*)|*.*";
-            saveFileDialog.FilterIndex = 0;
-            saveFileDialog.RestoreDirectory = true;
-            saveFileDialog.Title = "Select Audio File";
-            bool? dialogResult = saveFileDialog.ShowDialog(App.Current.MainWindow);
-            if (dialogResult.HasValue && dialogResult.Value)
-                View.SpeechProgressWindow.Start(Text, saveFileDialog.FileName);
-        }
-
-        #endregion
-
         #region DefaultSynthSettings Command Property Members
 
         private Command.RelayCommand _defaultSynthSettingsCommand = null;
@@ -959,7 +877,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnDefaultSynthSettings(object parameter)
         {
-            MessageBox.Show("DefaultSynthSettings Command not implemented", "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            View.DefaultSpeechSettingsWindow window = new View.DefaultSpeechSettingsWindow();
+            Window owner = App.GetWindowByDataContext<MainWindow, MainWindowVM>(this);
+            window.Owner = owner ?? App.Current.MainWindow;
+            window.ShowDialog();
         }
 
         #endregion
@@ -1081,6 +1002,40 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         #endregion
 
         #region Dependency Properties
+
+        #region SpeechGenerationStatus Property Members
+
+        public const string PropertyName_SpeechGenerationStatus = "SpeechGenerationStatus";
+
+        private static readonly DependencyPropertyKey SpeechGenerationStatusPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SpeechGenerationStatus, typeof(SpeechGenerationStatusVM), typeof(MainWindowVM),
+                new PropertyMetadata(null));
+
+        /// <summary>
+        /// Identifies the <seealso cref="SpeechGenerationStatus"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty SpeechGenerationStatusProperty = SpeechGenerationStatusPropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public SpeechGenerationStatusVM SpeechGenerationStatus
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (SpeechGenerationStatusVM)(GetValue(SpeechGenerationStatusProperty));
+                return Dispatcher.Invoke(() => SpeechGenerationStatus);
+            }
+            private set
+            {
+                if (CheckAccess())
+                    SetValue(SpeechGenerationStatusPropertyKey, value);
+                else
+                    Dispatcher.Invoke(() => SpeechGenerationStatus = value);
+            }
+        }
+
+        #endregion
 
         #region HostWindow Property Members
 
@@ -1437,13 +1392,9 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             object syncRoot = _syncRoot;
             if (syncRoot == null)
                 return;
+
             lock (syncRoot)
             {
-                if (_markupValidator == null)
-                    _markupValidator = new Process.BackgroundJobManager<Process.MarkupValidator, XmlValidationStatus>(new Process.MarkupValidator(this, _validationMessages));
-                else
-                    _markupValidator.Replace(new Process.MarkupValidator(this, _validationMessages));
-
                 FileSaveStatus = FileSaveStatus.Modified;
                 FileModified = true;
                 if (FileSaveLocation == "")
@@ -1455,7 +1406,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 {
                     FileSaveToolBarMessage = String.Format("{0} modified", System.IO.Path.GetFileName(FileSaveLocation));
                     FileSaveDetailMessage = String.Format("{0} has been modified, and has not yet been saved. Full Path: {1}.",
-                        System.IO.Path.GetFileName(FileSaveLocation), FileSaveLocation);
+                        Path.GetFileName(FileSaveLocation), FileSaveLocation);
                 }
             }
         }
@@ -1469,6 +1420,60 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             return (baseValue as string) ?? "";
         }
+
+        #endregion
+
+        #region SelectedText Property Members
+
+        public const string DependencyPropertyName_SelectedText = "SelectedText";
+
+        /// <summary>
+        /// Identifies the <seealso cref="SelectedText"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty SelectedTextProperty = DependencyProperty.Register(DependencyPropertyName_SelectedText, typeof(string), typeof(MainWindowVM),
+                new PropertyMetadata("",
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as MainWindowVM).SelectedText_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).SelectedText_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as MainWindowVM).SelectedText_CoerceValue(baseValue)));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string SelectedText
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (string)(GetValue(SelectedTextProperty));
+                return Dispatcher.Invoke(() => SelectedText);
+            }
+            set
+            {
+                if (CheckAccess())
+                    SetValue(SelectedTextProperty, value);
+                else
+                    Dispatcher.Invoke(() => SelectedText = value);
+            }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="SelectedText"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="SelectedText"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="SelectedText"/> property was changed.</param>
+        protected virtual void SelectedText_PropertyChanged(string oldValue, string newValue) { }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="SelectedText"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string SelectedText_CoerceValue(object baseValue) { return (baseValue as string) ?? ""; }
 
         #endregion
 
@@ -1659,8 +1664,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                         (d as MainWindowVM).LineWrapEnabled_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue));
                     else
                         d.Dispatcher.Invoke(() => (d as MainWindowVM).LineWrapEnabled_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as MainWindowVM).LineWrapEnabled_CoerceValue(baseValue)));
+                }));
 
         /// <summary>
         /// 
@@ -1687,21 +1691,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// </summary>
         /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="LineWrapEnabled"/> property was changed.</param>
         /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="LineWrapEnabled"/> property was changed.</param>
-        protected virtual void LineWrapEnabled_PropertyChanged(bool oldValue, bool newValue)
-        {
-            // TODO: Implement MainWindowVM.LineWrapEnabled_PropertyChanged(bool, bool)
-        }
-
-        /// <summary>
-        /// This gets called whenever <seealso cref="LineWrapEnabled"/> is being re-evaluated, or coercion is specifically requested.
-        /// </summary>
-        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
-        /// <returns>The coerced value.</returns>
-        public virtual bool LineWrapEnabled_CoerceValue(object baseValue)
-        {
-            // TODO: Implement MainWindowVM.LineWrapEnabled_CoerceValue(DependencyObject, object)
-            return (bool)baseValue;
-        }
+        protected virtual void LineWrapEnabled_PropertyChanged(bool oldValue, bool newValue) { }
 
         #endregion
 
@@ -1747,10 +1737,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// </summary>
         /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="SelectAfterInsert"/> property was changed.</param>
         /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="SelectAfterInsert"/> property was changed.</param>
-        protected virtual void SelectAfterInsert_PropertyChanged(bool oldValue, bool newValue)
-        {
-            // TODO: Implement MainWindowVM.SelectAfterInsert_PropertyChanged(bool, bool)
-        }
+        protected virtual void SelectAfterInsert_PropertyChanged(bool oldValue, bool newValue) { }
 
         #endregion
 
@@ -1824,15 +1811,91 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
 
+        public bool SaveAs(object parameter = null)
+        {
+            string errorMessage = GetValidationMessageSummary();
+            if (errorMessage != null && MessageBox.Show(String.Format("{0}\r\nAre you sure you want to save?", errorMessage), "Invalid Document",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                return false;
+
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.AddExtension = true;
+            dialog.CheckPathExists = true;
+            dialog.Title = "Save SSML Document";
+            if (!Common.FileUtility.InvokeSsmlFileDialog(dialog, App.Current.MainWindow, FileSaveLocation))
+                return false;
+            try
+            {
+                File.WriteAllText(dialog.FileName, Text, Encoding.UTF8);
+                FileModified = false;
+                FileSaveLocation = dialog.FileName;
+                FileSaveStatus = FileSaveStatus.SaveSuccess;
+                FileSaveToolBarMessage = Path.GetFileName(dialog.FileName);
+                FileSaveDetailMessage = String.Format("File saved to {0}", dialog.FileName);
+            }
+            catch (Exception exception)
+            {
+                FileSaveStatus = FileSaveStatus.SaveError;
+                FileSaveToolBarMessage = String.Format("Error saving {0}.", Path.GetFileName(dialog.FileName));
+                FileSaveDetailMessage = String.Format("Error saving from {0}: {1}", dialog.FileName, exception.Message);
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool Save(object parameter = null)
+        {
+            if (FileSaveLocation.Length == 0)
+                return SaveAs(parameter);
+
+            if (!File.Exists(FileSaveLocation))
+            {
+                string dir = Path.GetDirectoryName(FileSaveLocation);
+                if (String.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+                    return SaveAs(parameter);
+            }
+            string errorMessage = GetValidationMessageSummary();
+            if (errorMessage != null && MessageBox.Show(String.Format("{0}\r\nAre you sure you want to save?", errorMessage), "Invalid Document",
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                return false;
+
+            try
+            {
+                File.WriteAllText(FileSaveLocation, Text, Encoding.UTF8);
+                FileModified = false;
+                FileSaveStatus = FileSaveStatus.SaveSuccess;
+                FileSaveToolBarMessage = String.Format("{0} saved.", Path.GetFileName(FileSaveLocation));
+                FileSaveDetailMessage = String.Format("File saved to {0}", FileSaveLocation);
+            }
+            catch (Exception exception)
+            {
+                FileSaveStatus = FileSaveStatus.SaveError;
+                FileSaveToolBarMessage = String.Format("Error saving {0}.", Path.GetFileName(FileSaveLocation));
+                FileSaveDetailMessage = String.Format("Error loading from {0}: {1}", FileSaveLocation, exception.Message);
+                return false;
+            }
+
+            return true;
+        }
+
         private bool VerifyCanReplaceCurrentFile()
         {
             if (!FileModified)
                 return true;
 
             MessageBoxResult canReplace = MessageBox.Show("The current document has modifications that have not been saved.\r\nDo you want to save those changes?", 
-                "File Modified", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                "File Modified", MessageBoxButton.YesNoCancel , MessageBoxImage.Warning);
 
-            return canReplace == MessageBoxResult.No || Save();
+           switch (canReplace)
+            {
+                case MessageBoxResult.Yes:
+                    return Save();
+                case MessageBoxResult.No:
+                    return true;
+            }
+
+            return false;
         }
 
         internal void LayoutUpdated(TextBox textBox, EventArgs e)
@@ -1840,9 +1903,12 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             object syncRoot = _syncRoot;
             if (syncRoot == null)
                 return;
-
+            
             lock (syncRoot)
             {
+                if (_lineNumbersUpdated)
+                    return;
+                _lineNumbersUpdated = true;
                 int characterIndex = textBox.SelectionStart;
                 int currentLine = textBox.GetLineIndexFromCharacterIndex(characterIndex);
                 CurrentLineNumber = currentLine + 1;

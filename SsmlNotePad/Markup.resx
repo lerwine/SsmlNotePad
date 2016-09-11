@@ -148,4 +148,49 @@
   <data name="XsltSchema" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>resources\xslt.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="AlphabetIpa" xml:space="preserve">
+    <value>ipa</value>
+  </data>
+  <data name="AlphabetUps" xml:space="preserve">
+    <value>x-microsoft-ups</value>
+  </data>
+  <data name="AphabetSapi" xml:space="preserve">
+    <value>x-microsoft-sapi</value>
+  </data>
+  <data name="EmptyPls" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\emptypls.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="PhoneticTables" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\phonetictables.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="PlsMimeType" xml:space="preserve">
+    <value>application/pls+xml</value>
+  </data>
+  <data name="PlsSchema" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\pls.xsd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="PlsSchemaNamespaceURI" xml:space="preserve">
+    <value>http://www.w3.org/2005/01/pronunciation-lexicon</value>
+  </data>
+  <data name="SsmlDocTypeTag" xml:space="preserve">
+    <value>&lt;!DOCTYPE speak PUBLIC "-//W3C//DTD SYNTHESIS 1.0//EN"  "http://www.w3.org/TR/speech-synthesis/synthesis.dtd"&gt;</value>
+  </data>
+  <data name="SsmlDtd" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\synthesis.dtd;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="SsmlMimeType" xml:space="preserve">
+    <value>application/ssml+xml</value>
+  </data>
+  <data name="SsmlSchemaNamespaceURI" xml:space="preserve">
+    <value>http://www.w3.org/2001/10/synthesis</value>
+  </data>
+  <data name="XhtmlLat1Entities" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\xhtml-lat1.ent;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="XhtmlSpecialEntities" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\xhtml-special.ent;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="XhtmlSymbolEntities" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Resources\xhtml-symbol.ent;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

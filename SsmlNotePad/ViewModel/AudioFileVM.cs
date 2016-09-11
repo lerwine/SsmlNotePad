@@ -110,43 +110,13 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 OpenFileDialog openFileDialog = new OpenFileDialog();
                 openFileDialog.AddExtension = true;
                 openFileDialog.CheckFileExists = true;
-                openFileDialog.Filter = "All Audio Files (*.wav, *.mp3)|*.wav;*.mp3|WAV Files (*.wav)|*.wav|MP3 Files (*.mp3)|*.mp3|All Files (*.*)|*.*";
-                openFileDialog.FilterIndex = 0;
+                string localPath;
+                Common.FileUtility.GetLocalPath(Dispatcher.Invoke(() => AudioUri), out localPath);
+                View.AudioFileWindow window = App.GetWindowByDataContext<View.AudioFileWindow, AudioFileVM>(this);
                 openFileDialog.RestoreDirectory = true;
                 openFileDialog.Title = "Select Audio File";
-                string fileName = Dispatcher.Invoke(() => AudioUri);
-                Uri uri;
-                if (!String.IsNullOrWhiteSpace(fileName) && Uri.TryCreate(fileName.Trim(), UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeFile)
-                {
-                    fileName = uri.LocalPath;
-                    string dir;
-                    try { dir = Path.GetDirectoryName(fileName); } catch { dir = null; }
-                    if (!String.IsNullOrEmpty(dir))
-                    {
-                        openFileDialog.FileName = fileName;
-                        openFileDialog.InitialDirectory = dir;
-                    }
-                    else
-                    {
-                        if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.LastSaveFolder) && Directory.Exists(Properties.Settings.Default.LastSaveFolder))
-                            openFileDialog.InitialDirectory = Properties.Settings.Default.LastSaveFolder;
-                        else
-                            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    }
-                }
-
-                View.AudioFileWindow window = App.GetWindowByDataContext<View.AudioFileWindow, AudioFileVM>(this);
-                bool? dialogResult = openFileDialog.ShowDialog(window ?? Dispatcher.Invoke(() => App.Current.MainWindow));
-                if (dialogResult.HasValue && dialogResult.Value)
-                {
+                if (Common.FileUtility.InvokeAudioFileDialog(openFileDialog, window ?? Dispatcher.Invoke(() => App.Current.MainWindow), localPath))
                     Dispatcher.Invoke(() => AudioUri = openFileDialog.FileName);
-                    string dir = Path.GetDirectoryName(openFileDialog.FileName);
-                    if (dir != Properties.Settings.Default.LastSaveFolder)
-                    {
-                        Properties.Settings.Default.LastSaveFolder = dir;
-                        Properties.Settings.Default.Save();
-                    }
-                }
             }).ContinueWith(t => Dispatcher.Invoke(() => _browseCommand.IsEnabled = true));
         }
 

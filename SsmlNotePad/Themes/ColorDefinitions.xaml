@@ -11,6 +11,18 @@
     <Color x:Key="WarningIconBackgroundColor">DarkBlue</Color>
     <Color x:Key="InformationIconForegroundColor">Blue</Color>
     <Color x:Key="InformationBackgroundColor">#FFE3E3E3</Color>
+    <SolidColorBrush x:Key="ProgressBar.Normal.Progress" Color="#FF06B025"/>
+    <SolidColorBrush x:Key="ProgressBar.Normal.Background" Color="#FFE6E6E6"/>
+    <SolidColorBrush x:Key="ProgressBar.Normal.Border" Color="#FFBCBCBC"/>
+    <SolidColorBrush x:Key="ProgressBar.Paused.Progress" Color="#FF666666"/>
+    <SolidColorBrush x:Key="ProgressBar.Paused.Background" Color="#FFE6E6E6"/>
+    <SolidColorBrush x:Key="ProgressBar.Paused.Border" Color="#FFBCBCBC"/>
+    <SolidColorBrush x:Key="ProgressBar.Canceled.Progress" Color="#FFFF8B00"/>
+    <SolidColorBrush x:Key="ProgressBar.Canceled.Background" Color="#FFFFFF70"/>
+    <SolidColorBrush x:Key="ProgressBar.Canceled.Border" Color="#FFBCBCBC"/>
+    <SolidColorBrush x:Key="ProgressBar.Error.Progress" Color="#FFB00606"/>
+    <SolidColorBrush x:Key="ProgressBar.Error.Background" Color="#FFE6C0C0"/>
+    <SolidColorBrush x:Key="ProgressBar.Error.Border" Color="Red"/>
     <SolidColorBrush x:Key="Button.Static.Background" Color="#FFDDDDDD"/>
     <SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
     <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>

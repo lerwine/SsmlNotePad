@@ -4,11 +4,108 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Schema;
 
 namespace Erwine.Leonard.T.SsmlNotePad.Common
 {
     public static class XmlHelper
     {
+        public static string GetBaseUri() { return Path.Combine(Path.GetDirectoryName(typeof(XmlHelper).Assembly.Location), "Resources"); }
+
+        public static XmlSchemaSet CreateSsmlSchemaSet()
+        {
+            string baseUri = GetBaseUri();
+            XmlSchemaSet schemaSet = new XmlSchemaSet();
+            schemaSet.Add("http://www.w3.org/2001/10/synthesis", Path.Combine(baseUri, "WindowsPhoneSynthesis.xsd"));
+            schemaSet.Add("http://www.w3.org/2001/10/synthesis", Path.Combine(baseUri, "WindowsPhoneSynthesis-core.xsd"));
+            return schemaSet;
+        }
+
+        public static bool ValidateSsml(TextReader textReader, out string errorMessage)
+        {
+            return ValidateSsml(textReader, false, out errorMessage);
+        }
+
+        public static bool ValidateSsml(TextReader textReader, bool includeXmlDeclaration, out string errorMessage)
+        {
+            if (textReader == null)
+                throw new ArgumentNullException("textReader");
+            
+            XmlDocument document = new XmlDocument();
+            try
+            {
+                using (XmlReader xmlReader = XmlReader.Create(textReader, new XmlReaderSettings
+                {
+                    CheckCharacters = false,
+                    DtdProcessing = DtdProcessing.Ignore,
+                    ValidationType = ValidationType.Schema,
+                    Schemas = CreateSsmlSchemaSet(),
+                    CloseInput = false
+                }, GetBaseUri()))
+                {
+                    document.Load(xmlReader);
+                }
+            }
+            catch (Exception exc)
+            {
+                errorMessage = String.Format("Document validation failed:\r\n{0}", exc.Message);
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
+        }
+        
+        public static bool ValidateSsml(string text, bool mayBePartial, bool includeXmlDeclaration, out string errorMessage)
+        {
+            if (String.IsNullOrWhiteSpace(text))
+            {
+                if (mayBePartial)
+                {
+                    text = Markup.BlankSsmlDocument;
+                    mayBePartial = false;
+                }
+                else
+                {
+                    errorMessage = "SSML markup is empty.";
+                    return false;
+                }
+            }
+
+            using (StringReader stringReader = new StringReader(text.Trim()))
+            {
+                if (ValidateSsml(stringReader, includeXmlDeclaration, out errorMessage))
+                    return true;
+            }
+
+            if (mayBePartial && TryCreateFromPartial(text, out text))
+            {
+                using (StringReader stringReader = new StringReader(text))
+                    return ValidateSsml(stringReader, includeXmlDeclaration, out errorMessage);
+            }
+
+            return false;
+        }
+
+        public static bool TryCreateFromPartial(string text, out string xml)
+        {
+            XmlDocument xmlDocument = new XmlDocument();
+            try
+            {
+                xmlDocument.LoadXml(Markup.BlankSsmlDocument);
+                xmlDocument.DocumentElement.InnerXml = text;
+                xml = xmlDocument.DocumentElement.OuterXml;
+                return true;
+            }
+            catch
+            {
+                xml = text;
+                return false;
+            }
+        }
+
+        public static bool ValidateSsml(string text, bool mayBePartial, out string errorMessage) { return ValidateSsml(text, mayBePartial, false, out errorMessage); }
+        
         public static bool ReformatDocument(TextReader textReader, TextWriter textWriter, out string errorMessage)
         {
             return ReformatDocument(textReader, textWriter, false, out errorMessage);

@@ -61,6 +61,33 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ipa.
+        /// </summary>
+        internal static string AlphabetIpa {
+            get {
+                return ResourceManager.GetString("AlphabetIpa", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to x-microsoft-ups.
+        /// </summary>
+        internal static string AlphabetUps {
+            get {
+                return ResourceManager.GetString("AlphabetUps", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to x-microsoft-sapi.
+        /// </summary>
+        internal static string AphabetSapi {
+            get {
+                return ResourceManager.GetString("AphabetSapi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;speak version=&quot;1.0&quot; xmlns=&quot;http://www.w3.org/2001/10/synthesis&quot; xml:lang=&quot;en-US&quot;&gt;
         ///
         ///&lt;/speak&gt;.
@@ -73,15 +100,80 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
+        ///&lt;lexicon version=&quot;1.0&quot;
+        ///      xmlns=&quot;http://www.w3.org/2005/01/pronunciation-lexicon&quot;
+        ///      xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        ///      alphabet=&quot;ipa&quot; xml:lang=&quot;en-US&quot;&gt;
+        ///&lt;/lexicon&gt;.
+        /// </summary>
+        internal static string EmptyPls {
+            get {
+                return ResourceManager.GetString("EmptyPls", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///&lt;PhoneticTables xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+        ///  &lt;xs:schema&gt;
+        ///    &lt;xs:import namespace=&quot;http://www.w3.org/XML/1998/namespace&quot; /&gt;
+        ///    &lt;xs:import namespace=&quot;http://www.w3.org/1999/xhtml&quot; /&gt;
+        ///    &lt;!-- These are the entity sets for ISO Latin 1 characters for the XHTML --&gt;
+        ///    &lt;xs:notation name=&quot;XHTMLLatin1&quot; id=&quot;xhtml-lat1&quot; public=&quot;-//W3C//ENTITIES Latin 1 for XHTML//EN&quot; system=&quot;http://www.w3.org/TR/xht [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string PhoneticTables {
+            get {
+                return ResourceManager.GetString("PhoneticTables", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to application/pls+xml.
+        /// </summary>
+        internal static string PlsMimeType {
+            get {
+                return ResourceManager.GetString("PlsMimeType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+        ///&lt;!--
+        ///  This is a draft schema for the XML language defined in the 
+        ///  Pronunciation Lexicon Specification 
+        ///  (latest version at &lt;http://www.w3.org/TR/pronunciation-lexicon/&gt;)
+        ///  At the time of writing, the specification as well as this schema are
+        ///  subject to change, and no guarantee is made on their accuracy or the fact
+        ///  that they are in sync.
+        ///  Last modified: $Date: 2007/12/11 12:08:40 $
+        ///  
+        ///  Copyright &amp;#251; 2006 World Wide Web Consortium, (Massachusetts In [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string PlsSchema {
+            get {
+                return ResourceManager.GetString("PlsSchema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to http://www.w3.org/2005/01/pronunciation-lexicon.
+        /// </summary>
+        internal static string PlsSchemaNamespaceURI {
+            get {
+                return ResourceManager.GetString("PlsSchemaNamespaceURI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
         ///&lt;speak version=&quot;1.0&quot; xmlns=&quot;http://www.w3.org/2001/10/synthesis&quot; xml:lang=&quot;en-US&quot;&gt;
-        ///  Simple text
-        ///  With newline.
         ///  &lt;emphasis&gt;Test PromptEmphasis.NotSet&lt;/emphasis&gt;
         ///  &lt;emphasis level=&quot;strong&quot;&gt;Test PromptEmphasis.Strong&lt;/emphasis&gt;
         ///  &lt;emphasis level=&quot;moderate&quot;&gt;Test PromptEmphasis.Moderate&lt;/emphasis&gt;
         ///  &lt;emphasis level=&quot;none&quot;&gt;Test PromptEmphasis.None&lt;/emphasis&gt;
         ///  &lt;emphasis level=&quot;reduced&quot;&gt;Test PromptEmphasis.Reduced&lt;/emphasis&gt;
-        ///    &lt;prosody&gt;Test PromptVolume.NotSet&lt; [rest of string was truncated]&quot;;.
+        ///    &lt;prosody&gt;Test PromptVolume.NotSet&lt;/prosody&gt;
+        ///  &lt;prosody volume=&quot;si [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string SampleSsmlDocument {
             get {
@@ -110,6 +202,46 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE speak PUBLIC &quot;-//W3C//DTD SYNTHESIS 1.0//EN&quot;  &quot;http://www.w3.org/TR/speech-synthesis/synthesis.dtd&quot;&gt;.
+        /// </summary>
+        internal static string SsmlDocTypeTag {
+            get {
+                return ResourceManager.GetString("SsmlDocTypeTag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!-- 
+        ///
+        ///SSML DTD (20031204)
+        ///
+        ///Copyright 1998-2003 W3C (MIT, ERCIM, Keio), All Rights Reserved. 
+        ///
+        ///Permission to use, copy, modify and distribute the SSML DTD and 
+        ///its accompanying documentation for any purpose and without fee is 
+        ///hereby granted in perpetuity, provided that the above copyright 
+        ///notice and this paragraph appear in all copies.  
+        ///
+        ///The copyright holders make no representation about the suitability 
+        ///of the DTD for any purpose. It is provided &quot;as is&quot; without expressed 
+        ///or implied warrant [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SsmlDtd {
+            get {
+                return ResourceManager.GetString("SsmlDtd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to application/ssml+xml.
+        /// </summary>
+        internal static string SsmlMimeType {
+            get {
+                return ResourceManager.GetString("SsmlMimeType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
         ///&lt;xsd:schema targetNamespace=&quot;http://www.w3.org/2001/10/synthesis&quot;
         ///xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;
@@ -126,6 +258,15 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         internal static string SsmlSchema {
             get {
                 return ResourceManager.GetString("SsmlSchema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to http://www.w3.org/2001/10/synthesis.
+        /// </summary>
+        internal static string SsmlSchemaNamespaceURI {
+            get {
+                return ResourceManager.GetString("SsmlSchemaNamespaceURI", resourceCulture);
             }
         }
         
@@ -147,6 +288,16 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] XhtmlLat1Entities {
+            get {
+                object obj = ResourceManager.GetObject("XhtmlLat1Entities", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;!-- 
         ///    Copyright © 2001 World Wide Web Consortium, (Massachusetts Institute of 
@@ -162,6 +313,26 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         internal static string XhtmlSchema {
             get {
                 return ResourceManager.GetString("XhtmlSchema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] XhtmlSpecialEntities {
+            get {
+                object obj = ResourceManager.GetObject("XhtmlSpecialEntities", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] XhtmlSymbolEntities {
+            get {
+                object obj = ResourceManager.GetObject("XhtmlSymbolEntities", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

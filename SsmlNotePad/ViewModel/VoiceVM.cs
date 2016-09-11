@@ -246,6 +246,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
 
+        public VoiceVM() { }
+
+        public VoiceVM(VoiceInfo voice) { SetVoice(voice); }
+
         internal void SetVoice(VoiceInfo voice)
         {
             CultureInfo culture;

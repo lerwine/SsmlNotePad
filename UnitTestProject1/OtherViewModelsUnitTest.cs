@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace UnitTestProject1
 {
@@ -11,14 +13,9 @@ namespace UnitTestProject1
     /// Summary description for OtherViewModels
     /// </summary>
     [TestClass]
-    public class OtherViewModels
+    public class OtherViewModelsUnitTest
     {
-        public OtherViewModels()
-        {
-            //
-            // TODO: Add constructor logic here
-            //
-        }
+        public OtherViewModelsUnitTest() { }
 
         private TestContext testContextInstance;
 
@@ -197,6 +194,41 @@ namespace UnitTestProject1
             actual = (vm as IDataErrorInfo)["DisplayedText"];
             Assert.AreEqual(expected, actual);
             Assert.IsFalse(vm.ShowDescriptionControls);
+        }
+
+        public static StackFrame[] GetCalledStackFrames1()
+        {
+            StackTrace stackTrace = new StackTrace(1);
+            return stackTrace.GetFrames();
+        }
+
+        public static StackFrame[] GetCalledStackFrames2()
+        {
+            return GetCalledStackFrames1();
+        }
+
+        [TestMethod]
+        public void ZipTestMethod()
+        {
+            string[] arr1 = { "0", "1", "2", "3", "4" };
+            string[] arr2 = { "a", "b", "c" };
+            string[] zipped = arr1.Zip(arr2, (i1, i2) => String.Format("i1 = {0}, i2 = {1}", i1, i2)).ToArray();
+            Assert.AreEqual(arr2.Length, zipped.Length);
+
+            arr1 = new string[] { "0", "1", "2" };
+            arr2 = new string[] { "a", "b", "c", "d" };
+            zipped = arr1.Zip(arr2, (i1, i2) => String.Format("i1 = {0}, i2 = {1}", i1, i2)).ToArray();
+            Assert.AreEqual(arr1.Length, zipped.Length);
+
+            StackFrame[] stackFrames = GetCalledStackFrames2();
+            Assert.AreEqual("GetCalledStackFrames2", stackFrames[0].GetMethod().Name);
+            Assert.AreEqual("ZipTestMethod", stackFrames[1].GetMethod().Name);
+        }
+
+        [TestMethod]
+        public void DefaultSpeechSettingsTestMethod()
+        {
+            DefaultSpeechSettingsVM vm = new DefaultSpeechSettingsVM();
         }
     }
 }

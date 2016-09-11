@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,99 +22,81 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
 
         protected override int Run(LineNumberGenerator previousWorker)
         {
-#if DEBUG
-            int? currentTaskId = Task.CurrentId;
-#endif
+            _result = 0;
+
             if (Token.IsCancellationRequested)
             {
-                Debug.WriteLine("Task {0} Exiting, IsCancellationRequested = true", currentTaskId);
-                return 0;
+                Logger.WriteLine("Exiting, IsCancellationRequested = true");
+                return _result;
             }
 
-            _result = CheckGet(_contentsTextBox, () => _lineNumbersCollection.Count);
-            Debug.WriteLine("Task {0}: _lineNumbersCollection.Count = {1}", currentTaskId, _result);
-            Tuple<int, double?> lineAndMargin = _contentsTextBox.Dispatcher.Invoke(() =>
+            Tuple<int, int> firstAndLastLineIndexes = CheckGet(_contentsTextBox, () => new Tuple<int, int>(_contentsTextBox.GetFirstVisibleLineIndex(), _contentsTextBox.GetLastVisibleLineIndex()));
+            if (firstAndLastLineIndexes.Item1 < 0 || Token.IsCancellationRequested)
+                return _result;
+
+            for (int lineIndex=firstAndLastLineIndexes.Item1; lineIndex <= firstAndLastLineIndexes.Item2; lineIndex++)
             {
-                if (Token.IsCancellationRequested)
-                {
-                    Debug.WriteLine("Task {0}: lineAndMargin Exiting, IsCancellationRequested = true", currentTaskId);
-                    return new Tuple<int, double?>(0, null);
-                }
-                int l = _contentsTextBox.GetFirstVisibleLineIndex();
-                int c = _contentsTextBox.GetCharacterIndexFromLineIndex(l);
-                if (l < 0 || c < 0)
-                {
-                    Debug.WriteLine("Task {0}: FirstVisibleLineIndex = {1}, CharacterIndexFromLineIndex({1}) = {2}", currentTaskId, l, c);
-                    return new Tuple<int, double?>(0, null);
-                }
-                double top = _contentsTextBox.GetRectFromCharacterIndex(c).Top;
-                Debug.WriteLine("Task {0}: FirstVisibleLineIndex = {1}, CharacterIndexFromLineIndex({1}) = {2}, RectFromCharacterIndex({2}).Top = {3}", currentTaskId, l, c, top);
-                return new Tuple<int, double?>(l, top);
-            });
-            int collectionIndex = 0;
-            for (int l = lineAndMargin.Item1 + 1; lineAndMargin.Item2.HasValue; l++)
-            {
-                Debug.WriteLine("Task {0}: LineIndex = {1}, CollectionIndex = {2}", currentTaskId, l, collectionIndex);
-                Debug.Indent();
-                try
+                double? marginTop = CheckGet<double?>(_contentsTextBox, () =>
                 {
                     if (Token.IsCancellationRequested)
+                        return null;
+
+                    int characterIndex = _contentsTextBox.GetCharacterIndexFromLineIndex(lineIndex);
+
+                    if (characterIndex < 0)
+                        return null;
+
+                    return _contentsTextBox.GetRectFromCharacterIndex(characterIndex).Top;
+                });
+                if (!marginTop.HasValue)
+                    return _result;
+                
+                CheckInvoke(_contentsTextBox, () =>
+                {
+                    if (Token.IsCancellationRequested)
+                        return;
+                    
+                    if (_result < _lineNumbersCollection.Count)
                     {
-                        Debug.WriteLine("Task {0}: Exiting, IsCancellationRequested = true", currentTaskId);
-                        return collectionIndex;
+                        _lineNumbersCollection[_result].Number = lineIndex + 1;
+                        if (_lineNumbersCollection[_result].Margin.Top != marginTop.Value)
+                            _lineNumbersCollection[_result].Margin = new System.Windows.Thickness(0.0, marginTop.Value, 0.0, 0.0);
                     }
-                    int lineNumber = lineAndMargin.Item1 + 1;
-                    lineAndMargin = CheckGet(_contentsTextBox, () =>
-                    {
-                        if (Token.IsCancellationRequested)
-                        {
-                            Debug.WriteLine("Task {0}: CheckGet Exiting, IsCancellationRequested = true", currentTaskId);
-                            return new Tuple<int, double?>(0, null);
-                        }
-                        Debug.WriteLine("Task {0}: CollectionIndex = {1}, _lineNumbersCollection.Count = {2}", currentTaskId, collectionIndex, _lineNumbersCollection.Count);
-                        if (collectionIndex < _lineNumbersCollection.Count)
-                        {
-                            if (_lineNumbersCollection[collectionIndex].Number != lineNumber)
-                                _lineNumbersCollection[collectionIndex].Number = lineNumber;
-                            if (_lineNumbersCollection[collectionIndex].Margin.Top != lineAndMargin.Item2.Value)
-                                _lineNumbersCollection[collectionIndex].Margin = new System.Windows.Thickness(0.0, lineAndMargin.Item2.Value, 0.0, 0.0);
-                        }
-                        else
-                            _lineNumbersCollection.Add(new ViewModel.LineNumberVM(lineNumber, lineAndMargin.Item2.Value));
-                        int c = _contentsTextBox.GetCharacterIndexFromLineIndex(l);
-                        Debug.WriteLine("Task {0}: _contentsTextBox.GetCharacterIndexFromLineIndex({1}) = {2}", currentTaskId, l, c);
-                        if (l >= _contentsTextBox.LineCount || c < 0)
-                            return new Tuple<int, double?>(0, null);
-                        return new Tuple<int, double?>(l, _contentsTextBox.GetRectFromCharacterIndex(c).Top);
-                    });
-                    collectionIndex++;
+                    else
+                        _lineNumbersCollection.Add(new ViewModel.LineNumberVM(lineIndex + 1, marginTop.Value));
+                });
+
+                if (Token.IsCancellationRequested)
+                {
+                    Logger.WriteLine("lineAndMargin Exiting, IsCancellationRequested = true");
+                    return _result;
                 }
-                catch { throw; }
-                finally { Debug.Unindent(); }
+
+                _result++;
             }
 
             if (Token.IsCancellationRequested)
             {
-                Debug.WriteLine("Task {0}: Exiting, IsCancellationRequested = true", currentTaskId);
-                return collectionIndex;
+                Logger.WriteLine("Exiting, IsCancellationRequested = true");
+                return _result;
             }
 
             CheckInvoke(_contentsTextBox, () =>
             {
-                while (_lineNumbersCollection.Count > collectionIndex)
+                while (_lineNumbersCollection.Count > _result)
                 {
                     if (Token.IsCancellationRequested)
                     {
-                        Debug.WriteLine("Task {0}: CheckInvoke Exiting, IsCancellationRequested = true", currentTaskId);
+                        Logger.WriteLine("CheckInvoke Exiting, IsCancellationRequested = true");
                         return;
                     }
 
-                    Debug.WriteLine("Task {0}: _lineNumbersCollection.RemoveAt({1})", currentTaskId, collectionIndex);
-                    _lineNumbersCollection.RemoveAt(collectionIndex);
+                    Logger.WriteLine("_lineNumbersCollection.RemoveAt({0})", _result);
+                    _lineNumbersCollection.RemoveAt(_result);
                 }
             });
 
-            return collectionIndex;
+            return _result;
         }
     }
 }

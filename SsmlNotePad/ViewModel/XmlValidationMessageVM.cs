@@ -318,6 +318,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 int start = lineNumber - 3;
                 int refIndex = 2;
                 int end = lineNumber + 1;
+                if (end >= sourceText.Count)
+                    end = sourceText.Count;
                 if (start < 0)
                 {
                     refIndex += start;

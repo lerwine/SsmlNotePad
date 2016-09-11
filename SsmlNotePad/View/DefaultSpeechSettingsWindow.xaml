@@ -1,0 +1,96 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Erwine.Leonard.T.SsmlNotePad.View"
+        xmlns:ViewModel="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel"
+        xmlns:Converter="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter" x:Class="Erwine.Leonard.T.SsmlNotePad.View.DefaultSpeechSettingsWindow"
+        mc:Ignorable="d"
+        Title="Default Speech Settings" Height="350" Width="500">
+    <Window.Resources>
+        <Converter:VoiceAgeToStringConverter x:Key="VoiceAgeToStringConverter"/>
+        <Converter:VoiceGenderToStringConverter x:Key="VoiceGenderToStringConverter"/>
+        <Style x:Key="SettingsGroupBorderStyle" TargetType="Border">
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}" />
+        </Style>
+    </Window.Resources>
+    <Window.DataContext>
+        <ViewModel:DefaultSpeechSettingsVM />
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border Style="{DynamicResource SettingsGroupBorderStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Voice" Grid.ColumnSpan="4" FontWeight="Bold"/>
+                <ComboBox Grid.Row="1" ItemsSource="{Binding VoiceOptions}" SelectedIndex="{Binding SelectedIndex}" Grid.ColumnSpan="4">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DisplayText, Mode=OneWay}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Text="Name: " Grid.Row="2" FontWeight="Bold" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding SelectedVoice.Name, Mode=OneWay}" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" TextWrapping="Wrap" />
+                <TextBlock Text="Gender: " Grid.Row="3" FontWeight="Bold" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding SelectedVoice.Gender, Converter={StaticResource VoiceGenderToStringConverter}, Mode=OneWay}" Grid.Row="3" Grid.Column="1" />
+                <TextBlock Text="Age: " Grid.Row="3" Grid.Column="2" Margin="8,0,0,0" FontWeight="Bold" />
+                <TextBlock Text="{Binding SelectedVoice.Age, Converter={StaticResource VoiceAgeToStringConverter}, Mode=OneWay}" Grid.Row="3" Grid.Column="3" />
+                <TextBlock Text="Description: " Grid.Row="4" FontWeight="Bold" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding SelectedVoice.Description, Mode=OneWay}" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" TextWrapping="Wrap" />
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" Style="{DynamicResource SettingsGroupBorderStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Speech Rate: " HorizontalAlignment="Right"/>
+                <TextBox Width="60" Text="{Binding RateText}" Grid.Column="1" HorizontalAlignment="Left" />
+                <TextBlock Text="Slow" Grid.Row="1" HorizontalAlignment="Left" Margin="0,-8,0,-2" />
+                <TextBlock Text="Fast" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Margin="0,-8,0,-2" />
+                <Slider SmallChange="1" Value="{Binding Rate, Mode=TwoWay}" Minimum="-10" TickPlacement="TopLeft" Grid.ColumnSpan="2" Grid.Row="2" Margin="0,0,0,12" Interval="1" IsMoveToPointEnabled="True" IsSelectionRangeEnabled="True" LargeChange="2" />
+                <TextBlock Text="Volume: " Grid.Row="3" HorizontalAlignment="Right"/>
+                <TextBox Width="60" Text="{Binding VolumeText}" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" />
+                <TextBlock Text="Silent" Grid.Row="4" HorizontalAlignment="Left" Margin="0,-8,0,-2" />
+                <TextBlock Text="Loud" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" Margin="0,-8,0,-2" />
+                <Slider SmallChange="1" Value="{Binding Volume}" TickPlacement="TopLeft" Maximum="100" LargeChange="10" TickFrequency="10" Grid.ColumnSpan="2" Grid.Row="5" Interval="1" IsMoveToPointEnabled="True" IsSelectionRangeEnabled="True" />
+            </Grid>
+        </Border>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right">
+            <Button Style="{DynamicResource DialogButtonStyle}" Content="OK" Command="{Binding SaveCommand, Mode=OneWay}" />
+            <Button Style="{DynamicResource DialogButtonStyle}" Content="Cancel" Command="{Binding CancelCommand, Mode=OneWay}" />
+        </StackPanel>
+    </Grid>
+</Window>

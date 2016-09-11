@@ -6,6 +6,7 @@ using System.Linq;
 using System.Speech.AudioFormat;
 using System.Speech.Synthesis;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
@@ -13,6 +14,16 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
 {
     public class SpeakText : BackgroundJobWorker<SpeakText, int>
     {
+        public enum SpeechState
+        {
+            NotStarted,
+            Speaking,
+            Paused,
+            Cancelling,
+            Canceled,
+            Error
+        }
+
         private object _syncRoot = new object();
         private ViewModel.SpeechProgressVM _viewModel;
         private string _ssml;
@@ -27,8 +38,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
         private string _path = null;
         private string _currentText = "";
         private bool _stressed = false;
-        private bool _paused = false;
-        private SpeechSynthesizer _speechSynthesizer = null;
+        private SpeechState _state = SpeechState.NotStarted;
+        private SpeechSynthesizer _activeSpeechSynthesizer = null;
 
         public SpeakText(string ssml, ViewModel.SpeechProgressVM viewModel, Stream audioDestination, SpeechAudioFormatInfo formatInfo)
             : this(ssml, viewModel, audioDestination)
@@ -75,274 +86,355 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
             _viewModel = viewModel;
         }
 
+        private bool TryInvoke(Func<bool> func)
+        {
+            if (CheckCancelSpeech())
+                return false;
+
+            try { return func(); }
+            catch (Exception exception)
+            {
+                Logger.WriteLine("Unexpected exception: {0}", exception.ToString());
+                try
+                {
+                    lock (_syncRoot)
+                    {
+                        switch (_state)
+                        {
+                            case SpeechState.Paused:
+                                try
+                                {
+                                    _activeSpeechSynthesizer.Resume();
+                                    Thread.Sleep(100);
+                                    _activeSpeechSynthesizer.SpeakAsyncCancelAll();
+                                }
+                                catch { }
+                                break;
+                            case SpeechState.Speaking:
+                                try { _activeSpeechSynthesizer.SpeakAsyncCancelAll(); } catch { }
+                                break;
+                        }
+                        _state = SpeechState.Error;
+                    }
+
+                    CheckInvoke(_viewModel, () => _viewModel.SetErrorState(exception));
+                }
+                catch { }
+                return false;
+            }
+        }
+
         protected override int Run(SpeakText previousWorker)
         {
             if (Token.IsCancellationRequested || String.IsNullOrWhiteSpace(_ssml))
                 return _characterPosition;
 
-            using (SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer())
+            _activeSpeechSynthesizer = new SpeechSynthesizer();
+            TryInvoke(() =>
             {
-                lock (_syncRoot)
-                    _speechSynthesizer = speechSynthesizer;
+                Logger.WriteLine("Speech synthesizer created.");
                 _viewModel.PauseSpeech += ViewModel_PauseSpeech;
                 _viewModel.ResumeSpeech += ViewModel_ResumeSpeech;
-                try
+                _rate = _activeSpeechSynthesizer.Rate;
+                _voice = _activeSpeechSynthesizer.Voice;
+                _volume = _activeSpeechSynthesizer.Volume;
+                if (_path != null)
                 {
-                    _rate = speechSynthesizer.Rate;
-                    _voice = speechSynthesizer.Voice;
-                    _volume = speechSynthesizer.Volume;
-                    if (_path != null)
+                    if (_formatInfo != null)
                     {
-                        if (_formatInfo != null)
-                            speechSynthesizer.SetOutputToWaveFile(_path, _formatInfo);
-                        else
-                            speechSynthesizer.SetOutputToWaveFile(_path);
-                    }
-                    else if (_audioDestination != null)
-                    {
-                        if (_formatInfo != null)
-                            speechSynthesizer.SetOutputToAudioStream(_audioDestination, _formatInfo);
-                        else
-                            speechSynthesizer.SetOutputToWaveStream(_audioDestination);
+                        Logger.WriteLine("speechSynthesizer.SetOutputToWaveFile({0}, _formatInfo);", _path);
+                        _activeSpeechSynthesizer.SetOutputToWaveFile(_path, _formatInfo);
                     }
                     else
-                        speechSynthesizer.SetOutputToDefaultAudioDevice();
-                    CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
                     {
-                        _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
-                        _viewModel.SetStartedState();
-                    }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
-                    speechSynthesizer.SpeakProgress += SpeechSynthesizer_SpeakProgress;
-                    speechSynthesizer.PhonemeReached += SpeechSynthesizer_PhonemeReached;
-                    speechSynthesizer.VisemeReached += SpeechSynthesizer_VisemeReached;
-                    speechSynthesizer.VoiceChange += SpeechSynthesizer_VoiceChange;
-                    speechSynthesizer.BookmarkReached += SpeechSynthesizer_BookmarkReached;
-
-                    speechSynthesizer.SpeakSsml(_ssml);
-
-                    bool isCanceled;
-                    lock (_syncRoot)
-                    {
-                        isCanceled = _speechSynthesizer == null;
-                        _speechSynthesizer = null;
+                        Logger.WriteLine("speechSynthesizer.SetOutputToWaveFile({0});", _path);
+                        _activeSpeechSynthesizer.SetOutputToWaveFile(_path);
                     }
-                    if (isCanceled)
-                        CheckInvoke(_viewModel, () => _viewModel.SetCanceledState());
+                }
+                else if (_audioDestination != null)
+                {
+                    if (_formatInfo != null)
+                    {
+                        Logger.WriteLine("speechSynthesizer.SetOutputToAudioStream(_audioDestination, _formatInfo);");
+                        _activeSpeechSynthesizer.SetOutputToAudioStream(_audioDestination, _formatInfo);
+                    }
                     else
-                        CheckInvoke(_viewModel, () => _viewModel.SetCompletedState());
-                }
-                catch (Exception exception)
-                {
-                    lock (_syncRoot)
                     {
-                        if (_speechSynthesizer != null)
-                            try { speechSynthesizer.SpeakAsyncCancelAll(); } catch { }
-                        _speechSynthesizer = null;
+                        Logger.WriteLine("speechSynthesizer.SetOutputToAudioStream(_audioDestination);");
+                        _activeSpeechSynthesizer.SetOutputToWaveStream(_audioDestination);
                     }
-
-                    CheckInvoke(_viewModel, () => _viewModel.SetErrorState(exception));
-                    _characterPosition = -1;
                 }
-                finally
+                else
                 {
-                    _viewModel.PauseSpeech -= ViewModel_PauseSpeech;
-                    _viewModel.ResumeSpeech -= ViewModel_ResumeSpeech;
-                    speechSynthesizer.SetOutputToNull();
-                    speechSynthesizer.Dispose();
+                    Logger.WriteLine("speechSynthesizer.SetOutputToDefaultAudioDevice();");
+                    _activeSpeechSynthesizer.SetOutputToDefaultAudioDevice();
                 }
+
+                Logger.WriteLine("Update view model: audioPosition = {0}, currentText = {1}, characterPosition = {2}, characterCount = {3}, rate = {4}, voice = {5}, stressed = {6}, volume = {7})", _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume);
+                CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                {
+                    _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
+                    _viewModel.SetStartedState();
+                }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
+                _activeSpeechSynthesizer.SpeakProgress += SpeechSynthesizer_SpeakProgress;
+                _activeSpeechSynthesizer.PhonemeReached += SpeechSynthesizer_PhonemeReached;
+                _activeSpeechSynthesizer.VisemeReached += SpeechSynthesizer_VisemeReached;
+                _activeSpeechSynthesizer.VoiceChange += SpeechSynthesizer_VoiceChange;
+                _activeSpeechSynthesizer.BookmarkReached += SpeechSynthesizer_BookmarkReached;
+
+                Logger.WriteLine("Starting speech synthesis");
+                _state = SpeechState.Speaking;
+                _activeSpeechSynthesizer.SpeakSsml(_ssml);
+                Logger.WriteLine("Speech synthesis completed");
+
+                if (Token.IsCancellationRequested)
+                {
+                    _state = SpeechState.Canceled;
+                    CheckInvoke(_viewModel, () => _viewModel.SetCanceledState());
+                    return false;
+                }
+
+                _state = SpeechState.Error;
+                CheckInvoke(_viewModel, () => _viewModel.SetCompletedState());
+                return true;
+            });
+
+            _viewModel.PauseSpeech -= ViewModel_PauseSpeech;
+            _viewModel.ResumeSpeech -= ViewModel_ResumeSpeech;
+            _activeSpeechSynthesizer.SetOutputToNull();
+            if (_activeSpeechSynthesizer.State == SynthesizerState.Ready)
+            {
+                _activeSpeechSynthesizer.Dispose();
+                _activeSpeechSynthesizer = null;
             }
+            else
+                _activeSpeechSynthesizer.SpeakCompleted += ActiveSpeechSynthesizer_SpeakCompleted;
 
             return _characterPosition;
         }
 
-        private void ViewModel_ResumeSpeech(object sender, EventArgs e)
+        private void ActiveSpeechSynthesizer_SpeakCompleted(object sender, SpeakCompletedEventArgs e)
         {
-            if (CheckCancelSpeech())
-                return;
-
             Task.Factory.StartNew(() =>
             {
+                _activeSpeechSynthesizer.SpeakCompleted -= ActiveSpeechSynthesizer_SpeakCompleted;
+                _activeSpeechSynthesizer.Dispose();
+                _activeSpeechSynthesizer = null;
+            });
+        }
+
+        private void ViewModel_ResumeSpeech(object sender, EventArgs e)
+        {
+            if (TryInvoke(() => {
                 lock (_syncRoot)
                 {
-                    if (_speechSynthesizer == null || !_paused)
-                        return;
-                    _paused = false;
-                    Task.Factory.StartNew((object o) =>
-                    {
-                        SpeechSynthesizer speechSynthesizer = o as SpeechSynthesizer;
-                        if (Token.IsCancellationRequested || !_paused)
-                            return;
-                        speechSynthesizer.Resume();
-                        CheckInvoke(_viewModel, () => _viewModel.SetUnpausedState());
-                    }, _speechSynthesizer as object);
+                    if (_state != SpeechState.Paused)
+                        return false;
+                    Logger.WriteLine("Resuming speech");
+                    _activeSpeechSynthesizer.Resume();
+                    _state = SpeechState.Speaking;
                 }
-            });
+                return true;
+            }))
+                CheckInvoke(_viewModel, () => _viewModel.SetUnpausedState());
         }
         
         private void ViewModel_PauseSpeech(object sender, EventArgs e)
         {
-            if (CheckCancelSpeech())
-                return;
-
-            Task.Factory.StartNew(() =>
-            {
+            if (TryInvoke(() => {
                 lock (_syncRoot)
                 {
-                    if (_speechSynthesizer == null || _paused || Token.IsCancellationRequested)
-                        return;
-                    _paused = true;
-                    Task.Factory.StartNew((object o) =>
-                    {
-                        SpeechSynthesizer speechSynthesizer = o as SpeechSynthesizer;
-                        if (Token.IsCancellationRequested || !_paused)
-                            return;
-                        speechSynthesizer.Pause();
-                        CheckInvoke(_viewModel, () => _viewModel.SetPausedState());
-                    }, _speechSynthesizer as object);
+                    if (_state != SpeechState.Speaking)
+                        return false;
+                    Logger.WriteLine("Pausing speech");
+                    _activeSpeechSynthesizer.Resume();
+                    _state = SpeechState.Paused;
                 }
-            });
+                return true;
+            }))
+                CheckInvoke(_viewModel, () => _viewModel.SetPausedState());
         }
 
         private bool CheckCancelSpeech()
         {
+            Logger.WriteLine("Locking for checking speech status");
             lock (_syncRoot)
             {
-                if (_speechSynthesizer == null)
-                    return true;
+                switch (_state)
+                {
+                    case SpeechState.Canceled:
+                    case SpeechState.Cancelling:
+                    case SpeechState.Error:
+                        return true;
+                }
 
                 if (!Token.IsCancellationRequested)
                     return false;
 
+                bool shouldResume = (_state == SpeechState.Paused);
+                _state = SpeechState.Cancelling;
+                Logger.WriteLine("New cancel state detected. Queuing speech cancellation.");
                 Task.Factory.StartNew((object o) =>
                 {
-                    SpeechSynthesizer speechSynthesizer = o as SpeechSynthesizer;
-                    if (_paused)
+                    if ((bool)o)
                     {
-                        speechSynthesizer.Resume();
-                        _paused = false;
+                        Logger.WriteLine("Unpausing before cancelling");
+                        _activeSpeechSynthesizer.Resume();
+                        Thread.Sleep(100);
                     }
-                    speechSynthesizer.SpeakAsyncCancelAll();
-                }, _speechSynthesizer as object);
-                _speechSynthesizer = null;
+                    Logger.WriteLine("Cancel all speech");
+                    _activeSpeechSynthesizer.SpeakAsyncCancelAll();
+                }, shouldResume);
             }
+
+            _viewModel.SetCanceledState();
 
             return true;
         }
 
         private void SpeechSynthesizer_SpeakProgress(object sender, SpeakProgressEventArgs e)
         {
-            if (CheckCancelSpeech())
-                return;
-
-            lock (_syncRoot)
+            TryInvoke(() =>
             {
-                _currentText = e.Text;
-                _audioPosition = e.AudioPosition;
-                _characterPosition = e.CharacterPosition;
-                _characterCount = e.CharacterCount;
-                CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                Task task;
+                lock (_syncRoot)
                 {
-                    if (CheckCancelSpeech())
-                        return;
+                    _currentText = e.Text;
+                    _audioPosition = e.AudioPosition;
+                    _characterPosition = e.CharacterPosition;
+                    _characterCount = e.CharacterCount;
+                    task = Task.Factory.StartNew(() =>
+                    {
+                        CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                        {
+                            if (CheckCancelSpeech())
+                                return;
 
-                    _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
-                    if (e.Error != null)
-                        _viewModel.AddErrorMessage(e.Error);
-                }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
-            }
+                            _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
+                            if (e.Error != null)
+                                _viewModel.AddErrorMessage(e.Error);
+                        }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
+                    });
+                }
+                task.Wait();
+                return true;
+            });
         }
 
         private void SpeechSynthesizer_PhonemeReached(object sender, PhonemeReachedEventArgs e)
         {
-            if (CheckCancelSpeech())
-                return;
-
-            lock (_syncRoot)
+            TryInvoke(() =>
             {
-                _stressed = e.Emphasis == SynthesizerEmphasis.Stressed;
-                _audioPosition = e.AudioPosition;
-                CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                Task task;
+                lock (_syncRoot)
                 {
-                    if (CheckCancelSpeech())
-                        return;
+                    _stressed = e.Emphasis == SynthesizerEmphasis.Stressed;
+                    _audioPosition = e.AudioPosition;
+                    task = Task.Factory.StartNew(() =>
+                    {
+                        CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                        {
+                            if (CheckCancelSpeech())
+                                return;
 
-                    _viewModel.SetPhoneme(e.Phoneme, e.Duration, e.NextPhoneme);
-                    _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
-                    if (e.Error != null)
-                        _viewModel.AddErrorMessage(e.Error);
-                }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
-            }
+                            _viewModel.SetPhoneme(e.Phoneme, e.Duration, e.NextPhoneme);
+                            _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
+                            if (e.Error != null)
+                                _viewModel.AddErrorMessage(e.Error);
+                        }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
+                    });
+                }
+                task.Wait();
+                return true;
+            });
         }
 
         private void SpeechSynthesizer_VisemeReached(object sender, VisemeReachedEventArgs e)
         {
-            if (CheckCancelSpeech())
-                return;
-
-            lock (_syncRoot)
+            TryInvoke(() =>
             {
-                if (CheckCancelSpeech())
-                    return;
-
-                _stressed = e.Emphasis == SynthesizerEmphasis.Stressed;
-                _audioPosition = e.AudioPosition;
-                CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                Task task;
+                lock (_syncRoot)
                 {
-                    _viewModel.SetViseme(e.Viseme, e.Duration, e.NextViseme);
-                    _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
-                    if (e.Error != null)
-                        _viewModel.AddErrorMessage(e.Error);
-                }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
-            }
+                    _stressed = e.Emphasis == SynthesizerEmphasis.Stressed;
+                    _audioPosition = e.AudioPosition;
+                    task = Task.Factory.StartNew(() =>
+                    {
+                        CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                        {
+                            _viewModel.SetViseme(e.Viseme, e.Duration, e.NextViseme);
+                            _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
+                            if (e.Error != null)
+                                _viewModel.AddErrorMessage(e.Error);
+                        }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
+                    });
+                }
+                task.Wait();
+                return true;
+            });
         }
 
         private void SpeechSynthesizer_VoiceChange(object sender, VoiceChangeEventArgs e)
         {
-            if (CheckCancelSpeech())
-                return;
-
-            lock (_syncRoot)
+            TryInvoke(() =>
             {
-                _voice = e.Voice;
-                CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                Task task;
+                lock (_syncRoot)
                 {
-                    if (CheckCancelSpeech())
-                        return;
+                    _voice = e.Voice;
+                    task = Task.Factory.StartNew(() =>
+                    {
+                        CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                        {
+                            if (CheckCancelSpeech())
+                                return;
 
-                    _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
-                    if (e.Error != null)
-                        _viewModel.AddErrorMessage(e.Error);
-                }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
-            }
+                            _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
+                            if (e.Error != null)
+                                _viewModel.AddErrorMessage(e.Error);
+                        }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
+                    });
+                }
+                task.Wait();
+                return true;
+            });
         }
 
         private void SpeechSynthesizer_BookmarkReached(object sender, BookmarkReachedEventArgs e)
         {
-            if (CheckCancelSpeech())
-                return;
-
-            lock (_syncRoot)
+            TryInvoke(() =>
             {
-                _audioPosition = e.AudioPosition;
-                CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                Task task;
+                lock (_syncRoot)
                 {
-                    if (CheckCancelSpeech())
-                        return;
+                    _audioPosition = e.AudioPosition;
+                    task = Task.Factory.StartNew(() =>
+                    {
+                        CheckInvokeAsync(_viewModel, (audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume) =>
+                        {
+                            if (CheckCancelSpeech())
+                                return;
 
-                    _viewModel.SetBookmark(e.Bookmark);
-                    _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
-                    if (e.Error != null)
-                        _viewModel.AddErrorMessage(e.Error);
-                }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
-            }
+                            _viewModel.SetBookmark(e.Bookmark);
+                            _viewModel.Update(audioPosition, currentText, characterPosition, characterCount, rate, voice, stressed, volume);
+                            if (e.Error != null)
+                                _viewModel.AddErrorMessage(e.Error);
+                        }, _audioPosition, _currentText, _characterPosition, _characterCount, _rate, _voice, _stressed, _volume, DispatcherPriority.Input);
+                    });
+                }
+                task.Wait();
+                return true;
+            });
         }
         
         public override int FromActive() { return _characterPosition; }
+
         public override int FromCanceled()
         {
             _characterPosition = -1;
             return _characterPosition;
         }
+
         public override int FromFault(AggregateException exception)
         {
             _characterPosition = -1;

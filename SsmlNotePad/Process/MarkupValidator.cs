@@ -17,10 +17,11 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
         private ViewModel.XmlValidationStatus _result = ViewModel.XmlValidationStatus.None;
         private string _sourceText;
 
-        public MarkupValidator(ViewModel.MainWindowVM viewModel, ObservableCollection<ViewModel.XmlValidationMessageVM> validationMessageCollection)
+        public MarkupValidator(ViewModel.MainWindowVM viewModel, string sourceText, ObservableCollection<ViewModel.XmlValidationMessageVM> validationMessageCollection)
         {
             _viewModel = viewModel;
             _validationMessageCollection = validationMessageCollection;
+            _sourceText = sourceText;
         }
 
         public override ViewModel.XmlValidationStatus FromActive() { return _result; }
@@ -33,7 +34,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
             get
             {
                 if (_baseUri == null)
-                    _baseUri = Path.Combine(Path.GetDirectoryName(typeof(MarkupValidator).Assembly.Location), "Resources");
+                    _baseUri = Common.XmlHelper.GetBaseUri();
 
                 return _baseUri;
             }
@@ -44,18 +45,16 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
             get
             {
                 if (_schemaSet == null)
-                {
-                    _schemaSet = new XmlSchemaSet();
-                    _schemaSet.Add("http://www.w3.org/2001/10/synthesis", Path.Combine(BaseUri, "WindowsPhoneSynthesis.xsd"));
-                    _schemaSet.Add("http://www.w3.org/2001/10/synthesis", Path.Combine(BaseUri, "WindowsPhoneSynthesis-core.xsd"));
-                }
+                    _schemaSet = Common.XmlHelper.CreateSsmlSchemaSet();
 
                 return _schemaSet;
             }
         }
         protected override ViewModel.XmlValidationStatus Run(MarkupValidator previousWorker)
         {
-            _sourceText = CheckGet(_viewModel, () => _viewModel.Text);
+            if (Token.IsCancellationRequested)
+                return ViewModel.XmlValidationStatus.None;
+            
             if (String.IsNullOrEmpty(_sourceText))
             {
                 return CheckGet(_viewModel, () =>
@@ -69,7 +68,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
             }
             
             if (Token.IsCancellationRequested)
-                return CheckGet(_viewModel, () => _viewModel.ValidationStatus);
+                return ViewModel.XmlValidationStatus.None;
 
             CheckInvoke(_viewModel, () => _validationMessageCollection.Clear());
 
@@ -80,7 +79,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
                     lock (SchemaSet)
                     {
                         if (Token.IsCancellationRequested)
-                            return CheckGet(_viewModel, () => _viewModel.ValidationStatus);
+                            return ViewModel.XmlValidationStatus.None;
                         XmlReaderSettings settings = new XmlReaderSettings
                         {
                             CheckCharacters = false,
@@ -90,7 +89,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
                             ValidationType = ValidationType.Schema
                         };
                         settings.ValidationEventHandler += Schema_ValidationEventHandler;
-                        SchemaSet.ValidationEventHandler += SchemaSet_ValidationEventHandler;
+                        SchemaSet.ValidationEventHandler += Schema_ValidationEventHandler;
                         try
                         {
                             using (XmlReader xmlReader = XmlReader.Create(stringReader, settings, BaseUri))
@@ -111,11 +110,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
             {
                 _result = CheckGet(_viewModel, () =>
                 {
-                    if (Token.IsCancellationRequested)
-                        return _viewModel.ValidationStatus;
+                    if (!Token.IsCancellationRequested)
+                        _validationMessageCollection.Add(new ViewModel.XmlValidationMessageVM(String.Format("Unexpected XML Schema Exception: {0}", exception.Message),
+                                exception, new StringLines(_sourceText)));
 
-                    _validationMessageCollection.Add(new ViewModel.XmlValidationMessageVM(String.Format("Unexpected XML Schema Exception: {0}", exception.Message),
-                            exception, new StringLines(_sourceText)));
                     return ViewModel.XmlValidationStatus.Critical;
                 });
             }
@@ -123,11 +121,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
             {
                 _result = CheckGet(_viewModel, () =>
                 {
-                    if (Token.IsCancellationRequested)
-                        return _viewModel.ValidationStatus;
+                    if (!Token.IsCancellationRequested)
+                        _validationMessageCollection.Add(new ViewModel.XmlValidationMessageVM(String.Format("Unexpected XML Exception: {0}", exception.Message),
+                                exception, new StringLines(_sourceText)));
 
-                    _validationMessageCollection.Add(new ViewModel.XmlValidationMessageVM(String.Format("Unexpected XML Exception: {0}", exception.Message),
-                            exception, new StringLines(_sourceText)));
                     return ViewModel.XmlValidationStatus.Critical;
                 });
             }
@@ -135,9 +132,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
             {
                 _result = CheckGet(_viewModel, () =>
                 {
-                    if (Token.IsCancellationRequested)
-                        return _viewModel.ValidationStatus;
-                    _validationMessageCollection.Add(new ViewModel.XmlValidationMessageVM(String.Format("Unexpected I/O Exception: {0}", exception.Message), exception));
+                    if (!Token.IsCancellationRequested)
+                        _validationMessageCollection.Add(new ViewModel.XmlValidationMessageVM(String.Format("Unexpected I/O Exception: {0}", exception.Message), exception));
                     return ViewModel.XmlValidationStatus.Critical;
                 });
             }
@@ -145,21 +141,15 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
             {
                 _result = CheckGet(_viewModel, () =>
                 {
-                    if (Token.IsCancellationRequested)
-                        return _viewModel.ValidationStatus;
-                    _validationMessageCollection.Add(new ViewModel.XmlValidationMessageVM(String.Format("Unexpected Exception: {0}", exception.Message), exception));
+                    if (!Token.IsCancellationRequested)
+                        _validationMessageCollection.Add(new ViewModel.XmlValidationMessageVM(String.Format("Unexpected Exception: {0}", exception.Message), exception));
                     return ViewModel.XmlValidationStatus.Critical;
                 });
             }
 
             return _result;
         }
-
-        private void SchemaSet_ValidationEventHandler(object sender, ValidationEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         private void Schema_ValidationEventHandler(object sender, ValidationEventArgs e)
         {
             CheckInvoke(_viewModel, () =>

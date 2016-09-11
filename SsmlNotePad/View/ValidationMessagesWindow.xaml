@@ -7,17 +7,13 @@
         mc:Ignorable="d" DataContext="{DynamicResource MainWindowViewModel}"
         Title="Validation Messages" Height="600" Width="800">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Text="{Binding ValidationToolTip}" Grid.ColumnSpan="2" />
-        <DataGrid Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding ValidationMessages}" IsReadOnly="True" AutoGenerateColumns="False">
+        <TextBlock Text="{Binding ValidationToolTip}" />
+        <DataGrid Grid.Row="1" ItemsSource="{Binding ValidationMessages}" IsReadOnly="True" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding LineNumber}" ClipboardContentBinding="{x:Null}" Header="Line" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding LinePosition}" ClipboardContentBinding="{x:Null}" Header="Col" IsReadOnly="True"/>
@@ -30,7 +26,6 @@
                 </DataTemplate>
             </DataGrid.RowDetailsTemplate>
         </DataGrid>
-        <Button Content="OK" HorizontalAlignment="Right" Grid.Row="2" Height="25" Width="75"/>
-        <Button Content="Cancel" Grid.Column="2" Grid.Row="2" Height="25" Width="75"/>
+        <Button Content="Close" HorizontalAlignment="Right" Grid.Row="2" Height="25" Width="75" IsCancel="True"/>
     </Grid>
 </Window>

@@ -155,42 +155,116 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
 
+        #region Severity Property Members
+
+        public const string DependencyPropertyName_Severity = "Severity";
+
+        /// <summary>
+        /// Identifies the <seealso cref="Severity"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty SeverityProperty = DependencyProperty.Register(DependencyPropertyName_Severity, typeof(MessageSeverity), typeof(SpeechMessageVM),
+                new PropertyMetadata(MessageSeverity.Information,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as SpeechMessageVM).Severity_PropertyChanged((MessageSeverity)(e.OldValue), (MessageSeverity)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as SpeechMessageVM).Severity_PropertyChanged((MessageSeverity)(e.OldValue), (MessageSeverity)(e.NewValue)));
+                }));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public MessageSeverity Severity
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (MessageSeverity)(GetValue(SeverityProperty));
+                return Dispatcher.Invoke(() => Severity);
+            }
+            set
+            {
+                if (CheckAccess())
+                    SetValue(SeverityProperty, value);
+                else
+                    Dispatcher.Invoke(() => Severity = value);
+            }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="Severity"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="MessageSeverity"/> value before the <seealso cref="Severity"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="MessageSeverity"/> value after the <seealso cref="Severity"/> property was changed.</param>
+        protected virtual void Severity_PropertyChanged(MessageSeverity oldValue, MessageSeverity newValue) { }
+        
+        #endregion
+
         public SpeechMessageVM() { Details = new ReadOnlyObservableCollection<string>(_details); }
 
-        internal static SpeechMessageVM Create(Exception exception, bool isCritical)
+        internal static SpeechMessageVM Create(Exception exception, MessageSeverity severity = MessageSeverity.Error)
         {
             if (exception == null)
-                return Create((isCritical) ? "Critical Error" : "Error", (isCritical) ? "An critical error has occurred." : "An error has occurred.");
+            {
+                switch (severity)
+                {
+                    case MessageSeverity.Critical:
+                        return Create("Critical Error", "A critical error has occurred.", MessageSeverity.Critical);
+                    case MessageSeverity.Error:
+                        return Create("Error", "An error has occurred.", MessageSeverity.Error);
+                    case MessageSeverity.Warning:
+                        return Create("Warning", "A warning error has occurred.", MessageSeverity.Warning);
+                    default:
+                        return Create("Unknown", "", severity);
+                }
+            }
 
             string[] details;
             try { details = exception.ToString().SplitLines().ToArray(); } catch { details = new string[0]; }
             string message;
+            string eventName = (severity == MessageSeverity.Critical) ? "Critical Error" : severity.ToString("F");
             if (exception is AggregateException)
             {
                 AggregateException aggregateException = exception as AggregateException;
                 IEnumerable<Exception> allExceptions = (aggregateException.InnerExceptions == null) ? new Exception[0] : aggregateException.InnerExceptions.Where(e => e != null);
                 if (aggregateException.InnerException != null && !allExceptions.Any(e => ReferenceEquals(e, aggregateException.InnerException)))
                     allExceptions = allExceptions.Concat(new Exception[] { aggregateException.InnerException });
-                message = (String.IsNullOrWhiteSpace(exception.Message)) ? ((isCritical) ? "Critical errors have occurred." : "Error have occurred.") : exception.Message;
-                return Create((isCritical) ? "Critical Error" : "Error", message, details, allExceptions.Select(e => Create(e, false)).ToArray());
+                if (String.IsNullOrWhiteSpace(exception.Message))
+                {
+                    switch (severity)
+                    {
+                        case MessageSeverity.Critical:
+                            message = "Critical errors have occurred.";
+                            break;
+                        case MessageSeverity.Warning:
+                            message = "Warnings have occurred.";
+                            break;
+                        default:
+                            message = "Errors have occurred.";
+                            break;
+                    }
+                }
+                else
+                    message = exception.Message;
+                return Create(eventName, message, severity, details, allExceptions.Select(e => Create(e)).ToArray());
             }
-
-            message = (String.IsNullOrWhiteSpace(exception.Message)) ? ((isCritical) ? "An critical error has occurred." : "An error has occurred.") : exception.Message;
+            
 
             if (exception.InnerException == null)
-                return Create((isCritical) ? "Critical Error" : "Error", message, details);
+                return Create(eventName, exception.Message, severity, details);
 
-            return Create((isCritical) ? "Critical Error" : "Error", message, details, Create(exception.InnerException, false));
+            return Create(eventName, exception.Message, severity, details, Create(exception.InnerException));
         }
 
-        internal static SpeechMessageVM Create(string eventName, string message, params SpeechMessageVM[] innerMessages)
+        internal static SpeechMessageVM Create(string eventName, string message, MessageSeverity severity = MessageSeverity.Information, params SpeechMessageVM[] innerMessages)
         {
-            return Create(eventName, message, new string[0], innerMessages);
+            return Create(eventName, message, severity, new string[0], innerMessages);
         }
 
-        internal static SpeechMessageVM Create(string eventName, string message, IEnumerable<string> eventDetail, params SpeechMessageVM[] innerMessages)
+        internal static SpeechMessageVM Create(string eventName, string message, MessageSeverity severity, IEnumerable<string> eventDetail, params SpeechMessageVM[] innerMessages)
         {
-            SpeechMessageVM result = new ViewModel.SpeechMessageVM();
+            SpeechMessageVM result = new SpeechMessageVM();
             result.EventName = eventName;
             result.Message = message;
             if (eventDetail != null)

@@ -4,12 +4,34 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Erwine.Leonard.T.SsmlNotePad
 {
     public static class StringExtensions
     {
+        public static readonly Regex OuterWhitespaceRegex = new Regex(@"^(?<l>\s+)?(?<c>\S+(\s+\S+)*)(?<t>\s+)?$", RegexOptions.Compiled);
+        public static string ExtractOuterWhitespace(this string s, out string leadingWs, out string trailingWs)
+        {
+            if (s == null)
+            {
+                leadingWs = null;
+                trailingWs = null;
+                return null;
+            }
+
+            Match m = OuterWhitespaceRegex.Match(s);
+            if (m.Success)
+            {
+                leadingWs = (m.Groups["l"].Success) ? m.Groups["l"].Value : "";
+                trailingWs = (m.Groups["t"].Success) ? m.Groups["t"].Value : "";
+                return m.Groups["c"].Value;
+            }
+            leadingWs = s;
+            trailingWs = "";
+            return "";
+        }
         public static string AsNormalizedWhitespace(this string s, bool nullAsEmpty = false, bool noTrim = false)
         {
             if (s == null)

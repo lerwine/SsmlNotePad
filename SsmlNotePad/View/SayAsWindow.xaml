@@ -1,0 +1,42 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Erwine.Leonard.T.SsmlNotePad.View"
+        xmlns:ViewModel="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel"
+        xmlns:Converter="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter" x:Class="Erwine.Leonard.T.SsmlNotePad.View.SayAsWindow"
+        mc:Ignorable="d"
+        Title="Say As" Height="175" Width="600">
+    <Window.Resources>
+        <Converter:SayAsToStringConverter x:Key="SayAsToStringConverter"/>
+    </Window.Resources>
+    <Window.DataContext>
+        <ViewModel:SayAsVM />
+    </Window.DataContext>
+    <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Displayed Text:" Grid.ColumnSpan="2" />
+        <TextBox Grid.Row="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto" VerticalAlignment="Top" TextWrapping="NoWrap" Text="{Binding DisplayText, ValidatesOnDataErrors=True, ValidatesOnExceptions=True}" Style="{DynamicResource ValidatingTextBoxStyle}" />
+        <TextBlock Text="How to speak:" Grid.Row="2" Grid.ColumnSpan="2" />
+        <ComboBox Grid.Row="3" Grid.ColumnSpan="2" ItemsSource="{Binding Values}" SelectedIndex="{Binding SelectedIndex}" Margin="0,0,0,8">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource SayAsToStringConverter}, Mode=OneWay}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button Content="OK" Grid.Row="4" Style="{DynamicResource DialogButtonStyle}" Margin="0" VerticalAlignment="Top" Command="{Binding OKCommand, Mode=OneWay}" />
+        <Button Content="Cancel" Grid.Column="1" Grid.Row="4" Style="{DynamicResource DialogButtonStyle}" Command="{Binding CancelCommand, Mode=OneWay}" />
+    </Grid>
+</Window>

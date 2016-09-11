@@ -1,0 +1,656 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PhoneticTables xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <xs:schema>
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xs:import namespace="http://www.w3.org/1999/xhtml" />
+    <!-- These are the entity sets for ISO Latin 1 characters for the XHTML -->
+    <xs:notation name="XHTMLLatin1" id="xhtml-lat1" public="-//W3C//ENTITIES Latin 1 for XHTML//EN" system="http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent"/>
+    <!-- These are the entity sets for special characters for the XHTML -->
+    <xs:notation name="XHTMLSpecial" id="xhtml-special" public="-//W3C//ENTITIES Special for XHTML//EN" system="http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent"/>
+    <!-- These are the entity sets for symbol characters for the XHTML -->
+    <xs:notation name="XHTMLSymbol" id="xhtml-symbol" public="-//W3C//ENTITIES Symbols for XHTML//EN" system="http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent"/>
+    <xs:complexType name="DocumentationType">
+      <xs:sequence>
+        <xs:any namespace="http://www.w3.org/1999/xhtml" minOccurs="1" maxOccurs="unbounded" processContents="lax"/>
+      </xs:sequence>
+      <xs:attribute ref="xml:lang" />
+    </xs:complexType>
+    <xs:element name="Documentation" type="DocumentationType" />
+    <xs:element name="Consonants">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+          <xs:element name="Phonemes" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+                <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="UPS" type="xs:string" use="required" />
+                    <xs:attribute name="IPA" type="xs:string" use="required" />
+                    <xs:attribute name="Unicode" type="xs:string" use="required" />
+                    <xs:attribute name="SapiId" type="xs:string" use="required" />
+                    <xs:attribute name="IpaDescription" type="xs:string" use="required" />
+                    <xs:attribute name="ipaASCII" type="xs:string" use="required" />
+                    <xs:attribute name="X-SAMPA" type="xs:string" use="required" />
+                    <xs:attribute name="Example" type="xs:string" use="optional" />
+                    <xs:attribute name="Language" type="xs:string" use="optional" />
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Affricates" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+                <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="UPS" type="xs:string" use="required" />
+                    <xs:attribute name="UpsCompound" type="xs:string" use="required" />
+                    <xs:attribute name="IPA" type="xs:string" use="required" />
+                    <xs:attribute name="Unicode" type="xs:string" use="required" />
+                    <xs:attribute name="SapiId" type="xs:string" use="required" />
+                    <xs:attribute name="IpaDescription" type="xs:string" use="required" />
+                    <xs:attribute name="Example" type="xs:string" use="optional" />
+                    <xs:attribute name="Language" type="xs:string" use="optional" />
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="Vowels">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+          <xs:element name="Monophthongs" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+                <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="UPS" type="xs:string" use="required" />
+                    <xs:attribute name="IPA" type="xs:string" use="required" />
+                    <xs:attribute name="Unicode" type="xs:string" use="required" />
+                    <xs:attribute name="SapiId" type="xs:string" use="required" />
+                    <xs:attribute name="IpaDescription" type="xs:string" use="required" />
+                    <xs:attribute name="ipaASCII" type="xs:string" use="required" />
+                    <xs:attribute name="X-SAMPA" type="xs:string" use="required" />
+                    <xs:attribute name="Example" type="xs:string" use="optional" />
+                    <xs:attribute name="Language" type="xs:string" use="optional" />
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Diphthongs" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+                <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="UpsCompound" type="xs:string" use="required" />
+                    <xs:attribute name="UPS" type="xs:string" use="required" />
+                    <xs:attribute name="IPA" type="xs:string" use="required" />
+                    <xs:attribute name="SapiId" type="xs:string" use="required" />
+                    <xs:attribute name="X-SAMPA" type="xs:string" use="required" />
+                    <xs:attribute name="Example" type="xs:string" use="optional" />
+                    <xs:attribute name="Language" type="xs:string" use="optional" />
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="GermanDiphthongs" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+                <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="UpsCompound" type="xs:string" use="required" />
+                    <xs:attribute name="IPA" type="xs:string" use="required" />
+                    <xs:attribute name="X-SAMPA" type="xs:string" use="required" />
+                    <xs:attribute name="Example" type="xs:string" use="optional" />
+                    <xs:attribute name="Language" type="xs:string" use="optional" />
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="NasalVowels" minOccurs="0" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+                <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+                  <xs:complexType>
+                    <xs:attribute name="Compound" type="xs:string" use="required" />
+                    <xs:attribute name="UPS" type="xs:string" use="required" />
+                    <xs:attribute name="SapiId" type="xs:string" use="required" />
+                    <xs:attribute name="X-SAMPA" type="xs:string" use="required" />
+                    <xs:attribute name="Example" type="xs:string" use="optional" />
+                    <xs:attribute name="Language" type="xs:string" use="optional" />
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="Diacritics">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+          <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="UPS" type="xs:string" use="required" />
+              <xs:attribute name="IPA" type="xs:string" use="required" />
+              <xs:attribute name="Unicode" type="xs:string" use="required" />
+              <xs:attribute name="SapiId" type="xs:string" use="required" />
+              <xs:attribute name="IpaDescription" type="xs:string" use="optional" />
+              <xs:attribute name="IPA-ASCII" type="xs:string" use="optional" />
+              <xs:attribute name="X-SAMPA" type="xs:string" use="optional" />
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="Suprasegmentals">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+          <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="UPS" type="xs:string" use="required" />
+              <xs:attribute name="IPA" type="xs:string" use="required" />
+              <xs:attribute name="Unicode" type="xs:string" use="required" />
+              <xs:attribute name="SapiId" type="xs:string" use="required" />
+              <xs:attribute name="IpaDescription" type="xs:string" use="optional" />
+              <xs:attribute name="X-SAMPA" type="xs:string" use="optional" />
+              <xs:attribute name="SapiEquivalent" type="xs:string" use="optional" />
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="Ejectives">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+          <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="UPS" type="xs:string" use="required" />
+              <xs:attribute name="IPA" type="xs:string" use="required" />
+              <xs:attribute name="Unicode" type="xs:string" use="required" />
+              <xs:attribute name="SapiId" type="xs:string" use="required" />
+              <xs:attribute name="IpaDescription" type="xs:string" use="optional" />
+              <xs:attribute name="X-SAMPA" type="xs:string" use="optional" />
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="Tones">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+          <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="UPS" type="xs:string" use="required" />
+              <xs:attribute name="IPA" type="xs:string" use="required" />
+              <xs:attribute name="Unicode" type="xs:string" use="required" />
+              <xs:attribute name="SapiId" type="xs:string" use="required" />
+              <xs:attribute name="IpaDescription" type="xs:string" use="optional" />
+              <xs:attribute name="X-SAMPA" type="xs:string" use="optional" />
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="Other">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Documentation" type="DocumentationType" minOccurs="0" maxOccurs="1" />
+          <xs:element name="Phoneme" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:attribute name="UPS" type="xs:string" use="required" />
+              <xs:attribute name="IPA" type="xs:string" use="required" />
+              <xs:attribute name="Unicode" type="xs:string" use="required" />
+              <xs:attribute name="SapiId" type="xs:string" use="required" />
+              <xs:attribute name="IpaDescription" type="xs:string" use="optional" />
+              <xs:attribute name="IPA-ASCII" type="xs:string" use="optional" />
+              <xs:attribute name="X-SAMPA" type="xs:string" use="optional" />
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
+  <Documentation xml:lang="en-us">
+    <head xmlns="http://www.w3.org/1999/xhtml">
+      <title>Phonetic Alphabet Reference</title>
+      <meta name="copyright" content="© 2016 Microsoft" />
+      <meta name="originalSource" content="https://msdn.microsoft.com/en-us/library/hh361589(v=office.14).aspx" />
+    </head>
+    <body xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+      <h2>Phonetic Alphabet Reference</h2>
+      <blockquote>
+        <p>
+          A phonetic alphabet contains combinations of letters, numbers, and characters which are known as "phones". A phone represents a discrete sound in a spoken language.
+          Phones are used to create phonetic spellings that determine how a word should be pronounced to be recognized or spoken. System.Speech supports three phonetic alphabets:.
+        </p>
+        <p>These elements contain the following attributes:</p>
+      </blockquote>
+      <dl>
+        <dt>International Phonetic Alphabet (IPA)</dt>
+        <dd>
+          A system of phonetic notation based in part on the Latin alphabet, devised as a standardized representation of the sounds of spoken language.
+          You can use this phonetic alphabet to specify pronunciations for any language.
+        </dd>
+        <dt>Universal Phone="" Set (UPS)</dt>
+        <dd>
+          A machine-readable phonetic alphabet, created by Microsoft, which is based on the International Phonetic Alphabet (IPA).
+          You can use this phonetic alphabet to specify pronunciations for any language except those that use the SAPI phonetic alphabet, see the next item.
+        </dd>
+        <dt>Speech API (SAPI) Phone Set</dt>
+        <dd>The pronunciation alphabet used in System.Speech for the following languages:
+          <table>
+            <tr>
+              <th>Language-Culture Code</th>
+              <th>Language Name</th>
+              <th>Language ID</th>
+            </tr>
+            <tr>
+              <td>zh-TW</td>
+              <td>Chinese (Taiwan)</td>
+              <td>404</td>
+            </tr>
+            <tr>
+              <td>zh-CN</td>
+              <td>Chinese (PRC)</td>
+              <td>804</td>
+            </tr>
+            <tr>
+              <td>en-US</td>
+              <td>English (United States)</td>
+              <td>409</td>
+          </tr>
+          <tr>
+            <td>fr-FR</td>
+            <td>French (Standard)</td>
+              <td>40c</td>
+            </tr>
+            <tr>
+              <td>de-DE</td>
+              <td>German (Standard)</td>
+              <td>407</td>
+          </tr>
+          <tr>
+            <td>jp-JP</td>
+              <td>Japanese</td>
+              <td>411</td>
+            </tr>
+            <tr>
+              <td>es-ES</td>
+              <td>Spanish (Spain, Traditional Sort)</td>
+              <td>40a</td>
+            </tr>
+          </table>
+        </dd>
+      </dl>
+    </body>
+  </Documentation>
+  <Consonants>
+    <Documentation xml:lang="en-us">
+      <head xmlns="http://www.w3.org/1999/xhtml">
+        <title>Consonants</title>
+        <meta name="copyright" content="© 2016 Microsoft" />
+        <meta name="originalSource" content="https://msdn.microsoft.com/en-us/library/hh361632(v=office.14).aspx" />
+      </head>
+      <body xmlns="http://www.w3.org/1999/xhtml">
+        <h2>Consonants</h2>
+        <blockquote>
+          <p>
+            This is a listing and cross reference of the consonant phones that are used by the three phonetic alphabets that System.Speech supports. See 
+              <a href="https://msdn.microsoft.com/en-us/library/hh361589(v=office.14).aspx">Phonetic Alphabet Reference</a>.
+          </p>
+        </blockquote>
+        <h3></h3>
+        <blockquote>
+            <p>Consonant symbols are one, two, or three characters in length. Single character labels are used for highly frequent, language-universal consonants. In general the first character signifies place plus voicing, and the second signifies manner. Labeling conventions carry across phonetic classes in the following ways:</p>
+            <p>Conventions for place of articulation and voicing labeling:</p>
+            <ul>
+              <li>Dentals and alveloars use D for voiced and T for voiceless</li>
+              <li>Alveolars use N for nasal and R for approximant</li>
+              <li>Labiodentals use V for voiced and F for voiceless</li>
+              <li>Velars use G for voiced and K for voiceless, NG for nasal</li>
+              <li>Bilabials use B for voiced and P for voiceless stops, M for nasal</li>
+              <li>Laterals use L</li>
+              <li>Uvulars use Q</li>
+              <li>Pharyngeals use H</li>
+              <li>Palatals use X for voiceless and Y for voiced</li>
+            </ul>
+            <p>Conventions for manner of articulation labeling:</p>
+            <ul>
+              <li>Single-character labels have manner encapsulated in choice of symbol: for example, M is nasal</li>
+              <li>Trills double up the first symbol</li>
+              <li>Fricatives use H</li>
+              <li>Approximants use X</li>
+              <li>Retroflex uses R</li>
+            </ul>
+          <p>These elements contain the following attributes:</p>
+        </blockquote>
+        <dl>
+          <dt>UPS</dt>
+          <dd>The phone label specified in Microsoft’s Universal Phone Set (UPS).</dd>
+          <dt>IPA</dt>
+          <dd>
+            The phone label specified in the <a href="http://www.langsci.ucl.ac.uk/ipa/">International Phonetic Alphabet</a> (IPA) phone set.
+          </dd>
+          <dt>Unicode</dt>
+          <dd>
+            The <a href="http://www.unicode.org/versions/Unicode5.2.0/">Unicode</a> value from the IPA phone set.
+          </dd>
+          <dt>SapiId</dt>
+          <dd>The Speech API (SAPI) phone ID, which in most cases is the Unicode value.</dd>
+          <dt>IpaDescription</dt>
+          <dd>
+            This column describes the features of the phone, such as place of articulation, manner of articulation, phonation type, and airstream mechanism. See the
+            <a href="https://msdn.microsoft.com/en-us/library/hh361665(v=office.14).aspx">Glossary of Phonetic Terms</a>
+            for more information about the features of phones.
+          </dd>
+          <dt>ipaASCII</dt>
+          <dd>The equivalent phone in ipaASCII phone set for reference.</dd>
+          <dt>X-SAMPA</dt>
+          <dd>
+            The equivalent phone in <a href="http://www.phon.ucl.ac.uk/home/sampa/x-sampa.htm">X-SAMPA</a> for reference.
+          </dd>
+          <dt>Example</dt>
+          <dd>A word that uses the phone and illustrates its sound.</dd>
+          <dt>Language</dt>
+          <dd>The language of the example word.</dd>
+        </dl>
+    </body>
+    </Documentation>
+    <Documentation xmlns="">
+      <head xmlns="http://www.w3.org/1999/xhtml">
+        <title>test</title>
+      </head>
+    </Documentation>
+    <Phonemes>
+      <Phoneme UPS="P" IPA="p" Unicode="U+0070" SapiId="0070" IpaDescription="{blb,stp,vls}" ipaASCII="P" X-SAMPA="P" Example="put" Language="English" />
+      <Phoneme UPS="B" IPA="b" Unicode="U+0062" SapiId="0062" IpaDescription="{blb,stp,vcd}" ipaASCII="B" X-SAMPA="B" Example="big" Language="English" />
+      <Phoneme UPS="M" IPA="m" Unicode="U+006D" SapiId="006D" IpaDescription="{blb,nas}" ipaASCII="M" X-SAMPA="M" Example="mat" Language="English" />
+      <Phoneme UPS="BB" IPA="ʙ" Unicode="U+0299" SapiId="0299" IpaDescription="{blb,trl,vcd}" ipaASCII="B&lt;trl&gt;" X-SAMPA="B\" Example="" Language="" />
+      <Phoneme UPS="PH" IPA="ɸ" Unicode="U+0278" SapiId="0278" IpaDescription="{blb,frc,vls}" ipaASCII="P" X-SAMPA="p\" Example="" Language="" />
+      <Phoneme UPS="BH" IPA="β" Unicode="U+03B2" SapiId="03B2" IpaDescription="{blb,frc,vcd}" ipaASCII="B" X-SAMPA="B" Example="kabra" Language="Spanish" />
+      <Phoneme UPS="MF" IPA="ɱ" Unicode="U+0271" SapiId="0271" IpaDescription="{lbd,nas}" ipaASCII="M" X-SAMPA="F" Example="" Language="" />
+      <Phoneme UPS="F" IPA="f" Unicode="U+0066" SapiId="0066" IpaDescription="{lbd,frc,vls}" ipaASCII="F" X-SAMPA="F" Example="fork" Language="English" />
+      <Phoneme UPS="V" IPA="v" Unicode="U+0076" SapiId="0076" IpaDescription="{lbd,frc,vcd}" ipaASCII="V" X-SAMPA="V" Example="vat" Language="English" />
+      <Phoneme UPS="VA" IPA="ʋ" Unicode="U+028B" SapiId="028B" IpaDescription="{lbd,apr,vcd}" ipaASCII="R&lt;lbd&gt;" X-SAMPA="V\" Example="" Language="" />
+      <Phoneme UPS="TH" IPA="θ" Unicode="U+03B8" SapiId="03B8" IpaDescription="{dnt,frc,vls}" ipaASCII="T" X-SAMPA="T" Example="thin" Language="English" />
+      <Phoneme UPS="DH" IPA="ð" Unicode="U+00F0" SapiId="00F0" IpaDescription="{dnt,frc,vcd}" ipaASCII="D" X-SAMPA="D" Example="then" Language="English" />
+      <Phoneme UPS="T" IPA="t" Unicode="U+0074" SapiId="0074" IpaDescription="{alv,stp,vls}" ipaASCII="T" X-SAMPA="T" Example="talk" Language="English" />
+      <Phoneme UPS="D" IPA="d" Unicode="U+0064" SapiId="0064" IpaDescription="{alv,stp,vcd}" ipaASCII="D" X-SAMPA="D" Example="dig" Language="English" />
+      <Phoneme UPS="N" IPA="n" Unicode="U+006E" SapiId="006E" IpaDescription="{alv,nas}" ipaASCII="N" X-SAMPA="N" Example="no" Language="English" />
+      <Phoneme UPS="RR" IPA="r" Unicode="U+0072" SapiId="0072" IpaDescription="{alv,trl,vcd}" ipaASCII="R&lt;trl&gt;" X-SAMPA="" Example="torre, rojo" Language="Spanish" />
+      <Phoneme UPS="DX" IPA="ɾ" Unicode="U+027E" SapiId="027E" IpaDescription="{alv,flp,vcd}" ipaASCII="*" X-SAMPA="4" Example="butter" Language="US English" />
+      <Phoneme UPS="S" IPA="s" Unicode="U+0073" SapiId="0073" IpaDescription="{alv,frc,vls}" ipaASCII="S" X-SAMPA="S" Example="sit" Language="US English" />
+      <Phoneme UPS="Z" IPA="z" Unicode="U+007A" SapiId="007A" IpaDescription="{alv,frc,vcd}" ipaASCII="z" X-SAMPA="Z" Example="zap" Language="US English" />
+      <Phoneme UPS="LSH" IPA="ɬ" Unicode="U+026C" SapiId="026C" IpaDescription="{alv,lat,frc,vls}" ipaASCII="" X-SAMPA="K" Example="" Language="" />
+      <Phoneme UPS="LH" IPA="ɮ" Unicode="U+026E" SapiId="026E" IpaDescription="{alv,lat,frc,vcd}" ipaASCII="z&lt;lat&gt;" X-SAMPA="K\" Example="caballo" Language="Spanish/Zulu" />
+      <Phoneme UPS="RA" IPA="ɹ" Unicode="U+0279" SapiId="0279" IpaDescription="{alv,apr}" ipaASCII="r" X-SAMPA="r\" Example="puro" Language="Spanish" />
+      <Phoneme UPS="L" IPA="l" Unicode="U+006C" SapiId="006C" IpaDescription="{alv,lat,apr,vcd}" ipaASCII="l" X-SAMPA="L" Example="lid" Language="US English" />
+      <Phoneme UPS="L vel" IPA="ɫ" Unicode="U+026B" SapiId="006C 02E0" IpaDescription="{alv,lat,apr,vcd} vel" ipaASCII="" X-SAMPA="" Example="" Language="" />
+      <Phoneme UPS="SH" IPA="ʃ" Unicode="U+0283" SapiId="0283" IpaDescription="{pla,frc,vls}" ipaASCII="S" X-SAMPA="S" Example="she" Language="US English" />
+      <Phoneme UPS="SH pal" IPA="ʆ" Unicode="U+0286" SapiId="0283 02B2" IpaDescription="{pla,frc,vls} pal" ipaASCII="" X-SAMPA="" Example="" Language="" />
+      <Phoneme UPS="ZH" IPA="ʒ" Unicode="U+0292" SapiId="0292" IpaDescription="{pla,frc,vcd}" ipaASCII="Z" X-SAMPA="Z" Example="pleasure" Language="US English" />
+      <Phoneme UPS="ZH pal" IPA="ʓ" Unicode="U+0293" SapiId="0292 02B2" IpaDescription="{pla,frc,vcd} pal" ipaASCII="" X-SAMPA="" Example="" Language="" />
+      <Phoneme UPS="TR" IPA="ʈ" Unicode="U+0288" SapiId="0288" IpaDescription="{rfx,stp,vls}" ipaASCII="t." X-SAMPA="t`" Example="" Language="" />
+      <Phoneme UPS="DR" IPA="ɖ" Unicode="U+0256" SapiId="0256" IpaDescription="{rfx,stp,vcd}" ipaASCII="d." X-SAMPA="D`" Example="" Language="" />
+      <Phoneme UPS="NR" IPA="ɳ" Unicode="U+0273" SapiId="0273" IpaDescription="{rfx,nas,vcd}" ipaASCII="n." X-SAMPA="N`" Example="" Language="" />
+      <Phoneme UPS="DXR" IPA="ɽ" Unicode="U+027D" SapiId="027D" IpaDescription="{rfx,flp,vcd}" ipaASCII="*." X-SAMPA="r`" Example="" Language="" />
+      <Phoneme UPS="SR" IPA="ʂ" Unicode="U+0282" SapiId="0282" IpaDescription="{rfx,frc,vls}" ipaASCII="s." X-SAMPA="S`" Example="" Language="" />
+      <Phoneme UPS="ZR" IPA="ʐ" Unicode="U+0290" SapiId="0290" IpaDescription="{rfx,frc,vcd}" ipaASCII="z." X-SAMPA="Z`" Example="" Language="" />
+      <Phoneme UPS="R" IPA="ɻ" Unicode="U+027B" SapiId="027B" IpaDescription="{rfx,apr,vcd}" ipaASCII="r." X-SAMPA="R" Example="red" Language="US English" />
+      <Phoneme UPS="LR" IPA="ɭ" Unicode="U+026D" SapiId="026D" IpaDescription="{rfx,lat,vcd}" ipaASCII="l." X-SAMPA="l`" Example="" Language="" />
+      <Phoneme UPS="RR rho" IPA="ɼ" Unicode="U+027C" SapiId="0072 02DE" IpaDescription="{rfx,trl}" ipaASCII="" X-SAMPA="" Example="" Language="" />
+      <Phoneme UPS="CT" IPA="c" Unicode="U+0063" SapiId="0063" IpaDescription="{pal,stp,vls}" ipaASCII="c" X-SAMPA="C" Example="" Language="" />
+      <Phoneme UPS="JD" IPA="ɟ" Unicode="U+025F" SapiId="025F" IpaDescription="{pal,stp,vcd}" ipaASCII="J" X-SAMPA="J\" Example="" Language="" />
+      <Phoneme UPS="NJ" IPA="ɲ" Unicode="U+0272" SapiId="0272" IpaDescription="{pal,nas,vcd}" ipaASCII="" X-SAMPA="J" Example="oignon" Language="French" />
+      <Phoneme UPS="C" IPA="ç" Unicode="U+00E7" SapiId="00E7" IpaDescription="{pal,frc,vls}" ipaASCII="C" X-SAMPA="C" Example="sicher" Language="German" />
+      <Phoneme UPS="CJ" IPA="ʝ" Unicode="U+029D" SapiId="029D" IpaDescription="{pal,frc,vcd}" ipaASCII="C&lt;vcd&gt;" X-SAMPA="j\" Example="" Language="" />
+      <Phoneme UPS="J" IPA="j" Unicode="U+006A" SapiId="006A" IpaDescription="{pal,apr,vcd}" ipaASCII="j" X-SAMPA="J" Example="yard" Language="US English" />
+      <Phoneme UPS="LJ" IPA="ʎ" Unicode="U+028E" SapiId="028E" IpaDescription="{pal,lat,apr,vcd}" ipaASCII="l^" X-SAMPA="L" Example="gli" Language="Italian" />
+      <Phoneme UPS="W" IPA="w" Unicode="U+0077" SapiId="0077" IpaDescription="{lbv,apr,vcd}" ipaASCII="w" X-SAMPA="W" Example="with" Language="US English" />
+      <Phoneme UPS="K" IPA="k" Unicode="U+006B" SapiId="006B" IpaDescription="{vel,stp,vls}" ipaASCII="k" X-SAMPA="K" Example="cut" Language="US English" />
+      <Phoneme UPS="G" IPA="g" Unicode="U+0067" SapiId="0067" IpaDescription="{vel,stp,vcd}" ipaASCII="g" X-SAMPA="G" Example="gut" Language="US English" />
+      <Phoneme UPS="NG" IPA="ŋ" Unicode="U+014B" SapiId="014B" IpaDescription="{vel,nas}" ipaASCII="N" X-SAMPA="N" Example="sing" Language="US English" />
+      <Phoneme UPS="X" IPA="x" Unicode="U+0078" SapiId="0078" IpaDescription="{vel,frc,vls}" ipaASCII="x" X-SAMPA="X" Example="mujer" Language="Spanish" />
+      <Phoneme UPS="GH" IPA="ɣ" Unicode="U+0263" SapiId="0263" IpaDescription="{vel,frc,vcd}" ipaASCII="Q" X-SAMPA="7" Example="luego" Language="Spanish" />
+      <Phoneme UPS="GA" IPA="ɰ" Unicode="U+0270" SapiId="0270" IpaDescription="{vel,apr,vcd}" ipaASCII="j&lt;vel&gt;" X-SAMPA="M\" Example="" Language="" />
+      <Phoneme UPS="GL" IPA="ʟ" Unicode="U+029F" SapiId="029F" IpaDescription="{vel,lat,vcd}" ipaASCII="L" X-SAMPA="L\" Example="" Language="" />
+      <Phoneme UPS="QT" IPA="q" Unicode="U+0071" SapiId="0071" IpaDescription="{uvl,stp,vls}" ipaASCII="q" X-SAMPA="Q" Example="" Language="" />
+      <Phoneme UPS="QD" IPA="ɢ" Unicode="U+0262" SapiId="0262" IpaDescription="{uvl,stp,vcd}" ipaASCII="G" X-SAMPA="G\" Example="" Language="" />
+      <Phoneme UPS="QN" IPA="ɴ" Unicode="U+0274" SapiId="0274" IpaDescription="{uvl,nas,vcd}" ipaASCII="n&quot;" X-SAMPA="N\" Example="" Language="" />
+      <Phoneme UPS="QQ" IPA="ʀ" Unicode="U+0280" SapiId="0280" IpaDescription="{uvl,trl,vcd}" ipaASCII="-" X-SAMPA="R\" Example="" Language="" />
+      <Phoneme UPS="QH" IPA="χ" Unicode="U+03C7" SapiId="03C7" IpaDescription="{uvl,frc,vls}" ipaASCII="X" X-SAMPA="X" Example="" Language="" />
+      <Phoneme UPS="RH" IPA="ʁ" Unicode="U+0281" SapiId="0281" IpaDescription="{uvl,frc,vcd}" ipaASCII="g&quot;" X-SAMPA="R" Example="rond" Language="French" />
+      <Phoneme UPS="HH" IPA="ħ" Unicode="U+0127" SapiId="0127" IpaDescription="{phr,frc,vls}" ipaASCII="H" X-SAMPA="X\" Example="" Language="" />
+      <Phoneme UPS="HG" IPA="ʕ" Unicode="U+0295" SapiId="0295" IpaDescription="{phr,frc,vcd}" ipaASCII="H&lt;vcd&gt;" X-SAMPA="?\" Example="" Language="" />
+      <Phoneme UPS="GT" IPA="ʔ" Unicode="U+0294" SapiId="0294" IpaDescription="{glt,stp,vls}" ipaASCII="?" X-SAMPA="?" Example="" Language="" />
+      <Phoneme UPS="H" IPA="h" Unicode="U+0068" SapiId="0068" IpaDescription="{glt,frc,vls}" ipaASCII="h" X-SAMPA="H" Example="help" Language="US English" />
+      <Phoneme UPS="WJ" IPA="ɥ" Unicode="U+0265" SapiId="0265" IpaDescription="{lbp,apr,vcd}" ipaASCII="j&lt;rnd&gt;" X-SAMPA="H" Example="huit;juin" Language="French" />
+    </Phonemes>
+    <Affricates>
+      <Phoneme UPS="PF" UpsCompound="P + F" IPA="p.f" Unicode="" SapiId="007003610066" IpaDescription="{lbd,aff,vls}" Example="Pfahl" Language="German" />
+      <Phoneme UPS="TS" UpsCompound="T + S" IPA="t.s / ʦ" Unicode="U+02A6" SapiId="007403610073" IpaDescription="{den,aff,vls}" Example="Zahl" Language="German" />
+      <Phoneme UPS="CH" UpsCompound="T + SH" IPA="t.ʃ / ʧ" Unicode="U+02A7" SapiId="007403610283" IpaDescription="{pla,aff,vls}" Example="chin" Language="English" />
+      <Phoneme UPS="JH" UpsCompound="D + ZH" IPA="d.ʒ / ʤ" Unicode="U+02A4" SapiId="006403610292" IpaDescription="{pla,aff,vcd}" Example="joy" Language="English" />
+      <Phoneme UPS="JJ" UpsCompound="J + J" IPA="j.j" Unicode="" SapiId="006A0361006A" IpaDescription="{pal,aff,vcd}" Example="hielo" Language="Spanish" />
+      <Phoneme UPS="DZ" UpsCompound="D + Z" IPA="d.z / ʣ" Unicode="U+02A3" SapiId="00640361007A" IpaDescription="{den,aff,vcd}" Example="zona" Language="Italian" />
+      <Phoneme UPS="CC" UpsCompound="T + SC" IPA="t.ɕ / ʨ" Unicode="U+02A8" SapiId="007403610255" IpaDescription="{pla,aff,vls}" Example="" Language="Mandarin" />
+      <Phoneme UPS="TSR" UpsCompound="T + SR" IPA="t.ʂ" Unicode="" SapiId="007403610282" IpaDescription="{rfx,aff,vls}" Example="" Language="Mandarin" />
+      <Phoneme UPS="JC" UpsCompound="D + ZC" IPA="d.ʑ / ʥ" Unicode="U+02A5" SapiId="006403610291" IpaDescription="{pla,aff,vcd}" Example="" Language="" />
+    </Affricates>
+  </Consonants>
+  <Vowels>
+    <Monophthongs>
+      <Phoneme UPS="I" IPA="i" Unicode="U+0069" SapiId="0069" IpaDescription="{hgh,fnt,unr,vwl}" IpaASCII="I" X-SAMPA="i" Example="feel" Language="English" />
+      <Phoneme UPS="Y" IPA="y" Unicode="U+0079" SapiId="0079" IpaDescription="{hgh,fnt,rnd,vwl}" IpaASCII="Y" X-SAMPA="y" Example="du" Language="French" />
+      <Phoneme UPS="IX" IPA="ɨ" Unicode="U+0268" SapiId="0268" IpaDescription="{hgh,cnt,unr,vwl}" IpaASCII="i&quot;" X-SAMPA="1" Example="" Language="" />
+      <Phoneme UPS="YX" IPA="ʉ" Unicode="U+0289" SapiId="0289" IpaDescription="{hgh,cnt,rnd,vwl}" IpaASCII="U&quot;" X-SAMPA="}" Example="" Language="" />
+      <Phoneme UPS="UU" IPA="ɯ" Unicode="U+026F" SapiId="026F" IpaDescription="{hgh,bck,unr,vwl}" IpaASCII="u-" X-SAMPA="M" Example="" Language="" />
+      <Phoneme UPS="U" IPA="u" Unicode="U+0075" SapiId="0075" IpaDescription="{hgh,bck,rnd,vwl}" IpaASCII="u" X-SAMPA="u" Example="too" Language="English" />
+      <Phoneme UPS="IH" IPA="ɪ" Unicode="U+026A" SapiId="026A" IpaDescription="{smh,fnt,unr,vwl}" IpaASCII="I" X-SAMPA="I" Example="fill" Language="English" />
+      <Phoneme UPS="YH" IPA="ʏ" Unicode="U+028F" SapiId="028F" IpaDescription="{smh,fnt,rnd,vwl}" IpaASCII="I." X-SAMPA="Y" Example="hübsch" Language="German" />
+      <Phoneme UPS="UH" IPA="ʊ" Unicode="U+028ª" SapiId="028ª" IpaDescription="{smh,bck,rnd,vwl}" IpaASCII="U" X-SAMPA="U" Example="book" Language="English" />
+      <Phoneme UPS="E" IPA="e" Unicode="U+0065" SapiId="0065" IpaDescription="{umd,fnt,urd,vwl}" IpaASCII="e" X-SAMPA="e" Example="ses" Language="French" />
+      <Phoneme UPS="EU" IPA="ø" Unicode="U+00F8" SapiId="00F8" IpaDescription="{umd,fnt,rnd,vwl}" IpaASCII="Y" X-SAMPA="2" Example="blöd" Language="German" />
+      <Phoneme UPS="EX" IPA="ɘ" Unicode="U+0258" SapiId="0258" IpaDescription="{umd,cnt,urd,vwl}" IpaASCII="@&lt;umd&gt;" X-SAMPA="@\" Example="" Language="" />
+      <Phoneme UPS="OX" IPA="ɵ" Unicode="U+0275" SapiId="0275" IpaDescription="{umd,cnt,rnd,vwl}" IpaASCII="" X-SAMPA="8" Example="" Language="" />
+      <Phoneme UPS="OU" IPA="ɤ" Unicode="U+0264" SapiId="0264" IpaDescription="{umd,bck,urd,vwl}" IpaASCII="o-" X-SAMPA="7" Example="" Language="" />
+      <Phoneme UPS="O" IPA="o" Unicode="U+006F" SapiId="006F" IpaDescription="{umd,bck,rnd,vwl}" IpaASCII="o" X-SAMPA="o" Example="go" Language="English" />
+      <Phoneme UPS="AX" IPA="ə" Unicode="U+0259" SapiId="0259" IpaDescription="{mid,cnt,unr,vwl}" IpaASCII="@" X-SAMPA="@" Example="ago" Language="English" />
+      <Phoneme UPS="AX rho" IPA="ɚ" Unicode="U+025ª" SapiId="0259 02DE" IpaDescription="{mid,cnt,rho,vwl}" IpaASCII="R" X-SAMPA="" Example="forensic" Language="English" />
+      <Phoneme UPS="EH" IPA="ɛ" Unicode="U+025B" SapiId="025B" IpaDescription="{lmd,fnt,unr,vwl}" IpaASCII="E" X-SAMPA="E" Example="pet" Language="English" />
+      <Phoneme UPS="OE" IPA="œ" Unicode="U+0153" SapiId="0153" IpaDescription="{lmd,fnt,rnd,vwl}" IpaASCII="W" X-SAMPA="9" Example="plötzlich" Language="German" />
+      <Phoneme UPS="ER" IPA="ɜ" Unicode="U+025C" SapiId="025C" IpaDescription="{lmd,cnt,unr,vwl}" IpaASCII="V&quot;" X-SAMPA="3" Example="bird" Language="UK English" />
+      <Phoneme UPS="ER rho" IPA="ɝ" Unicode="U+025D" SapiId="025C 02DE" IpaDescription="{lmd,cnt,unr,rho,vwl}" IpaASCII="@." X-SAMPA="" Example="bird" Language="US English" />
+      <Phoneme UPS="UR" IPA="ɞ" Unicode="U+025E" SapiId="025E" IpaDescription="{lmd,cnt,rnd,vwl}" IpaASCII="O&quot;" X-SAMPA="3\" Example="" Language="" />
+      <Phoneme UPS="AH" IPA="ʌ" Unicode="U+028C" SapiId="028C" IpaDescription="{lmd,bck,unr,vwl}" IpaASCII="V" X-SAMPA="V" Example="cut" Language="English" />
+      <Phoneme UPS="AO" IPA="ɔ" Unicode="U+0254" SapiId="0254" IpaDescription="{lmd,bck,rnd,vwl}" IpaASCII="O" X-SAMPA="O" Example="dog" Language="English" />
+      <Phoneme UPS="AE" IPA="æ" Unicode="U+00E6" SapiId="00E6" IpaDescription="{sml,fnt,unr,vwl}" IpaASCII="&amp;" X-SAMPA="{" Example="cat" Language="English" />
+      <Phoneme UPS="AEX" IPA="ɐ" Unicode="U+0250" SapiId="0250" IpaDescription="{sml,cnt,unr,vwl}" IpaASCII="" X-SAMPA="6" Example="Besser" Language="German" />
+      <Phoneme UPS="A" IPA="a" Unicode="U+0061" SapiId="0061" IpaDescription="{low,fnt,unr,vwl}" IpaASCII="a" X-SAMPA="a" Example="valle" Language="Spanish" />
+      <Phoneme UPS="AOE" IPA="ɶ" Unicode="U+0276" SapiId="0276" IpaDescription="{low,fnt,rnd,vwl}" IpaASCII="&amp;." X-SAMPA="&amp;" Example="" Language="" />
+      <Phoneme UPS="AA" IPA="ɑ" Unicode="U+0251" SapiId="0251" IpaDescription="{low,bck,unr,vwl}" IpaASCII="A" X-SAMPA="A" Example="father" Language="English" />
+      <Phoneme UPS="Q" IPA="ɒ" Unicode="U+0252" SapiId="0252" IpaDescription="{low,bck,rnd,vwl}" IpaASCII="A." X-SAMPA="Q" Example="hot" Language="English" />
+    </Monophthongs>
+    <Diphthongs>
+      <Phoneme UpsCompound="E + I" UPS="EI" IPA="e.ɪ" SapiId="006503610069" X-SAMPA="eI" Example="late" Language="English" />
+      <Phoneme UpsCompound="A + UH" UPS="AU" IPA="ɑ.ʊ" SapiId="00610361028A" X-SAMPA="aU" Example="Haus" Language="German" />
+      <Phoneme UpsCompound="AO + I" UPS="OI" IPA="ɔ.ɪ" SapiId="025403610069" X-SAMPA="OI" Example="Kreuz" Language="German" />
+      <Phoneme UpsCompound="A + I" UPS="AI" IPA="ɑ.ɪ" SapiId="006103610069" X-SAMPA="ai" Example="Eis" Language="German" />
+      <Phoneme UpsCompound="I + AX" UPS="IYX" IPA="i.ə" SapiId="006903610259" X-SAMPA="i:6" Example="fear" Language="English" />
+      <Phoneme UpsCompound="Y + AX" UPS="UYX" IPA="y.ə" SapiId="007903610259" X-SAMPA="y:6" Example="" Language="" />
+      <Phoneme UpsCompound="EH + AX" UPS="EHX" IPA="ɛ.ə" SapiId="025B03610259" X-SAMPA="E6" Example="stairs" Language="English" />
+      <Phoneme UpsCompound="U + AX" UPS="UWX" IPA="u.ə" SapiId="007503610259" X-SAMPA="u:6" Example="lure" Language="English" />
+      <Phoneme UpsCompound="O + AX" UPS="OWX" IPA="o.ə" SapiId="006F03610259" X-SAMPA="o:6" Example="boa" Language="English" />
+      <Phoneme UpsCompound="AO + AX" UPS="AOX" IPA="ɔ.ə" SapiId="025403610259" X-SAMPA="O6" Example="four" Language="English" />
+    </Diphthongs>
+    <GermanDiphthongs>
+      <Phoneme UpsCompound="IH + AX" IPA="ɪ.ə" X-SAMPA="I6" Example="Wirt" Language="German" />
+      <Phoneme UpsCompound="YH + AX" IPA="ʏ.ə" X-SAMPA="Y6" Example="Türke" Language="German" />
+      <Phoneme UpsCompound="EY lng + AX" IPA="e.ə" X-SAMPA="e:6" Example="schwer" Language="German" />
+      <Phoneme UpsCompound="EH lng + AX" IPA="ɛ:.ə" X-SAMPA="E:6" Example="Bär" Language="German" />
+      <Phoneme UpsCompound="EU lng + AX" IPA="ø.ə" X-SAMPA="2:6" Example="Föhr" Language="German" />
+      <Phoneme UpsCompound="OE + AX" IPA="œ.ə" X-SAMPA="96" Example="Wörter" Language="German" />
+      <Phoneme UpsCompound="A lng + AX" IPA="a.ə" X-SAMPA="a:6" Example="Haar" Language="German" />
+      <Phoneme UpsCompound="A + AX" IPA="a.ə" X-SAMPA="a6" Example="hart" Language="German" />
+      <Phoneme UpsCompound="UH + AX" IPA="ʊ.ə" X-SAMPA="U6" Example="kurz" Language="German" />
+    </GermanDiphthongs>
+    <NasalVowels>
+      <Phoneme Compound="E nas" UPS="EN" SapiId="00650303" X-SAMPA="e~" Example="vin" Language="French" />
+      <Phoneme Compound="A nas" UPS="AN" SapiId="00610303" X-SAMPA="a~" Example="vent" Language="French" />
+      <Phoneme Compound="O nas" UPS="ON" SapiId="006F0303" X-SAMPA="o~" Example="bon" Language="French" />
+      <Phoneme Compound="OE nas" UPS="OEN" SapiId="01530303" X-SAMPA="9~" Example="brun" Language="French" />
+    </NasalVowels>
+  </Vowels>
+  <Diacritics>
+    <Phoneme UPS="+" IPA="U+0361" Unicode="0361" SapiId="tie bar" IpaDescription="" IPA-ASCII="" X-SAMPA="" />
+    <Phoneme UPS="adv" IPA="o̟" Unicode="U+031F" SapiId="031F" IpaDescription="Advanced" IPA-ASCII="" X-SAMPA="_+" />
+    <Phoneme UPS="api" IPA="t̺" Unicode="U+033A" SapiId="033A" IpaDescription="Apical" IPA-ASCII="" X-SAMPA="_a" />
+    <Phoneme UPS="asp" IPA="tʰ" Unicode="U+02B0" SapiId="02B0" IpaDescription="Aspirated" IPA-ASCII="&lt;h&gt; {asp}" X-SAMPA="_h" />
+    <Phoneme UPS="atr" IPA="e̘" Unicode="U+0318" SapiId="0318" IpaDescription="Advanced tongue root" IPA-ASCII="" X-SAMPA="_A" />
+    <Phoneme UPS="bvd" IPA="b̤" Unicode="U+0324" SapiId="0324" IpaDescription="Breathy voiced" IPA-ASCII="" X-SAMPA="_t" />
+    <Phoneme UPS="cen" IPA="ë" Unicode="U+0308" SapiId="0308" IpaDescription="Centralized" IPA-ASCII="" X-SAMPA="_&quot;" />
+    <Phoneme UPS="cvd" IPA="b̰" Unicode="U+0330" SapiId="0330" IpaDescription="Creaky voiced" IPA-ASCII="" X-SAMPA="_k" />
+    <Phoneme UPS="den" IPA="t̪" Unicode="U+032A" SapiId="032A" IpaDescription="Dental" IPA-ASCII="[ / {dnt}" X-SAMPA="_d" />
+    <Phoneme UPS="ejc" IPA="pʼ" Unicode="U+02BC" SapiId="02BC" IpaDescription="Ejective" IPA-ASCII="{ejc}" X-SAMPA="_&gt;" />
+    <Phoneme UPS="lab" IPA="tʷ" Unicode="U+02B7" SapiId="02B7" IpaDescription="Labialised" IPA-ASCII="&lt;w&gt; {lzd}" X-SAMPA="_w" />
+    <Phoneme UPS="lam" IPA="t̻" Unicode="U+033B" SapiId="033B" IpaDescription="Laminal" IPA-ASCII="" X-SAMPA="_m" />
+    <Phoneme UPS="lar" IPA="dˡ" Unicode="U+02E1" SapiId="02E1" IpaDescription="Lateral release" IPA-ASCII="" X-SAMPA="_l" />
+    <Phoneme UPS="lla" IPA="n̼" Unicode="U+033C" SapiId="033C" IpaDescription="Linguolabial" IPA-ASCII="" X-SAMPA="_N" />
+    <Phoneme UPS="low" IPA="e̞" Unicode="U+031E" SapiId="031E" IpaDescription="Lowered" IPA-ASCII="" X-SAMPA="_o" />
+    <Phoneme UPS="lrd" IPA="o̜" Unicode="U+031C" SapiId="031C" IpaDescription="Less rounded" IPA-ASCII="" X-SAMPA="_c" />
+    <Phoneme UPS="mcn" IPA="e̽" Unicode="U+033D" SapiId="033D" IpaDescription="Mid-centralized" IPA-ASCII="" X-SAMPA="" />
+    <Phoneme UPS="mrd" IPA="o̹" Unicode="U+0339" SapiId="0339" IpaDescription="More rounded" IPA-ASCII="" X-SAMPA="_O" />
+    <Phoneme UPS="nar" IPA="d̚" Unicode="U+031A" SapiId="031A" IpaDescription="No audible release" IPA-ASCII="" X-SAMPA="_}" />
+    <Phoneme UPS="nas" IPA="ñ" Unicode="U+0303" SapiId="0303" IpaDescription="Nasalized" IPA-ASCII="~ / &lt;nzd&gt;" X-SAMPA="~ / _~" />
+    <Phoneme UPS="nsr" IPA="oⁿ" Unicode="U+207F" SapiId="207F" IpaDescription="Nasal release" IPA-ASCII="" X-SAMPA="_n" />
+    <Phoneme UPS="nsy" IPA="n̯" Unicode="U+032F" SapiId="032F" IpaDescription="Non-syllabic" IPA-ASCII="" X-SAMPA="_^" />
+    <Phoneme UPS="pal" IPA="tʲ" Unicode="U+02B2" SapiId="02B2" IpaDescription="Palatalized" IPA-ASCII="; / {pzd}" X-SAMPA="'" />
+    <Phoneme UPS="phr" IPA="nˤ" Unicode="U+02E4" SapiId="02E4" IpaDescription="Pharyngealized" IPA-ASCII="" X-SAMPA="_?\" />
+    <Phoneme UPS="rai" IPA="e̝" Unicode="U+031D" SapiId="031D" IpaDescription="Raised" IPA-ASCII="" X-SAMPA="_r" />
+    <Phoneme UPS="ret" IPA="o̱" Unicode="U+0331" SapiId="0331" IpaDescription="Retracted" IPA-ASCII="" X-SAMPA="_-" />
+    <Phoneme UPS="rho" IPA="ə˞" Unicode="U+02DE" SapiId="02DE" IpaDescription="Rhoticity" IPA-ASCII="" X-SAMPA="`" />
+    <Phoneme UPS="rtr" IPA="e̙" Unicode="U+0319" SapiId="0319" IpaDescription="Retracted tongue root" IPA-ASCII="" X-SAMPA="_q" />
+    <Phoneme UPS="rtr" IPA="e̙" Unicode="U+0319" SapiId="0319" IpaDescription="Retracted tongue root" IPA-ASCII="" X-SAMPA="_q" />
+    <Phoneme UPS="syl" IPA="n̩" Unicode="U+0329" SapiId="0329" IpaDescription="Syllabic" IPA-ASCII="{syl}" X-SAMPA="= / _=" />
+    <Phoneme UPS="vcd" IPA="s̬" Unicode="U+032C" SapiId="032C" IpaDescription="Voiced" IPA-ASCII="" X-SAMPA="_v" />
+    <Phoneme UPS="vel" IPA="tˠ" Unicode="U+02E0" SapiId="02E0" IpaDescription="Velarized" IPA-ASCII="{vzd}" X-SAMPA="_G" />
+    <Phoneme UPS="vls" IPA="n̊" Unicode="U+030A" SapiId="030A" IpaDescription="Voiceless" IPA-ASCII="" X-SAMPA="_0" />
+    <Phoneme UPS="vph" IPA="l̴" Unicode="U+0334" SapiId="0334" IpaDescription="Velarized or pharyngealized" IPA-ASCII="{fzd}" X-SAMPA="_e" />
+  </Diacritics>
+  <Suprasegmentals>
+    <Phoneme UPS="S1" IPA="ˈ" Unicode="U+02C8" SapiId="02C8" IpaDescription="Primary stress" X-SAMPA="&quot;" SapiEquivalent="1" />
+    <Phoneme UPS="S2" IPA="ˌ" Unicode="U+02CC" SapiId="02CC" IpaDescription="Secondary stress" X-SAMPA="%" SapiEquivalent="2" />
+    <Phoneme UPS="." IPA="." Unicode="U+002E" SapiId="002E" IpaDescription="Syllable break" X-SAMPA="" SapiEquivalent="" />
+    <Phoneme UPS="_|" IPA="|" Unicode="U+007C" SapiId="007C" IpaDescription="Minor (foot) group" X-SAMPA="" SapiEquivalent="" />
+    <Phoneme UPS="_||" IPA="‖" Unicode="U+2016" SapiId="2016" IpaDescription="Major (intonation) group" X-SAMPA="" SapiEquivalent="" />
+    <Phoneme UPS="lng" IPA="ː" Unicode="U+02D0" SapiId="02D0" IpaDescription="Long" X-SAMPA=":" SapiEquivalent="" />
+    <Phoneme UPS="hlg" IPA="ˑ" Unicode="U+02D1" SapiId="02D1" IpaDescription="Half-long" X-SAMPA=":\" SapiEquivalent="" />
+    <Phoneme UPS="xsh" IPA="˘" Unicode="U+02D8" SapiId="02D8" IpaDescription="Extra-short" X-SAMPA="_X" SapiEquivalent="" />
+    <Phoneme UPS="_^" IPA="U+203F" Unicode="203F" SapiId="linking (absence of a break)" IpaDescription="-\" X-SAMPA="" SapiEquivalent="" />
+    <Phoneme UPS="_!" IPA="" Unicode="" SapiId="0001" IpaDescription="Intonation - exclamation" X-SAMPA="" SapiEquivalent="! Sentence terminator (exclamation mark)" />
+    <Phoneme UPS="_&amp;" IPA="" Unicode="" SapiId="0002" IpaDescription="Intonation - continue" X-SAMPA="" SapiEquivalent="&amp; Word boundary" />
+    <Phoneme UPS="_," IPA="" Unicode="" SapiId="0003" IpaDescription="intonation - incompletion rise" X-SAMPA="" SapiEquivalent=", Sentence terminator (comma)" />
+    <Phoneme UPS="_s" IPA="" Unicode="" SapiId="0004" IpaDescription="Silence" X-SAMPA="" SapiEquivalent="_ Silence (underscore)" />
+    <Phoneme UPS="_." IPA="" Unicode="U+2198" SapiId="2198" IpaDescription="Intonation – fall" X-SAMPA="" SapiEquivalent=". Sentence terminator (period)" />
+    <Phoneme UPS="_?" IPA="" Unicode="U+2197" SapiId="2197" IpaDescription="Intonation - question rise" X-SAMPA="" SapiEquivalent="? Sentence terminator (question mark)" />
+  </Suprasegmentals>
+  <Ejectives>
+    <Phoneme UPS="PCK" IPA="ʘ" Unicode="U+0298" SapiId="0298" IpaDescription="blb,clk" X-SAMPA="O\" />
+    <Phoneme UPS="TCK" IPA="ǀ" Unicode="U+01C0" SapiId="01C0" IpaDescription="dnt,clk" X-SAMPA="|\" />
+    <Phoneme UPS="NCK" IPA="!" Unicode="U+0021" SapiId="0021" IpaDescription="alv,clk" X-SAMPA="!\" />
+    <Phoneme UPS="CCK" IPA="ǂ" Unicode="U+01C2" SapiId="01C2" IpaDescription="pla,clk" X-SAMPA="=\" />
+    <Phoneme UPS="LCK" IPA="ǁ" Unicode="U+01C1" SapiId="01C1" IpaDescription="alv,lat,clk" X-SAMPA="|\|\" />
+    <Phoneme UPS="BIM" IPA="ɓ" Unicode="U+0253" SapiId="0253" IpaDescription="blb,imp,vcd" X-SAMPA="b_&lt;" />
+    <Phoneme UPS="DIM" IPA="ɗ" Unicode="U+0257" SapiId="0257" IpaDescription="dnt-alv,imp,vcd" X-SAMPA="d_&lt;" />
+    <Phoneme UPS="QIM" IPA="ʛ" Unicode="U+029B" SapiId="029B" IpaDescription="uvl,imp,vcd" X-SAMPA="" />
+    <Phoneme UPS="QIM vls" IPA="ʠ" Unicode="U+02A0" SapiId="029B 030A" IpaDescription="uvl,imp,vls" X-SAMPA="" />
+    <Phoneme UPS="GIM" IPA="ɠ" Unicode="U+0260" SapiId="0260" IpaDescription="vel,imp,vcd" X-SAMPA="g_&lt;" />
+    <Phoneme UPS="JIM" IPA="ʄ" Unicode="U+0284" SapiId="0284" IpaDescription="pal,imp,vcd" X-SAMPA="" />
+    <Phoneme UPS="P ejc" IPA="pʼ" Unicode="0070 02BC" SapiId="0070 02BC" IpaDescription="blb,ej" X-SAMPA="b_&gt;" />
+    <Phoneme UPS="T ejc" IPA="tʼ" Unicode="0074 02BC" SapiId="0074 02BC" IpaDescription="dnt-alv, ej" X-SAMPA="t_&gt;" />
+    <Phoneme UPS="K ejc" IPA="kʼ" Unicode="006B 02BC" SapiId="006B 02BC" IpaDescription="vel ej" X-SAMPA="g_&gt;" />
+    <Phoneme UPS="S ejc" IPA="sʼ" Unicode="0073 02BC" SapiId="0073 02BC" IpaDescription="alv fric ej" X-SAMPA="s_&gt;" />
+    <Phoneme UPS="QT ejc" IPA="qʼ" Unicode="0071 02BC" SapiId="0071 02BC" IpaDescription="uvl,ej" X-SAMPA="" />
+  </Ejectives>
+  <Tones>
+    <Phoneme UPS="T5" IPA="e̋" Unicode="U+030B" SapiId="030B" IpaDescription="Extra high Level" X-SAMPA="_T" />
+    <Phoneme UPS="T4" IPA="é" Unicode="U+0301" SapiId="0301" IpaDescription="High Level" X-SAMPA="_H" />
+    <Phoneme UPS="T3" IPA="ē" Unicode="U+0304" SapiId="0304" IpaDescription="Mid Level" X-SAMPA="_M" />
+    <Phoneme UPS="T2" IPA="è" Unicode="U+0300" SapiId="0300" IpaDescription="Low Level" X-SAMPA="_L" />
+    <Phoneme UPS="T1" IPA="ȅ" Unicode="U+030F" SapiId="030F" IpaDescription="Extra Low Level" X-SAMPA="_B" />
+    <Phoneme UPS="T-" IPA="↓" Unicode="U+2193" SapiId="2193" IpaDescription="Downstep" X-SAMPA="!" />
+    <Phoneme UPS="T+" IPA="↑" Unicode="U+2191" SapiId="2191" IpaDescription="Upstep" X-SAMPA="^" />
+  </Tones>
+  <Other>
+    <Documentation xml:lang="en-us">
+      <head xmlns="http://www.w3.org/1999/xhtml">
+        <title>Other Phones</title>
+        <meta name="copyright" content="© 2016 Microsoft" />
+        <meta name="originalSource" content="https://msdn.microsoft.com/en-us/library/hh361685(v=office.14).aspx" />
+      </head>
+      <body xmlns="http://www.w3.org/1999/xhtml">
+        <h2>Other Phones</h2>
+        <blockquote>
+          <p>
+            This is a listing and cross reference of the uncommon phones that are not listed in the other phone tables, but are used by the three phonetic alphabets that System.Speech supports. See
+            <a href="https://msdn.microsoft.com/en-us/library/office/hh361589(v=office.14).aspx">Phonetic Alphabet Reference</a>.
+          </p>
+          <p>These elements contain the following attributes:</p>
+        </blockquote>
+        <dl>
+          <dt>UPS</dt>
+          <dd>The phone label specified in Microsoft’s Universal Phone Set (UPS).</dd>
+          <dt>IPA</dt>
+          <dd>
+            The phone label specified in the <a href="http://www.langsci.ucl.ac.uk/ipa/">International Phonetic Alphabet</a> (IPA) phone set.
+          </dd>
+          <dt>Unicode</dt>
+          <dd>
+            The <a href="http://www.unicode.org/versions/Unicode5.2.0/">Unicode</a> value from the IPA phone set.
+          </dd>
+          <dt>SapiId</dt>
+          <dd>The Speech API (SAPI) phone ID, which in most cases is the Unicode value.</dd>
+          <dt>IpaDescription</dt>
+          <dd>
+            This column describes the features of the phone, such as place of articulation, manner of articulation, phonation type, and airstream mechanism. See the
+            <a href="https://msdn.microsoft.com/en-us/library/office/hh361665(v=office.14).aspx">Glossary of Phonetic Terms</a>
+          </dd>
+          <dt>IPA-ASCII</dt>
+          <dd>The equivalent phone in ipaASCII phone set for reference.</dd>
+          <dt>X-SAMPA</dt>
+          <dd>
+            The equivalent phone in <a href="http://www.phon.ucl.ac.uk/home/sampa/x-sampa.htm">X-SAMPA</a> for reference.
+          </dd>
+        </dl>
+      </body>
+    </Documentation>
+    <Phoneme UPS="WH" IPA="ʍ" Unicode="U+028D" SapiId="028D" IpaDescription="lbv,frc,vls" IPA-ASCII="w&lt;vls&gt;" X-SAMPA="W" />
+    <Phoneme UPS="ESH" IPA="ʜ" Unicode="U+029C" SapiId="029C" IpaDescription="epl,frc,vls" IPA-ASCII="" X-SAMPA="H\" />
+    <Phoneme UPS="EZH" IPA="ʢ" Unicode="U+02A2" SapiId="02A2" IpaDescription="epl,frc,vcd" IPA-ASCII="" X-SAMPA="&lt;\" />
+    <Phoneme UPS="ET" IPA="ʡ" Unicode="U+02A1" SapiId="02A1" IpaDescription="epl,stp" IPA-ASCII="" X-SAMPA="&gt;\" />
+    <Phoneme UPS="SC" IPA="ɕ" Unicode="U+0255" SapiId="0255" IpaDescription="pla,frc,vls" IPA-ASCII="" X-SAMPA="s\" />
+    <Phoneme UPS="ZC" IPA="ʑ" Unicode="U+0291" SapiId="0291" IpaDescription="pla,frc,vcd" IPA-ASCII="" X-SAMPA="z\" />
+    <Phoneme UPS="LT" IPA="ɺ" Unicode="U+027A" SapiId="027A" IpaDescription="alv,lat,flp" IPA-ASCII="*&lt;lat&gt;" X-SAMPA="l\" />
+    <Phoneme UPS="SHX" IPA="ɧ" Unicode="U+0267" SapiId="0267" IpaDescription="simultaneous SH and X" IPA-ASCII="" X-SAMPA="x\" />
+    <Phoneme UPS="HZ" IPA="ɦ" Unicode="U+0266" SapiId="0266" IpaDescription="glt,frc,vcd" IPA-ASCII="" X-SAMPA="h\" />
+  </Other>
+</PhoneticTables>

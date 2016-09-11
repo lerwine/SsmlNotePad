@@ -100,6 +100,18 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
 
             return task.Result;
         }
+        public void OnCompleted(Action<Task<TResult>> action)
+        {
+            lock (_syncRoot)
+                _currentTask.ContinueWith(Continuation, new object[] { _currentWorker, action });
+        }
+
+        private static void Continuation(Task<TResult> task, object state)
+        {
+            object[] args = state as object[];
+            if (!(args[0] as TWorker).Token.IsCancellationRequested)
+                (args[1] as Action<Task<TResult>>).Invoke(task);
+        }
 
         public static BackgroundJobManager<TWorker, TResult> FromResult(TResult result)
         {

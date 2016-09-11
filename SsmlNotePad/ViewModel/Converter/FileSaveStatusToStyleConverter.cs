@@ -144,15 +144,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         /// Identifies the <seealso cref="SaveWarningStyle"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SaveWarningStyleProperty = DependencyProperty.Register(DependencyPropertyName_SaveWarningStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
-                new PropertyMetadata(null,
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as FileSaveStatusToStyleConverter).SaveWarningStyle_PropertyChanged((Style)(e.OldValue), (Style)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as FileSaveStatusToStyleConverter).SaveWarningStyle_PropertyChanged((Style)(e.OldValue), (Style)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as FileSaveStatusToStyleConverter).SaveWarningStyle_CoerceValue(baseValue)));
+                new PropertyMetadata(null));
 
         /// <summary>
         /// 
@@ -174,27 +166,6 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
             }
         }
 
-        /// <summary>
-        /// This gets called after the value associated with the <seealso cref="SaveWarningStyle"/> dependency property has changed.
-        /// </summary>
-        /// <param name="oldValue">The <seealso cref="Style"/> value before the <seealso cref="SaveWarningStyle"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="Style"/> value after the <seealso cref="SaveWarningStyle"/> property was changed.</param>
-        protected virtual void SaveWarningStyle_PropertyChanged(Style oldValue, Style newValue)
-        {
-            // TODO: Implement FileSaveStatusToStyleConverter.SaveWarningStyle_PropertyChanged(Style, Style)
-        }
-
-        /// <summary>
-        /// This gets called whenever <seealso cref="SaveWarningStyle"/> is being re-evaluated, or coercion is specifically requested.
-        /// </summary>
-        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
-        /// <returns>The coerced value.</returns>
-        public virtual Style SaveWarningStyle_CoerceValue(object baseValue)
-        {
-            // TODO: Implement FileSaveStatusToStyleConverter.SaveWarningStyle_CoerceValue(DependencyObject, object)
-            return (Style)baseValue;
-        }
-
         #endregion
 
         #region SaveSuccessStyle Property Members
@@ -205,15 +176,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         /// Identifies the <seealso cref="SaveSuccessStyle"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SaveSuccessStyleProperty = DependencyProperty.Register(DependencyPropertyName_SaveSuccessStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
-                new PropertyMetadata(null,
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as FileSaveStatusToStyleConverter).SaveSuccessStyle_PropertyChanged((Style)(e.OldValue), (Style)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as FileSaveStatusToStyleConverter).SaveSuccessStyle_PropertyChanged((Style)(e.OldValue), (Style)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as FileSaveStatusToStyleConverter).SaveSuccessStyle_CoerceValue(baseValue)));
+                new PropertyMetadata(null));
 
         /// <summary>
         /// 
@@ -234,28 +197,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                     Dispatcher.Invoke(() => SaveSuccessStyle = value);
             }
         }
-
-        /// <summary>
-        /// This gets called after the value associated with the <seealso cref="SaveSuccessStyle"/> dependency property has changed.
-        /// </summary>
-        /// <param name="oldValue">The <seealso cref="Style"/> value before the <seealso cref="SaveSuccessStyle"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="Style"/> value after the <seealso cref="SaveSuccessStyle"/> property was changed.</param>
-        protected virtual void SaveSuccessStyle_PropertyChanged(Style oldValue, Style newValue)
-        {
-            // TODO: Implement FileSaveStatusToStyleConverter.SaveSuccessStyle_PropertyChanged(Style, Style)
-        }
-
-        /// <summary>
-        /// This gets called whenever <seealso cref="SaveSuccessStyle"/> is being re-evaluated, or coercion is specifically requested.
-        /// </summary>
-        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
-        /// <returns>The coerced value.</returns>
-        public virtual Style SaveSuccessStyle_CoerceValue(object baseValue)
-        {
-            // TODO: Implement FileSaveStatusToStyleConverter.SaveSuccessStyle_CoerceValue(DependencyObject, object)
-            return (Style)baseValue;
-        }
-
+        
         #endregion
 
         public Style Convert(FileSaveStatus? value, object parameter, CultureInfo culture)

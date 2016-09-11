@@ -65,6 +65,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 OutputDestination = "(Default audio device)";
             else
                 Dispatcher.Invoke(() => OutputDestination = "(Default audio device)");
+
             Start(new Process.SpeakText(ssml, this));
         }
 
@@ -783,12 +784,12 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             Volume = volume;
         }
 
-        internal void AddErrorMessage(Exception error)
+        internal void AddErrorMessage(Exception error, MessageSeverity severity = MessageSeverity.Error)
         {
             if (CheckAccess())
             {
                 CurrentState = CurrentState | SpeechState.HasFault;
-                _messages.Add(SpeechMessageVM.Create(error, false));
+                _messages.Add(SpeechMessageVM.Create(error, severity));
                 if (_messages.Count > 128)
                     _messages.RemoveAt(0);
             }
@@ -879,14 +880,12 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 _resumeSpeechCommand.IsEnabled = false;
                 _toggleSpeechCommand.IsEnabled = false;
                 CurrentState = SpeechState.HasFault | ((CurrentState.HasFlag(SpeechState.Canceled)) ? SpeechState.Completed | SpeechState.Canceled : SpeechState.Completed);
-                _messages.Add(SpeechMessageVM.Create(exception, true));
+                _messages.Add(SpeechMessageVM.Create(exception, MessageSeverity.Critical));
                 if (_messages.Count > 128)
                     _messages.RemoveAt(0);
             }
             else
                 Dispatcher.Invoke(() => SetErrorState(exception), DispatcherPriority.Input);
-
-            throw new NotImplementedException();
         }
 
         internal void SetPausedState()

@@ -51,7 +51,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.View
         {
             SpeechProgressWindow window = new SpeechProgressWindow();
             window.Owner = owner ?? App.Current.MainWindow;
-            (window.DataContext as ViewModel.SpeechProgressVM).Start(ssml);
+            ViewModel.SpeechProgressVM vm = window.DataContext as ViewModel.SpeechProgressVM;
+            vm.Start(ssml);
             window.ShowDialog();
         }
 

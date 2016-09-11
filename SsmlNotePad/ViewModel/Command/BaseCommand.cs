@@ -112,11 +112,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>
-        public virtual bool AllowSimultaneousExecute_CoerceValue(object baseValue)
-        {
-            // TODO: Implement BaseCommand.AllowSimultaneousExecute_CoerceValue(DependencyObject, object)
-            return (bool)baseValue;
-        }
+        public virtual bool AllowSimultaneousExecute_CoerceValue(object baseValue) { return (bool)baseValue; }
 
         #endregion
 

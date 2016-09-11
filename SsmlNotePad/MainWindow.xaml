@@ -4,10 +4,49 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Erwine.Leonard.T.SsmlNotePad"
         xmlns:ViewModel="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel"
+        xmlns:View="clr-namespace:Erwine.Leonard.T.SsmlNotePad.View"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:Converter="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter" x:Name="window" x:Class="Erwine.Leonard.T.SsmlNotePad.MainWindow"
         mc:Ignorable="d" DataContext="{DynamicResource MainWindowViewModel}"
-        Title="{DynamicResource ApplicationTitle}" Height="800" Width="600">
+        Title="{DynamicResource ApplicationTitle}" Height="600" Width="800">
     <Window.Resources>
+        <Style x:Key="SpeechStatusBorderStyle" TargetType="{x:Type Border}">
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}" />
+        </Style>
+        <Style x:Key="NormalProgressBarStyle" TargetType="{x:Type ProgressBar}">
+            <Setter Property="Foreground" Value="{StaticResource ProgressBar.Normal.Progress}"/>
+            <Setter Property="Background" Value="{StaticResource ProgressBar.Normal.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgressBar.Normal.Border}"/>
+        </Style>
+        <Style x:Key="ErrorProgressBarStyle" TargetType="{x:Type ProgressBar}">
+            <Setter Property="Foreground" Value="{StaticResource ProgressBar.Error.Progress}"/>
+            <Setter Property="Background" Value="{StaticResource ProgressBar.Error.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgressBar.Error.Border}"/>
+        </Style>
+        <Style x:Key="CanceledProgressBarStyle" TargetType="{x:Type ProgressBar}">
+            <Setter Property="Foreground" Value="{StaticResource ProgressBar.Canceled.Progress}"/>
+            <Setter Property="Background" Value="{StaticResource ProgressBar.Canceled.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgressBar.Canceled.Border}"/>
+        </Style>
+        <Style x:Key="PausedProgressBarStyle" TargetType="{x:Type ProgressBar}">
+            <Setter Property="Foreground" Value="{StaticResource ProgressBar.Paused.Progress}"/>
+            <Setter Property="Background" Value="{StaticResource ProgressBar.Paused.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgressBar.Paused.Border}"/>
+        </Style>
+        <Converter:SpeechStateToStyleConverter x:Key="SpeechStateToStyleConverter" CanceledStyle="{DynamicResource CanceledProgressBarStyle}" FaultedStyle="{DynamicResource ErrorProgressBarStyle}" NormalStyle="{DynamicResource NormalProgressBarStyle}" NullStyle="{DynamicResource NormalProgressBarStyle}" PausedStyle="{DynamicResource PausedProgressBarStyle}"/>
+        <Converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <Converter:MessageCollectionToLatestItemConverter x:Key="MessageCollectionToLatestItemConverter">
+            <Converter:MessageCollectionToLatestItemConverter.NullValue>
+                <ViewModel:SpeechMessageVM />
+            </Converter:MessageCollectionToLatestItemConverter.NullValue>
+            <Converter:MessageCollectionToLatestItemConverter.EmptyValue>
+                <ViewModel:SpeechMessageVM />
+            </Converter:MessageCollectionToLatestItemConverter.EmptyValue>
+        </Converter:MessageCollectionToLatestItemConverter>
+        <Converter:BookmarkCollectionLatestItemConverter x:Key="BookmarkCollectionLatestItemConverter"/>
         <Converter:FileSaveStatusToStyleConverter x:Key="FileSaveStatusToPathStyleConverter" SaveErrorStyle="{DynamicResource ErrorIconPath}" 
                                                   SaveSuccessStyle="{DynamicResource StatusIconPath}" 
                                                   SaveWarningStyle="{DynamicResource WarningIconPath}" 
@@ -37,7 +76,7 @@
         <Converter:BooleanToTextWrappingConverter x:Key="BooleanToTextWrappingConverter"/>
         <Converter:BooleanToScrollBarVisibilityConverter x:Key="BooleanToHorizontalScrollBarVisibilityConverter" TrueValue="Disabled" FalseValue="Auto"/>
     </Window.Resources>
-    <Window.CommandBindings>
+    <!--<Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.New" CanExecute="CommandBindingNew_CanExecute" Executed="CommandBindingNew_Executed" />
         <CommandBinding Command="ApplicationCommands.Open" CanExecute="CommandBindingOpen_CanExecute" Executed="CommandBindingOpen_Executed" />
         <CommandBinding Command="ApplicationCommands.Save" CanExecute="CommandBindingSave_CanExecute" Executed="CommandBindingSave_Executed" />
@@ -47,7 +86,7 @@
         <CommandBinding Command="ApplicationCommands.Replace" CanExecute="CommandBindingReplace_CanExecute" Executed="CommandBindingReplace_Executed" />
         <CommandBinding Command="ApplicationCommands.Properties" CanExecute="CommandBindingProperties_CanExecute" Executed="CommandBindingProperties_Executed" />
         <CommandBinding Command="ApplicationCommands.Help" CanExecute="CommandBindingHelp_CanExecute" Executed="CommandBindingHelp_Executed" />
-    </Window.CommandBindings>
+    </Window.CommandBindings>-->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -61,10 +100,10 @@
         </Grid.RowDefinitions>
         <Menu x:Name="menu" Grid.ColumnSpan="2">
             <MenuItem Header="File">
-                <MenuItem Header="_New" Command="ApplicationCommands.New" />
-                <MenuItem Header="_Open" Command="ApplicationCommands.Open" />
-                <MenuItem Header="_Save" Command="ApplicationCommands.Save" />
-                <MenuItem Header="Save _As" Command="ApplicationCommands.SaveAs" />
+                <MenuItem Header="_New" Command="{Binding NewDocumentCommand, Mode=OneWay}" />
+                <MenuItem Header="_Open" Command="{Binding OpenDocumentCommand, Mode=OneWay}" />
+                <MenuItem Header="_Save" Command="{Binding SaveDocumentCommand, Mode=OneWay}" />
+                <MenuItem Header="Save _As" Command="{Binding SaveAsCommand, Mode=OneWay}" />
                 <Separator />
                 <MenuItem Header="E_xit" Command="ApplicationCommands.Close" />
             </MenuItem>
@@ -78,7 +117,7 @@
                 <MenuItem Header="Paste _Encoded" Command="{Binding PasteEncodedCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
                 <MenuItem Header="_Delete" Command="ApplicationCommands.Delete" />
                 <Separator />
-                <MenuItem Header="Refor_mat Document" Command="{Binding ReformatDocumentCommand, Mode=OneWay}" />
+                <MenuItem Header="Refor_mat Document" Command="{Binding ReformatDocumentCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
                 <Separator />
                 <MenuItem Header="Select _All" Command="ApplicationCommands.SelectAll" />
                 <MenuItem Visibility="Collapsed" Header="Select Current _Tag" Command="{Binding SelectCurrentTagCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}" />
@@ -106,9 +145,9 @@
                 <MenuItem Header="Select after _Insert" ToolTip="Select inserted text after an insert operation." IsCheckable="True" IsChecked="{Binding SelectAfterInsert}" />
             </MenuItem>
             <MenuItem Header="_Synthesis">
-                <MenuItem Header="Speak to Default Audio Device" Command="{Binding SpeakToDefaultDeviceCommand, Mode=OneWay}" />
-                <MenuItem Header="Generate WAV file" Command="{Binding GenerateWavFileCommand, Mode=OneWay}" />
-                <MenuItem Visibility="Collapsed" Header="Default Settings" Command="{Binding DefaultSynthSettingsCommand, Mode=OneWay}" />
+                <MenuItem Header="Speak to Default Audio Device" Command="{Binding SpeechGenerationStatus.SpeakAllTextCommand, Mode=OneWay}" />
+                <MenuItem Header="Generate WAV file" Command="{Binding SpeechGenerationStatus.ExportToWavFileCommand, Mode=OneWay}" />
+                <MenuItem Header="Default Settings" Command="{Binding DefaultSynthSettingsCommand, Mode=OneWay}" />
             </MenuItem>
             <MenuItem Visibility="Collapsed" Header="_Help">
                 <MenuItem Header="Get _Help" Command="ApplicationCommands.Help" />
@@ -120,7 +159,7 @@
                 <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Save Changes" Command="{Binding SaveDocumentCommand, Mode=OneWay}">
                     <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource SaveIconGeometry}" />
                 </Button>
-                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Speak text to default audio device" Command="{Binding SpeakToDefaultDeviceCommand, Mode=OneWay}">
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Speak text to default audio device" Command="{Binding SpeechGenerationStatus.SpeakAllTextCommand, Mode=OneWay}">
                     <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource SpeakIconGeometry}" />
                 </Button>
                 <Button Style="{DynamicResource StatusButtonStyle}" Command="ApplicationCommands.Cut">
@@ -144,7 +183,7 @@
                 <Button Visibility="Collapsed" Style="{DynamicResource StatusButtonStyle}" ToolTip="Select Tag Contents" Command="{Binding SelectTagContentsCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
                     <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource XmlIconGeometry}" />
                 </Button>
-                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Reformat Document" Command="{Binding ReformatDocumentCommand, Mode=OneWay}">
+                <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Reformat Document" Command="{Binding ReformatDocumentCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
                     <Path Style="{DynamicResource CommandIconPath}" Data="{DynamicResource LinesTextCode16xSMIcon_bgGeometry}" />
                 </Button>
                 <Button Style="{DynamicResource StatusButtonStyle}" ToolTip="Insert Paragraph" Command="{Binding InsertParagraphCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=contentsTextBox, Mode=OneWay}">
@@ -223,7 +262,7 @@
         </ItemsControl>
         <TextBox Grid.Row="2" x:Name="contentsTextBox" Grid.Column="1" TextWrapping="{Binding LineWrapEnabled, Converter={StaticResource BooleanToTextWrappingConverter}}" AcceptsReturn="True" AcceptsTab="True"
                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="{Binding LineWrapEnabled, Converter={StaticResource BooleanToHorizontalScrollBarVisibilityConverter}}" 
-                 LayoutUpdated="contentsTextBox_LayoutUpdated" Text="{Binding Text}" />
+                 LayoutUpdated="contentsTextBox_LayoutUpdated" Text="{Binding Text, Mode=TwoWay, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged}" TextChanged="ContentsTextBox_TextChanged" SelectionChanged="contentsTextBox_SelectionChanged" />
         <Border Grid.Row="3" Grid.ColumnSpan="2" Grid.RowSpan="2" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="2" Padding="2">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -247,6 +286,164 @@
                 <TextBlock Grid.Column="3" Text=", C " />
                 <TextBlock Grid.Column="4" Text="{Binding CurrentColNumber}" />
             </Grid>
+        </Border>
+        <Border Grid.ColumnSpan="2" Grid.RowSpan="4" Background="#51646464" DataContext="{Binding SpeechGenerationStatus, Mode=OneWay}" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+            <Border Margin="64" BorderBrush="{DynamicResource PopupBorderBrush}" Background="{DynamicResource PopupBackgroundBrush}" BorderThickness="2" CornerRadius="4" Padding="4">
+                <Border.Effect>
+                    <DropShadowEffect Color="#7F646464" ShadowDepth="10"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border Background="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" Padding="4" Margin="-4,-4,-4,4">
+                        <TextBlock Text="Speech Generation Progress" Foreground="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" FontWeight="Bold" />
+                    </Border>
+                    <TabControl Grid.Row="1">
+                        <TabItem Header="Overview">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Border Style="{DynamicResource SpeechStatusBorderStyle}">
+                                    <Grid VerticalAlignment="Top">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Voice" FontWeight="Bold" />
+                                        <TextBlock Text="Rate" FontWeight="Bold" Grid.Column="1" Margin="4,0,0,0" />
+                                        <TextBlock Text="Volume" FontWeight="Bold" Grid.Column="2" Margin="4,0,0,0" />
+                                        <TextBlock Text="{Binding Voice.DisplayText, Mode=OneWay}" Grid.Row="1" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding Rate, StringFormat=\{0:+;-; \}\{0:D\}}" Grid.Row="1" Grid.Column="1" Margin="4,0,0,0" />
+                                        <TextBlock Text="{Binding Volume, StringFormat=\{0:D\}%}" Grid.Row="1" Grid.Column="2" Margin="4,0,0,0" />
+                                        <TextBlock Text="Position: " Grid.Row="2" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,4,0,0" />
+                                        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding AudioPosition.Days, Mode=OneWay, StringFormat=(\{0:D\} d)}" Grid.Row="3" Grid.Column="1" Margin="4,0,0,0" />
+                                            <TextBlock Text="{Binding AudioPosition.Hours, Mode=OneWay, StringFormat=' \{0:d2\}'}" Grid.Row="3" Grid.Column="2" />
+                                            <TextBlock Text="{Binding AudioPosition.Minutes, Mode=OneWay, StringFormat=:\{0:d2\}}" Grid.Row="3" Grid.Column="3" />
+                                            <TextBlock Text="{Binding AudioPosition.Seconds, Mode=OneWay, StringFormat=:\{0:d2\}}" Grid.Row="3" Grid.Column="4" />
+                                            <TextBlock Text="{Binding AudioPosition.Milliseconds, Mode=OneWay, StringFormat=.\{0:d6\}}" Grid.Row="3" Grid.Column="5" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="1" Style="{DynamicResource SpeechStatusBorderStyle}">
+                                    <Grid VerticalAlignment="Top">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition />
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Currently Speaking" FontWeight="Bold" Grid.ColumnSpan="2" />
+                                        <TextBlock Text="{Binding CurrentText}" Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap" />
+                                        <TextBlock Text="Position" FontWeight="Bold" Grid.Row="2" Margin="0,4,0,0" />
+                                        <TextBlock Text="Count" FontWeight="Bold" Grid.Row="2" Grid.Column="1" Margin="4,4,0,0" />
+                                        <TextBlock Text="{Binding CharacterPosition}" Grid.Row="3" />
+                                        <TextBlock Text="{Binding CharacterCount}" Grid.Row="3" Grid.Column="1" Margin="4,0,0,0" />
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="2" Grid.ColumnSpan="2" Style="{DynamicResource SpeechStatusBorderStyle}">
+                                    <Grid VerticalAlignment="Top">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Message: " FontWeight="Bold" />
+                                        <Grid Grid.Column="1" DataContext="{Binding Messages, Converter={StaticResource MessageCollectionToLatestItemConverter}}">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Message, Mode=OneWay}" Grid.ColumnSpan="3" TextWrapping="Wrap" />
+                                            <TextBlock Grid.Row="1" Text="Event: " FontWeight="Bold" />
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding EventName}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="2" Text="Type: " FontWeight="Bold" />
+                                            <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding Severity}" />
+                                        </Grid>
+                                        <TextBlock Grid.Row="1" Text="Bookmark: " FontWeight="Bold" />
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding BookmarksReached, Converter={StaticResource BookmarkCollectionLatestItemConverter}}" TextWrapping="Wrap" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Voice" DataContext="{Binding Voice, Mode=OneWay}">
+                            <Grid Margin="4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Name: " HorizontalAlignment="Right" VerticalAlignment="Top" />
+                                <TextBlock Text="{Binding Name, Mode=OneWay}" Grid.Column="1" VerticalAlignment="Top" />
+                                <TextBlock Text="Id: " Grid.Column="2" Margin="8,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                                <TextBlock Text="{Binding Id, Mode=OneWay}" Grid.Column="3" VerticalAlignment="Top" />
+                                <TextBlock Text="Gender: " Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                                <TextBlock Text="{Binding Gender, Mode=OneWay}" Grid.Column="1" Grid.Row="1" VerticalAlignment="Top" />
+                                <TextBlock Text="Age: " Grid.Column="2" Grid.Row="1" Margin="8,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                                <TextBlock Text="{Binding Age, Mode=OneWay}" Grid.Column="3" Grid.Row="1" VerticalAlignment="Top" />
+                                <TextBlock Text="Description: " Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                                <TextBlock Text="{Binding Description, Mode=OneWay}" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="2" VerticalAlignment="Top" />
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Messages">
+                            <DataGrid ItemsSource="{Binding Messages}" AutoGenerateColumns="False" IsReadOnly="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding EventName, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Event"/>
+                                    <DataGridTextColumn Binding="{Binding Message, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Message" Width="*"/>
+                                </DataGrid.Columns>
+                                <DataGrid.RowDetailsTemplate>
+                                    <DataTemplate>
+                                        <View:SpeechMessageDetailControl DataContext="{Binding Mode=OneWay}" />
+                                    </DataTemplate>
+                                </DataGrid.RowDetailsTemplate>
+                            </DataGrid>
+                        </TabItem>
+                        <TabItem Header="Bookmarks">
+                            <ListBox Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding BookmarksReached}" />
+                        </TabItem>
+                    </TabControl>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4">
+                        <Button Width="75" Height="20" Content="Pause" Margin="8,0,0,0" Command="{Binding PauseCommand, Mode=OneWay}" />
+                        <Button Width="75" Height="20" Content="Resume" Margin="8,0,0,0" Command="{Binding ResumeCommand, Mode=OneWay}" />
+                        <Button Width="75" Height="20" Content="{Binding CancelButtonText, Mode=OneWay}" Margin="8,0,0,0" Command="{Binding CancelCommand, Mode=OneWay}" />
+                    </StackPanel>
+                    <TextBlock Grid.Row="3" Text="{Binding PercentComplete, StringFormat=\{0:D\}% complete}" VerticalAlignment="Center" Margin="4,2,2,2" />
+                    <ProgressBar Grid.Row="3" Value="{Binding PercentComplete}" BorderThickness="1" Style="{Binding Status, Converter={StaticResource SpeechStateToStyleConverter}, Mode=OneWay}" />
+                </Grid>
+            </Border>
         </Border>
     </Grid>
 </Window>

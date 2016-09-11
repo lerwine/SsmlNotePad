@@ -58,8 +58,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Common\BufferedTextReader.cs" />
+    <Compile Include="Common\FileUtility.cs" />
+    <Compile Include="Common\Settings.cs" />
     <Compile Include="Common\XmlEncodeOption.cs" />
     <Compile Include="Common\XmlHelper.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Markup.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -70,6 +73,8 @@
     <Compile Include="Process\LineNumberGenerator.cs" />
     <Compile Include="Process\MarkupValidator.cs" />
     <Compile Include="Process\SpeakText.cs" />
+    <Compile Include="Process\SpeechGenerationManager2.cs" />
+    <Compile Include="Process\SpeechGenerationStatus.cs" />
     <Compile Include="Process\Utility.cs" />
     <Compile Include="Process\XmlEncodingType.cs" />
     <Compile Include="Process\XmlTextParsing\AttributeToken.cs" />
@@ -85,12 +90,23 @@
     <Compile Include="Process\XmlTextParsing\XmlTokenSet.cs" />
     <Compile Include="Process\XmlTextParsing\XmlTokenType.cs" />
     <Compile Include="StringExtensions.cs" />
+    <Compile Include="ViewModel\AppSettingsVM.cs" />
     <Compile Include="ViewModel\AudioFileVM.cs" />
+    <Compile Include="ViewModel\Converter\BookmarkCollectionLatestItemConverter.cs" />
     <Compile Include="ViewModel\Converter\BooleanToStringConverter.cs" />
     <Compile Include="ViewModel\Converter\FileSaveStatusToStyleConverter.cs" />
+    <Compile Include="ViewModel\Converter\MessageCollectionToLatestItemConverter.cs" />
+    <Compile Include="ViewModel\Converter\SayAsToStringConverter.cs" />
+    <Compile Include="ViewModel\Converter\SpeechStateToStyleConverter.cs" />
     <Compile Include="ViewModel\Converter\SpeechStateToStringConverter.cs" />
+    <Compile Include="ViewModel\Converter\VoiceAgeToStringConverter.cs" />
+    <Compile Include="ViewModel\Converter\VoiceGenderToStringConverter.cs" />
+    <Compile Include="ViewModel\DefaultSpeechSettingsVM.cs" />
     <Compile Include="ViewModel\FileSaveStatus.cs" />
     <Compile Include="ViewModel\MainWindowVM.cs" />
+    <Compile Include="ViewModel\MessageSeverity.cs" />
+    <Compile Include="ViewModel\SayAsVM.cs" />
+    <Compile Include="ViewModel\SpeechGenerationStatusVM.cs" />
     <Compile Include="ViewModel\SpeechMessageVM.cs" />
     <Compile Include="ViewModel\SpeechProgressVM.cs" />
     <Compile Include="ViewModel\SpeechState.cs" />
@@ -126,11 +142,20 @@
     <Compile Include="View\AudioFileWindow.xaml.cs">
       <DependentUpon>AudioFileWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\DefaultSpeechSettingsWindow.xaml.cs">
+      <DependentUpon>DefaultSpeechSettingsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\GoToLineWindow.xaml.cs">
       <DependentUpon>GoToLineWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\SayAsWindow.xaml.cs">
+      <DependentUpon>SayAsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\SpeechMessageDetailControl.xaml.cs">
       <DependentUpon>SpeechMessageDetailControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SpeechProgressControl.xaml.cs">
+      <DependentUpon>SpeechProgressControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SpeechProgressWindow.xaml.cs">
       <DependentUpon>SpeechProgressWindow.xaml</DependentUpon>
@@ -187,11 +212,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\DefaultSpeechSettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\GoToLineWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\SayAsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\SpeechMessageDetailControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SpeechProgressControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -230,6 +267,15 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Content Include="Resources\xhtml-lat1.ent">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\xhtml-special.ent">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\xhtml-symbol.ent">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="Markup.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Markup.Designer.cs</LastGenOutput>
@@ -238,12 +284,17 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Process\XmlTextParsing\ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <Content Include="Resources\EmptyPls.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\PhoneticTables.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\synthesis.dtd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -276,6 +327,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Xslt.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\pls.xsd">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

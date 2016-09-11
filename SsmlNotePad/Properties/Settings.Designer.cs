@@ -26,9 +26,9 @@ namespace Erwine.Leonard.T.SsmlNotePad.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Resources")]
-        public string XmlBaseURI {
+        public string RelativeXmlBaseURI {
             get {
-                return ((string)(this["XmlBaseURI"]));
+                return ((string)(this["RelativeXmlBaseURI"]));
             }
         }
         
@@ -131,79 +131,198 @@ namespace Erwine.Leonard.T.SsmlNotePad.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastSaveFolder {
-            get {
-                return ((string)(this["LastSaveFolder"]));
-            }
-            set {
-                this["LastSaveFolder"] = value;
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://www.w3.org/2001/10/synthesis")]
-        public string SSMLSchemaNamespaceURI {
-            get {
-                return ((string)(this["SSMLSchemaNamespaceURI"]));
-            }
-        }
-        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("http://www.w3.org/TR/speech-synthesis/")]
-        public string SSMLSchemaDocumentationUrl {
+        public string SsmlSchemaDocumentationUrl {
             get {
-                return ((string)(this["SSMLSchemaDocumentationUrl"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<!DOCTYPE speak PUBLIC \"-//W3C//DTD SYNTHESIS 1.0//EN\"  \"http://www.w3.org/TR/spe" +
-            "ech-synthesis/synthesis.dtd\"> ")]
-        public string SSMLDocTypeTag {
-            get {
-                return ((string)(this["SSMLDocTypeTag"]));
+                return ((string)(this["SsmlSchemaDocumentationUrl"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("http://www.w3.org/TR/speech-synthesis/synthesis.dtd")]
-        public string SSMLDocTypeURI {
+        public string SsmlDocTypeURI {
             get {
-                return ((string)(this["SSMLDocTypeURI"]));
+                return ((string)(this["SsmlDocTypeURI"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Speech Synthesis Markup Language Source")]
-        public string SSMLFileTypeDescriptionLong {
+        public string SsmlFileTypeDescriptionLong {
             get {
-                return ((string)(this["SSMLFileTypeDescriptionLong"]));
+                return ((string)(this["SsmlFileTypeDescriptionLong"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Speech Synthesis Markup")]
-        public string SSMLFileTypeDescriptionShort {
+        public string SsmlFileTypeDescriptionShort {
             get {
-                return ((string)(this["SSMLFileTypeDescriptionShort"]));
+                return ((string)(this["SsmlFileTypeDescriptionShort"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastSsmlFilePath {
+            get {
+                return ((string)(this["LastSsmlFilePath"]));
+            }
+            set {
+                this["LastSsmlFilePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastSavedWavPath {
+            get {
+                return ((string)(this["LastSavedWavPath"]));
+            }
+            set {
+                this["LastSavedWavPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastAudioPath {
+            get {
+                return ((string)(this["LastAudioPath"]));
+            }
+            set {
+                this["LastAudioPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastBrowsedSubdirectory {
+            get {
+                return ((string)(this["LastBrowsedSubdirectory"]));
+            }
+            set {
+                this["LastBrowsedSubdirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-11")]
+        public int DefaultSpeechRate {
+            get {
+                return ((int)(this["DefaultSpeechRate"]));
+            }
+            set {
+                this["DefaultSpeechRate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int DefaultSpeechVolume {
+            get {
+                return ((int)(this["DefaultSpeechVolume"]));
+            }
+            set {
+                this["DefaultSpeechVolume"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DefaultVoiceName {
+            get {
+                return ((string)(this["DefaultVoiceName"]));
+            }
+            set {
+                this["DefaultVoiceName"] = value;
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("application/ssml+xml")]
-        public string SSMLMimeType {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://www.w3.org/TR/pronunciation-lexicon/")]
+        public string PlsSchemaDocumentationUrl {
             get {
-                return ((string)(this["SSMLMimeType"]));
+                return ((string)(this["PlsSchemaDocumentationUrl"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(".pls")]
+        public string PlsFileExtension {
+            get {
+                return ((string)(this["PlsFileExtension"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://msdn.microsoft.com/en-us/library/hh361605(v=office.14).aspx")]
+        public string AltPlsSchemaDocumentationUrl {
+            get {
+                return ((string)(this["AltPlsSchemaDocumentationUrl"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://msdn.microsoft.com/en-us/library/office/hh361578(v=office.14).aspx")]
+        public string AltSsmlSchemaDocumentationUrl {
+            get {
+                return ((string)(this["AltSsmlSchemaDocumentationUrl"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Pronunciation Lexicon")]
+        public string PlsFileTypeDescriptionShort {
+            get {
+                return ((string)(this["PlsFileTypeDescriptionShort"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Pronunciation Lexicon Source")]
+        public string PlsFileTypeDescriptionLong {
+            get {
+                return ((string)(this["PlsFileTypeDescriptionLong"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("pls.xsd")]
+        public string PlsSchemaFileName {
+            get {
+                return ((string)(this["PlsSchemaFileName"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastPlsFilePath {
+            get {
+                return ((string)(this["LastPlsFilePath"]));
+            }
+            set {
+                this["LastPlsFilePath"] = value;
             }
         }
     }

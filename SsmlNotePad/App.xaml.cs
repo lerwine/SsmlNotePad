@@ -28,7 +28,22 @@ namespace Erwine.Leonard.T.SsmlNotePad
 
         public static ViewModel.MainWindowVM MainWindowViewModel
         {
-            get { return App.Current.FindResource("MainWindowViewModel") as ViewModel.MainWindowVM; }
+            get
+            {
+                if (App.Current.CheckAccess())
+                    return App.Current.FindResource("MainWindowViewModel") as ViewModel.MainWindowVM;
+                return App.Current.Dispatcher.Invoke(() => App.Current.FindResource("MainWindowViewModel") as ViewModel.MainWindowVM);
+            }
+        }
+
+        public static ViewModel.AppSettingsVM AppSettingsViewModel
+        {
+            get
+            {
+                if (App.Current.CheckAccess())
+                    return App.Current.FindResource("AppSettingsViewModel") as ViewModel.AppSettingsVM;
+                return App.Current.Dispatcher.Invoke(() => App.Current.FindResource("AppSettingsViewModel") as ViewModel.AppSettingsVM);
+            }
         }
     }
 
