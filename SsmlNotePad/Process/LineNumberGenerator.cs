@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using System.Windows;
 
 namespace Erwine.Leonard.T.SsmlNotePad.Process
 {
@@ -20,81 +23,172 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
             _lineNumbersCollection = lineNumbersCollection;
         }
 
+        public class LineNumberProcessState
+        {
+            public string Text { get; private set; }
+            public int CurrentCharIndex { get; private set; }
+            public int CurrentLineIndex { get; private set; }
+            public int FirstVisibleLineIndex { get; private set; }
+            public int CharIndexOnLastVisibleLine { get; private set; }
+            public LineNumberProcessState(TextBox contentsTextBox, ObservableCollection<ViewModel.LineNumberVM> lineNumbersCollection, CancellationToken token)
+            {
+                Action action = () =>
+                {
+                    if (token.IsCancellationRequested)
+                        return;
+
+                    Text = contentsTextBox.Text;
+                    FirstVisibleLineIndex = contentsTextBox.GetFirstVisibleLineIndex();
+                    if (FirstVisibleLineIndex < 0)
+                    {
+                        CharIndexOnLastVisibleLine = -1;
+                        CurrentLineIndex = -1;
+                        CurrentCharIndex = -1;
+                        return;
+                    }
+                    CurrentCharIndex = contentsTextBox.GetCharacterIndexFromLineIndex(FirstVisibleLineIndex);
+                    _SetLineNumber(contentsTextBox, lineNumbersCollection);
+                    CharIndexOnLastVisibleLine = contentsTextBox.GetCharacterIndexFromLineIndex(contentsTextBox.GetLastVisibleLineIndex());
+                };
+
+                if (contentsTextBox.CheckAccess())
+                    action();
+                else
+                    contentsTextBox.Dispatcher.Invoke(action);
+
+                if (token.IsCancellationRequested)
+                {
+                    Text = "";
+                    FirstVisibleLineIndex = -1;
+                    CharIndexOnLastVisibleLine = -1;
+                    CurrentLineIndex = -1;
+                    CurrentCharIndex = -1;
+                    return;
+                }
+
+                CurrentLineIndex = 0;
+                int endIndex = (CurrentCharIndex < Text.Length) ? CurrentCharIndex : Text.Length;
+                for (int charIndex = 0; charIndex < endIndex; charIndex++)
+                {
+                    char c = Text[charIndex];
+                    if (c == '\r')
+                    {
+                        if (charIndex < Text.Length - 1 && Text[charIndex + 1] == '\n')
+                            charIndex++;
+                        CurrentLineIndex++;
+                    }
+                    else if (c == '\n')
+                        CurrentLineIndex++;
+                }
+            }
+
+            public bool MoveToNextLine()
+            {
+                while (CurrentCharIndex < Text.Length && CurrentCharIndex < CharIndexOnLastVisibleLine)
+                {
+                    char c = Text[CurrentCharIndex];
+                    CurrentCharIndex++;
+                    if (c == '\r')
+                    {
+                        CurrentLineIndex++;
+                        if (CurrentCharIndex < Text.Length && CurrentCharIndex < CharIndexOnLastVisibleLine && Text[CurrentCharIndex] == '\n')
+                            CurrentCharIndex++;
+                        return true;
+                    }
+                    if (c == '\n')
+                    {
+                        CurrentLineIndex++;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            private void _SetLineNumber(TextBox contentsTextBox, ObservableCollection<LineNumberVM> lineNumbersCollection)
+            {
+                double marginTop = contentsTextBox.GetRectFromCharacterIndex(CurrentCharIndex).Top;
+                int index = CurrentLineIndex - FirstVisibleLineIndex;
+                if (index < 0)
+                    return;
+                int lineNumber = CurrentLineIndex + 1;
+                if (lineNumbersCollection.Count > index)
+                {
+                    if (lineNumbersCollection[index].Margin.Top != marginTop)
+                        lineNumbersCollection[index].Margin = new Thickness(0.0, marginTop, 0.0, 0.0);
+                    if (lineNumbersCollection[index].Number != lineNumber)
+                        lineNumbersCollection[index].Number = lineNumber;
+                }
+                else
+                    lineNumbersCollection.Add(new LineNumberVM(lineNumber, marginTop));
+            }
+
+            public bool TrySetLineNumber(TextBox contentsTextBox, ObservableCollection<LineNumberVM> lineNumbersCollection, CancellationToken token)
+            {
+                Func<bool> func = () =>
+                {
+                    try
+                    {
+                        if (token.IsCancellationRequested || contentsTextBox.Text != Text)
+                            return false;
+                        double marginTop = contentsTextBox.GetRectFromCharacterIndex(CurrentCharIndex).Top;
+                        int index = CurrentLineIndex - FirstVisibleLineIndex;
+                        int lineNumber = CurrentLineIndex + 1;
+                        if (lineNumbersCollection.Count > index)
+                        {
+                            if (lineNumbersCollection[index].Margin.Top != marginTop)
+                                lineNumbersCollection[index].Margin = new Thickness(0.0, marginTop, 0.0, 0.0);
+                            if (lineNumbersCollection[index].Number != lineNumber)
+                                lineNumbersCollection[index].Number = lineNumber;
+                        }
+                        else
+                            lineNumbersCollection.Add(new LineNumberVM(lineNumber, marginTop));
+                        return true;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                };
+
+                if (contentsTextBox.CheckAccess())
+                    return func();
+
+                return contentsTextBox.Dispatcher.Invoke(func);
+            }
+        }
+
         protected override int Run(LineNumberGenerator previousWorker)
         {
             _result = 0;
-
+            
             if (Token.IsCancellationRequested)
-            {
-                Logger.WriteLine("Exiting, IsCancellationRequested = true");
-                return _result;
-            }
-
-            Tuple<int, int> firstAndLastLineIndexes = CheckGet(_contentsTextBox, () => new Tuple<int, int>(_contentsTextBox.GetFirstVisibleLineIndex(), _contentsTextBox.GetLastVisibleLineIndex()));
-            if (firstAndLastLineIndexes.Item1 < 0 || Token.IsCancellationRequested)
                 return _result;
 
-            for (int lineIndex=firstAndLastLineIndexes.Item1; lineIndex <= firstAndLastLineIndexes.Item2; lineIndex++)
+            LineNumberProcessState state = new LineNumberProcessState(_contentsTextBox, _lineNumbersCollection, Token);
+            if (state.FirstVisibleLineIndex < 0 || Token.IsCancellationRequested)
+                return _result;
+
+            while (state.MoveToNextLine())
             {
-                double? marginTop = CheckGet<double?>(_contentsTextBox, () =>
-                {
-                    if (Token.IsCancellationRequested)
-                        return null;
-
-                    int characterIndex = _contentsTextBox.GetCharacterIndexFromLineIndex(lineIndex);
-
-                    if (characterIndex < 0)
-                        return null;
-
-                    return _contentsTextBox.GetRectFromCharacterIndex(characterIndex).Top;
-                });
-                if (!marginTop.HasValue)
-                    return _result;
-                
-                CheckInvoke(_contentsTextBox, () =>
-                {
-                    if (Token.IsCancellationRequested)
-                        return;
-                    
-                    if (_result < _lineNumbersCollection.Count)
-                    {
-                        _lineNumbersCollection[_result].Number = lineIndex + 1;
-                        if (_lineNumbersCollection[_result].Margin.Top != marginTop.Value)
-                            _lineNumbersCollection[_result].Margin = new System.Windows.Thickness(0.0, marginTop.Value, 0.0, 0.0);
-                    }
-                    else
-                        _lineNumbersCollection.Add(new ViewModel.LineNumberVM(lineIndex + 1, marginTop.Value));
-                });
-
-                if (Token.IsCancellationRequested)
-                {
-                    Logger.WriteLine("lineAndMargin Exiting, IsCancellationRequested = true");
-                    return _result;
-                }
-
-                _result++;
+                if (!state.TrySetLineNumber(_contentsTextBox, _lineNumbersCollection, Token) || Token.IsCancellationRequested)
+                    break;
+                _result = state.CurrentLineIndex;
             }
 
             if (Token.IsCancellationRequested)
-            {
-                Logger.WriteLine("Exiting, IsCancellationRequested = true");
                 return _result;
-            }
 
-            CheckInvoke(_contentsTextBox, () =>
+            Action action = () =>
             {
-                while (_lineNumbersCollection.Count > _result)
-                {
-                    if (Token.IsCancellationRequested)
-                    {
-                        Logger.WriteLine("CheckInvoke Exiting, IsCancellationRequested = true");
-                        return;
-                    }
-
-                    Logger.WriteLine("_lineNumbersCollection.RemoveAt({0})", _result);
+                while (_lineNumbersCollection.Count > _result && !Token.IsCancellationRequested)
                     _lineNumbersCollection.RemoveAt(_result);
-                }
-            });
+            };
+
+            if (_contentsTextBox.CheckAccess())
+                action();
+            else
+                _contentsTextBox.Dispatcher.Invoke(action);
 
             return _result;
         }

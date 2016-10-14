@@ -191,6 +191,7 @@ namespace Erwine.Leonard.T.SsmlNotePad
                     yield return "";
                 if (jump)
                     i++;
+                start = i + 1;
             }
             if (start == 0)
                 yield return s;

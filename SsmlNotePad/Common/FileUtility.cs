@@ -77,7 +77,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.Common
                     else
                     {
                         if (emitSeparator)
+                        {
                             result.Append(Path.DirectorySeparatorChar);
+                            emitSeparator = false;
+                        }
                         if (invalidFileNameChars.Any(c => c == path[i]) || (path.Length - i > 7 && EncodedPathCharRegex.IsMatch(path.Substring(i, 8))))
                             result.AppendFormat("_0x{x:4}_", (int)(path[i]));
                         else
@@ -129,7 +132,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Common
                 path = AsExistingDirectory(defaultPath);
                 if (String.IsNullOrEmpty(path))
                 {
-                    path = AsExistingDirectory(Properties.Settings.Default.LastBrowsedSubdirectory);
+                    path = AsExistingDirectory(App.AppSettingsViewModel.LastBrowsedSubdirectory);
                     if (String.IsNullOrWhiteSpace(path))
                         path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 }
@@ -140,7 +143,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Common
             bool? dialogResult = fileDialog.ShowDialog(owner ?? App.Current.MainWindow);
             if (dialogResult.HasValue && dialogResult.Value)
             {
-                Properties.Settings.Default.LastBrowsedSubdirectory = AsExistingDirectory(fileDialog.FileName);
+                App.AppSettingsViewModel.LastBrowsedSubdirectory = AsExistingDirectory(fileDialog.FileName);
                 return true;
             }
 
@@ -149,13 +152,12 @@ namespace Erwine.Leonard.T.SsmlNotePad.Common
 
         public static bool InvokeSsmlFileDialog(FileDialog fileDialog, Window owner, string fileName)
         {
-            fileDialog.DefaultExt = Properties.Settings.Default.SsmlFileExtension;
-            fileDialog.Filter = String.Format("SSML Files (*{0})|*{0}|All Files (*.*)|*.*", Properties.Settings.Default.SsmlFileExtension);
+            fileDialog.DefaultExt = App.AppSettingsViewModel.SsmlFileExtension;
+            fileDialog.Filter = String.Format("SSML Files (*{0})|*{0}|All Files (*.*)|*.*", App.AppSettingsViewModel.SsmlFileExtension);
             fileDialog.FilterIndex = 0;
-            if (InvokeFileDialog(fileDialog, owner, fileName, Properties.Settings.Default.LastSsmlFilePath))
+            if (InvokeFileDialog(fileDialog, owner, fileName, App.AppSettingsViewModel.LastSsmlFilePath))
             {
-                Properties.Settings.Default.LastSsmlFilePath = fileDialog.FileName;
-                Properties.Settings.Default.Save();
+                App.AppSettingsViewModel.LastSsmlFilePath = fileDialog.FileName;
                 return true;
             }
 
@@ -167,10 +169,9 @@ namespace Erwine.Leonard.T.SsmlNotePad.Common
             fileDialog.DefaultExt = ".wav";
             fileDialog.Filter = "WAV Files (*.wav)|*.wav|All Files (*.*)|*.*";
             fileDialog.FilterIndex = 0;
-            if (InvokeFileDialog(fileDialog, owner, fileName, Properties.Settings.Default.LastSavedWavPath))
+            if (InvokeFileDialog(fileDialog, owner, fileName, App.AppSettingsViewModel.LastSavedWavPath))
             {
-                Properties.Settings.Default.LastSavedWavPath = fileDialog.FileName;
-                Properties.Settings.Default.Save();
+                App.AppSettingsViewModel.LastSavedWavPath = fileDialog.FileName;
                 return true;
             }
 
@@ -182,10 +183,9 @@ namespace Erwine.Leonard.T.SsmlNotePad.Common
             fileDialog.DefaultExt = ".wav";
             fileDialog.Filter = "All Audio Files (*.wav, *.mp3)|*.wav;*.mp3|WAV Files (*.wav)|*.wav|MP3 Files (*.mp3)|*.mp3|All Files (*.*)|*.*";
             fileDialog.FilterIndex = 0;
-            if (InvokeFileDialog(fileDialog, owner, fileName, Properties.Settings.Default.LastAudioPath))
+            if (InvokeFileDialog(fileDialog, owner, fileName, App.AppSettingsViewModel.LastAudioPath))
             {
-                Properties.Settings.Default.LastAudioPath = fileDialog.FileName;
-                Properties.Settings.Default.Save();
+                App.AppSettingsViewModel.LastAudioPath = fileDialog.FileName;
                 return true;
             }
 

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sgml type="type-vendor-specific">
+  <!-- an SVG image is parsable as valid SGML or XML text -->
+  <img title="&lt;" type="type-image-svg">&amp;</img>
+
+  <!--  a GIF image is not parsable and can only be referenced as an external entity -->
+  <img title="&gt;" data="example1GIF" />
+  <!--No more -->
+</sgml>

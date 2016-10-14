@@ -38,6 +38,8 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <Choose>
@@ -55,14 +57,38 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Markup.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Markup.resx</DependentUpon>
+    </Compile>
     <Compile Include="OtherViewModelsUnitTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SsmlEditViewModelTest.cs" />
+    <Compile Include="TextUnitTests.cs" />
+    <Compile Include="XmlContextTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SsmlNotePad\SsmlNotePad.csproj">
       <Project>{df5e8ea4-72eb-4011-a628-06488179cc94}</Project>
       <Name>SsmlNotePad</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Markup.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Markup.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\InvalidSsml.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\CustomEntityExample.xml" />
+    <Content Include="Resources\ExampleSsml1.xml" />
+    <Content Include="Resources\DocTypeTest.xml" />
+    <Content Include="Resources\XmlText.xml" />
+    <Content Include="Resources\XmlDocTypeTest.xml" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

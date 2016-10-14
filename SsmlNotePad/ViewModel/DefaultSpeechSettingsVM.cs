@@ -492,8 +492,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 }
                 VoiceOptions = new ReadOnlyObservableCollection<VoiceVM>(_voiceOptions);
                 SelectedVoice = selectedVm;
-                Rate = Properties.Settings.Default.DefaultSpeechRate;
-                Volume = Properties.Settings.Default.DefaultSpeechVolume;
+                Rate = App.AppSettingsViewModel.DefaultSpeechRate;
+                Volume = App.AppSettingsViewModel.DefaultSpeechVolume;
             }
         }
 

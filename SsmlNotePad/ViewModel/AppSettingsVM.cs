@@ -73,7 +73,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             DefaultSpeechVolume = Properties.Settings.Default.DefaultSpeechVolume;
 
             if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.DefaultVoiceName))
-                LastBrowsedSubdirectory = Properties.Settings.Default.DefaultVoiceName.Trim();
+                DefaultVoiceName = Properties.Settings.Default.DefaultVoiceName.Trim();
         }
 
         #region BaseUriPath Property Members

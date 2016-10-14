@@ -24,86 +24,116 @@ namespace Erwine.Leonard.T.SsmlNotePad
     {
         private int _previousFirstVisibleLineIndex = -1,
             _previousLastVisibleLineIndex = -1;
-
-        public MainWindow() { InitializeComponent(); }
-
-        private bool _canExecuteClose = false;
-
-        private void contentsTextBox_LayoutUpdated(object sender, EventArgs e)
+        
+        public MainWindow()
         {
-            ViewModel.MainWindowVM vm = DataContext as ViewModel.MainWindowVM;
+            InitializeComponent();
+            //MainViewModel.TextChanged += MainViewModel_TextChanged;
+        }
+
+        //~MainWindow() { MainViewModel.TextChanged -= MainViewModel_TextChanged; }
+
+         private bool _canExecuteClose = false;
+
+         private void contentsTextBox_LayoutUpdated(object sender, EventArgs e)
+        {
+            ViewModel.MainWindowVM viewModel = DataContext as ViewModel.MainWindowVM;
             int firstVisibleLineIndex = contentsTextBox.GetFirstVisibleLineIndex();
-            if (_previousFirstVisibleLineIndex != firstVisibleLineIndex)
-            {
-                _previousFirstVisibleLineIndex = firstVisibleLineIndex;
-                _previousLastVisibleLineIndex = contentsTextBox.GetLastVisibleLineIndex();
-                vm.InvalidateLineNumbers();
-            }
-            else
-            {
-                int lastVisibleLineIndex = contentsTextBox.GetLastVisibleLineIndex();
-                if (_previousLastVisibleLineIndex != lastVisibleLineIndex)
-                {
-                    _previousFirstVisibleLineIndex = firstVisibleLineIndex;
-                    _previousLastVisibleLineIndex = lastVisibleLineIndex;
-                    vm.InvalidateLineNumbers();
-                }
-            }
+             if (_previousFirstVisibleLineIndex != firstVisibleLineIndex)
+             {
+                 _previousFirstVisibleLineIndex = firstVisibleLineIndex;
+                 _previousLastVisibleLineIndex = contentsTextBox.GetLastVisibleLineIndex();
+                viewModel.InvalidateLineNumbers();
+             }
+             else
+             {
+                 int lastVisibleLineIndex = contentsTextBox.GetLastVisibleLineIndex();
+                 if (_previousLastVisibleLineIndex != lastVisibleLineIndex)
+                 {
+                     _previousFirstVisibleLineIndex = firstVisibleLineIndex;
+                     _previousLastVisibleLineIndex = lastVisibleLineIndex;
+                    viewModel.InvalidateLineNumbers();
+                 }
+             }
 
-            vm.LayoutUpdated(contentsTextBox, e);
-        }
+            viewModel.LayoutUpdated(contentsTextBox, e);
+         }
 
-        private void ContentsTextBox_TextChanged(object sender, TextChangedEventArgs e)
+         //private void MainViewModel_TextChanged(object sender, EventArgs e)
+         //{
+         //    if (contentsTextBox.Text != MainViewModel.Text)
+         //        contentsTextBox.Text = MainViewModel.Text;
+         //}
+
+         private void ContentsTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ViewModel.MainWindowVM vm = DataContext as ViewModel.MainWindowVM;
-            vm.ValidateDocument(contentsTextBox.Text);
-            vm.InvalidateLineNumbers();
+            ViewModel.MainWindowVM viewModel = DataContext as ViewModel.MainWindowVM;
+            viewModel.ValidateDocument(contentsTextBox.Text);
+            viewModel.InvalidateLineNumbers();
         }
 
-        private void contentsTextBox_SelectionChanged(object sender, RoutedEventArgs e)
+         private void contentsTextBox_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            ViewModel.MainWindowVM vm = DataContext as ViewModel.MainWindowVM;
-            vm.SelectedText = contentsTextBox.SelectedText;
-        }
+            ViewModel.MainWindowVM viewModel = DataContext as ViewModel.MainWindowVM;
+            viewModel.SelectionStart = contentsTextBox.SelectionStart;
+            viewModel.SelectionLength = contentsTextBox.SelectionLength;
+             string text = contentsTextBox.Text;
+             int start = contentsTextBox.SelectionStart;
+             if (contentsTextBox.SelectionStart == 0)
+             {
+                viewModel.CurrentColNumber = 1;
+                viewModel.CurrentLineNumber = 1;
+                 return;
+             }
+             Task.Factory.StartNew(() =>
+             {
+                 string[] lines = text.Substring(0, start).SplitLines().ToArray();
+                 viewModel.Dispatcher.Invoke(() =>
+                 {
+                     viewModel.CurrentColNumber = lines[lines.Length - 1].Length + 1;
+                     viewModel.CurrentLineNumber = lines.Length;
+                 });
+             });
+         }
 
-        protected override void OnActivated(EventArgs e)
-        {
-            _canExecuteClose = true;
-            base.OnActivated(e);
-        }
+         protected override void OnActivated(EventArgs e)
+         {
+             _canExecuteClose = true;
+             base.OnActivated(e);
+         }
 
-        private void CommandBinding_CloseCanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-            if (e.Handled)
-                return;
-            e.Handled = true;
-            e.CanExecute = _canExecuteClose;
-        }
+         private void CommandBinding_CloseCanExecute(object sender, CanExecuteRoutedEventArgs e)
+         {
+             if (e.Handled)
+                 return;
+             e.Handled = true;
+             e.CanExecute = _canExecuteClose;
+         }
 
-        private void CommandBindingClose_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            if (e.Handled)
-                return;
-            e.Handled = true;
-            if (!_canExecuteClose)
-                return;
+         private void CommandBindingClose_Executed(object sender, ExecutedRoutedEventArgs e)
+         {
+             if (e.Handled)
+                 return;
+             e.Handled = true;
+             if (!_canExecuteClose)
+                 return;
 
-            _canExecuteClose = false;
-            Close();
-        }
+             _canExecuteClose = false;
+             Close();
+         }
 
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            (DataContext as ViewModel.MainWindowVM).OnClosing(this, e);
-            base.OnClosing(e);
-            if (e.Cancel)
-                _canExecuteClose = true;
-        }
+         protected override void OnClosing(CancelEventArgs e)
+         {
+             (DataContext as ViewModel.MainWindowVM).OnClosing(this, e);
+             base.OnClosing(e);
+             if (e.Cancel)
+                 _canExecuteClose = true;
+         }
 
-        protected override void OnClosed(EventArgs e)
-        {
-            (DataContext as ViewModel.MainWindowVM).OnClosed(e);
-            base.OnClosed(e);
-        }
+         protected override void OnClosed(EventArgs e)
+         {
+             (DataContext as ViewModel.MainWindowVM).OnClosed(e);
+             base.OnClosed(e);
+         }
     }
 }

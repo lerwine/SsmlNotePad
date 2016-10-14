@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Speech.AudioFormat;
@@ -11,86 +12,33 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
     public class SpeechProgressVM : DependencyObject
     {
         private object _syncRoot = new object();
-
-        private Process.BackgroundJobManager<Process.SpeakText, int> _speechProcess = null;
-
+        
         public SpeechProgressVM()
         {
             Voice = new VoiceVM();
             AudioPosition = new TimeSpanVM();
-            Phoneme = new ValueAndDurationQueueVM<string>();
-            Viseme = new ValueAndDurationQueueVM<int>();
+            BookmarksReached = new ReadOnlyObservableCollection<ViewModel.PositionalValueVM<string>>(_bookmarksReached);
+            LatestBookmark = new ViewModel.PositionalValueVM<string>(TimeSpan.Zero, "");
             Messages = new ReadOnlyObservableCollection<SpeechMessageVM>(_messages);
-        }
-
-        public void Start(string ssml, Stream audioDestination, SpeechAudioFormatInfo formatInfo)
-        {
-            if (CheckAccess())
-                OutputDestination = "(Stream)";
-            else
-                Dispatcher.Invoke(() => OutputDestination = "(Stream)");
-            Start(new Process.SpeakText(ssml, this, audioDestination, formatInfo));
-        }
-
-        public void Start(string ssml, Stream audioDestination)
-        {
-            if (CheckAccess())
-                OutputDestination = "(Stream)";
-            else
-                Dispatcher.Invoke(() => OutputDestination = "(Stream)");
-            Start(new Process.SpeakText(ssml, this, audioDestination));
-        }
-
-        public void Start(string ssml, string path, SpeechAudioFormatInfo formatInfo)
-        {
-            if (CheckAccess())
-                OutputDestination = path;
-            else
-                Dispatcher.Invoke(() => OutputDestination = path);
-            Start(new Process.SpeakText(ssml, this, path, formatInfo));
-        }
-
-        public void Start(string ssml, string path)
-        {
-            if (CheckAccess())
-                OutputDestination = path;
-            else
-                Dispatcher.Invoke(() => OutputDestination = path);
-            Start(new Process.SpeakText(ssml, this, path));
-        }
-
-        public void Start(string ssml)
-        {
-            if (CheckAccess())
-                OutputDestination = "(Default audio device)";
-            else
-                Dispatcher.Invoke(() => OutputDestination = "(Default audio device)");
-
-            Start(new Process.SpeakText(ssml, this));
-        }
-
-        private void Start(Process.SpeakText worker)
-        {
-            lock (_syncRoot)
-            {
-                if (_speechProcess == null)
-                    _speechProcess = new Process.BackgroundJobManager<Process.SpeakText, int>(worker);
-                else
-                    _speechProcess.Replace(worker);
-            }
         }
 
         #region OutputDestination Property Members
 
-        public const string PropertyName_OutputDestination = "OutputDestination";
-
-        private static readonly DependencyPropertyKey OutputDestinationPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_OutputDestination, typeof(string), typeof(SpeechProgressVM),
-                new PropertyMetadata(""));
+        public const string DependencyPropertyName_OutputDestination = "OutputDestination";
 
         /// <summary>
         /// Identifies the <seealso cref="OutputDestination"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty OutputDestinationProperty = OutputDestinationPropertyKey.DependencyProperty;
+        public static readonly DependencyProperty OutputDestinationProperty = DependencyProperty.Register(DependencyPropertyName_OutputDestination, typeof(string), typeof(SpeechProgressVM),
+                new PropertyMetadata("",
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as SpeechProgressVM).OutputDestination_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as SpeechProgressVM).OutputDestination_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as SpeechProgressVM).OutputDestination_CoerceValue(baseValue)));
 
         /// <summary>
         /// 
@@ -103,13 +51,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                     return (string)(GetValue(OutputDestinationProperty));
                 return Dispatcher.Invoke(() => OutputDestination);
             }
-            private set
+            set
             {
                 if (CheckAccess())
-                    SetValue(OutputDestinationPropertyKey, value);
+                    SetValue(OutputDestinationProperty, value);
                 else
                     Dispatcher.Invoke(() => OutputDestination = value);
             }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="OutputDestination"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="OutputDestination"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="OutputDestination"/> property was changed.</param>
+        protected virtual void OutputDestination_PropertyChanged(string oldValue, string newValue)
+        {
+            // TODO: Implement SpeechProgressVM.OutputDestination_PropertyChanged(string, string)
+        }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="OutputDestination"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string OutputDestination_CoerceValue(object baseValue)
+        {
+            // TODO: Implement SpeechProgressVM.OutputDestination_CoerceValue(DependencyObject, object)
+            return (baseValue as string) ?? "";
         }
 
         #endregion
@@ -188,7 +157,9 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         #endregion
 
         #region CancelSpeech Command Property Members
-        
+
+        public event EventHandler CancelSpeech;
+
         private Command.RelayCommand _cancelSpeechCommand = null;
 
         public Command.RelayCommand CancelSpeechCommand
@@ -204,89 +175,11 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnCancelSpeech(object parameter)
         {
-            if (!_cancelSpeechCommand.IsEnabled)
-                return;
-
-            _speechProcess.Cancel();
-            _cancelSpeechCommand.IsEnabled = false;
-            _resumeSpeechCommand.IsEnabled = false;
-            _pauseSpeechCommand.IsEnabled = false;
+            CancelSpeech?.Invoke(this, EventArgs.Empty);
         }
 
         #endregion
-
-        #region VoiceDetailsVisible Property Members
-
-        public const string PropertyName_VoiceDetailsVisible = "VoiceDetailsVisible";
-
-        private static readonly DependencyPropertyKey VoiceDetailsVisiblePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_VoiceDetailsVisible, typeof(bool), typeof(SpeechProgressVM),
-                new PropertyMetadata(false));
-
-        /// <summary>
-        /// Identifies the <seealso cref="VoiceDetailsVisible"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty VoiceDetailsVisibleProperty = VoiceDetailsVisiblePropertyKey.DependencyProperty;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool VoiceDetailsVisible
-        {
-            get
-            {
-                if (CheckAccess())
-                    return (bool)(GetValue(VoiceDetailsVisibleProperty));
-                return Dispatcher.Invoke(() => VoiceDetailsVisible);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(VoiceDetailsVisiblePropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => VoiceDetailsVisible = value);
-            }
-        }
-
-        #endregion
-
-        #region ShowVoiceDetails Command Property Members
-
-        private Command.RelayCommand _showVoiceDetailsCommand = null;
-
-        public Command.RelayCommand ShowVoiceDetailsCommand
-        {
-            get
-            {
-                if (this._showVoiceDetailsCommand == null)
-                    this._showVoiceDetailsCommand = new Command.RelayCommand(this.OnShowVoiceDetails);
-
-                return this._showVoiceDetailsCommand;
-            }
-        }
-
-        protected virtual void OnShowVoiceDetails(object parameter) { VoiceDetailsVisible = true; }
-
-        #endregion
-
-        #region HideVoiceDetails Command Property Members
-
-        private Command.RelayCommand _hideVoiceDetailsCommand = null;
-
-        public Command.RelayCommand HideVoiceDetailsCommand
-        {
-            get
-            {
-                if (this._hideVoiceDetailsCommand == null)
-                    this._hideVoiceDetailsCommand = new Command.RelayCommand(this.OnHideVoiceDetails);
-
-                return this._hideVoiceDetailsCommand;
-            }
-        }
-
-        protected virtual void OnHideVoiceDetails(object parameter) { VoiceDetailsVisible = false; }
-
-        #endregion
-
+        
         #region Voice Property Members
 
         public const string PropertyName_Voice = "Voice";
@@ -323,15 +216,21 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #region Volume Property Members
 
-        public const string PropertyName_Volume = "Volume";
-
-        private static readonly DependencyPropertyKey VolumePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_Volume, typeof(int), typeof(SpeechProgressVM),
-                new PropertyMetadata(0));
+        public const string DependencyPropertyName_Volume = "Volume";
 
         /// <summary>
         /// Identifies the <seealso cref="Volume"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty VolumeProperty = VolumePropertyKey.DependencyProperty;
+        public static readonly DependencyProperty VolumeProperty = DependencyProperty.Register(DependencyPropertyName_Volume, typeof(int), typeof(SpeechProgressVM),
+                new PropertyMetadata(100,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as SpeechProgressVM).Volume_PropertyChanged((int)(e.OldValue), (int)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as SpeechProgressVM).Volume_PropertyChanged((int)(e.OldValue), (int)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as SpeechProgressVM).Volume_CoerceValue(baseValue)));
 
         /// <summary>
         /// 
@@ -344,13 +243,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                     return (int)(GetValue(VolumeProperty));
                 return Dispatcher.Invoke(() => Volume);
             }
-            private set
+            set
             {
                 if (CheckAccess())
-                    SetValue(VolumePropertyKey, value);
+                    SetValue(VolumeProperty, value);
                 else
                     Dispatcher.Invoke(() => Volume = value);
             }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="Volume"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="int"/> value before the <seealso cref="Volume"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="Volume"/> property was changed.</param>
+        protected virtual void Volume_PropertyChanged(int oldValue, int newValue) { }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="Volume"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual int Volume_CoerceValue(object baseValue)
+        {
+            int? i = baseValue as int?;
+            if (!i.HasValue || i.Value < 0)
+                return 0;
+
+            return (i.Value > 100) ? 100 : i.Value;
         }
 
         #endregion
@@ -391,15 +311,21 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #region Rate Property Members
 
-        public const string PropertyName_Rate = "Rate";
-
-        private static readonly DependencyPropertyKey RatePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_Rate, typeof(int), typeof(SpeechProgressVM),
-                new PropertyMetadata(0));
+        public const string DependencyPropertyName_Rate = "Rate";
 
         /// <summary>
         /// Identifies the <seealso cref="Rate"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty RateProperty = RatePropertyKey.DependencyProperty;
+        public static readonly DependencyProperty RateProperty = DependencyProperty.Register(DependencyPropertyName_Rate, typeof(int), typeof(SpeechProgressVM),
+                new PropertyMetadata(0,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as SpeechProgressVM).Rate_PropertyChanged((int)(e.OldValue), (int)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as SpeechProgressVM).Rate_PropertyChanged((int)(e.OldValue), (int)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as SpeechProgressVM).Rate_CoerceValue(baseValue)));
 
         /// <summary>
         /// 
@@ -412,13 +338,37 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                     return (int)(GetValue(RateProperty));
                 return Dispatcher.Invoke(() => Rate);
             }
-            private set
+            set
             {
                 if (CheckAccess())
-                    SetValue(RatePropertyKey, value);
+                    SetValue(RateProperty, value);
                 else
                     Dispatcher.Invoke(() => Rate = value);
             }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="Rate"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="int"/> value before the <seealso cref="Rate"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="Rate"/> property was changed.</param>
+        protected virtual void Rate_PropertyChanged(int oldValue, int newValue) { }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="Rate"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual int Rate_CoerceValue(object baseValue)
+        {
+            int? i = baseValue as int?;
+            if (!i.HasValue)
+                return 0;
+
+            if (i.Value < -10)
+                return -10;
+
+            return (i.Value > 10) ? 10 : i.Value;
         }
 
         #endregion
@@ -427,8 +377,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         public const string PropertyName_LatestBookmark = "LatestBookmark";
 
-        private static readonly DependencyPropertyKey LatestBookmarkPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_LatestBookmark, typeof(string), typeof(SpeechProgressVM),
-                new PropertyMetadata(""));
+        private static readonly DependencyPropertyKey LatestBookmarkPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_LatestBookmark, typeof(PositionalValueVM<string>), typeof(SpeechProgressVM),
+                new PropertyMetadata(null));
 
         /// <summary>
         /// Identifies the <seealso cref="LatestBookmark"/> dependency property.
@@ -438,12 +388,12 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// <summary>
         /// 
         /// </summary>
-        public string LatestBookmark
+        public PositionalValueVM<string> LatestBookmark
         {
             get
             {
                 if (CheckAccess())
-                    return (string)(GetValue(LatestBookmarkProperty));
+                    return (PositionalValueVM<string>)(GetValue(LatestBookmarkProperty));
                 return Dispatcher.Invoke(() => LatestBookmark);
             }
             private set
@@ -452,6 +402,49 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                     SetValue(LatestBookmarkPropertyKey, value);
                 else
                     Dispatcher.Invoke(() => LatestBookmark = value);
+            }
+        }
+
+        #endregion
+
+        #region BookmarksReached Property Members
+
+        public void AddBookmark(TimeSpan audioPosition, string name)
+        {
+            LatestBookmark.AudioPosition.SetTimeSpan(audioPosition);
+            LatestBookmark.Value = name ?? "";
+            _bookmarksReached.Add(new ViewModel.PositionalValueVM<string>(audioPosition, name ?? ""));
+        }
+
+        private ObservableCollection<PositionalValueVM<string>> _bookmarksReached = new ObservableCollection<PositionalValueVM<string>>();
+
+        public const string PropertyName_BookmarksReached = "BookmarksReached";
+
+        private static readonly DependencyPropertyKey BookmarksReachedPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_BookmarksReached, typeof(ReadOnlyObservableCollection<PositionalValueVM<string>>), typeof(SpeechProgressVM),
+                new PropertyMetadata(null));
+
+        /// <summary>
+        /// Identifies the <seealso cref="BookmarksReached"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty BookmarksReachedProperty = BookmarksReachedPropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ReadOnlyObservableCollection<PositionalValueVM<string>> BookmarksReached
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (ReadOnlyObservableCollection<PositionalValueVM<string>>)(GetValue(BookmarksReachedProperty));
+                return Dispatcher.Invoke(() => BookmarksReached);
+            }
+            private set
+            {
+                if (CheckAccess())
+                    SetValue(BookmarksReachedPropertyKey, value);
+                else
+                    Dispatcher.Invoke(() => BookmarksReached = value);
             }
         }
 
@@ -525,119 +518,23 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
 
-        #region CharacterCount Property Members
-
-        public const string PropertyName_CharacterCount = "CharacterCount";
-
-        private static readonly DependencyPropertyKey CharacterCountPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CharacterCount, typeof(int), typeof(SpeechProgressVM),
-                new PropertyMetadata(0));
-
-        /// <summary>
-        /// Identifies the <seealso cref="CharacterCount"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty CharacterCountProperty = CharacterCountPropertyKey.DependencyProperty;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int CharacterCount
-        {
-            get
-            {
-                if (CheckAccess())
-                    return (int)(GetValue(CharacterCountProperty));
-                return Dispatcher.Invoke(() => CharacterCount);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(CharacterCountPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => CharacterCount = value);
-            }
-        }
-
-        #endregion
-
-        #region Phoneme Property Members
-
-        public const string PropertyName_Phoneme = "Phoneme";
-
-        private static readonly DependencyPropertyKey PhonemePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_Phoneme, typeof(ValueAndDurationQueueVM<string>), typeof(SpeechProgressVM),
-                new PropertyMetadata(null));
-
-        /// <summary>
-        /// Identifies the <seealso cref="Phoneme"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty PhonemeProperty = PhonemePropertyKey.DependencyProperty;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public ValueAndDurationQueueVM<string> Phoneme
-        {
-            get
-            {
-                if (CheckAccess())
-                    return (ValueAndDurationQueueVM<string>)(GetValue(PhonemeProperty));
-                return Dispatcher.Invoke(() => Phoneme);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(PhonemePropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => Phoneme = value);
-            }
-        }
-
-        #endregion
-
-        #region Viseme Property Members
-
-        public const string PropertyName_Viseme = "Viseme";
-
-        private static readonly DependencyPropertyKey VisemePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_Viseme, typeof(ValueAndDurationQueueVM<int>), typeof(SpeechProgressVM),
-                new PropertyMetadata(null));
-
-        /// <summary>
-        /// Identifies the <seealso cref="Viseme"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty VisemeProperty = VisemePropertyKey.DependencyProperty;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public ValueAndDurationQueueVM<int> Viseme
-        {
-            get
-            {
-                if (CheckAccess())
-                    return (ValueAndDurationQueueVM<int>)(GetValue(VisemeProperty));
-                return Dispatcher.Invoke(() => Viseme);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(VisemePropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => Viseme = value);
-            }
-        }
-
-        #endregion
-
         #region CurrentText Property Members
 
-        public const string PropertyName_CurrentText = "CurrentText";
-
-        private static readonly DependencyPropertyKey CurrentTextPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CurrentText, typeof(string), typeof(SpeechProgressVM),
-                new PropertyMetadata(""));
+        public const string DependencyPropertyName_CurrentText = "CurrentText";
 
         /// <summary>
         /// Identifies the <seealso cref="CurrentText"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty CurrentTextProperty = CurrentTextPropertyKey.DependencyProperty;
+        public static readonly DependencyProperty CurrentTextProperty = DependencyProperty.Register(DependencyPropertyName_CurrentText, typeof(string), typeof(SpeechProgressVM),
+                new PropertyMetadata("",
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as SpeechProgressVM).CurrentText_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as SpeechProgressVM).CurrentText_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as SpeechProgressVM).CurrentText_CoerceValue(baseValue)));
 
         /// <summary>
         /// 
@@ -650,13 +547,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                     return (string)(GetValue(CurrentTextProperty));
                 return Dispatcher.Invoke(() => CurrentText);
             }
-            private set
+            set
             {
                 if (CheckAccess())
-                    SetValue(CurrentTextPropertyKey, value);
+                    SetValue(CurrentTextProperty, value);
                 else
                     Dispatcher.Invoke(() => CurrentText = value);
             }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="CurrentText"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="CurrentText"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="CurrentText"/> property was changed.</param>
+        protected virtual void CurrentText_PropertyChanged(string oldValue, string newValue)
+        {
+            // TODO: Implement SpeechProgressVM.CurrentText_PropertyChanged(string, string)
+        }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="CurrentText"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string CurrentText_CoerceValue(object baseValue)
+        {
+            // TODO: Implement SpeechProgressVM.CurrentText_CoerceValue(DependencyObject, object)
+            return (baseValue as string) ?? "";
         }
 
         #endregion
@@ -665,6 +583,33 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         private ObservableCollection<SpeechMessageVM> _messages = new ObservableCollection<SpeechMessageVM>();
 
+        public void AddException(Exception exception, MessageSeverity severity = MessageSeverity.Error)
+        {
+            Action action = () => _messages.Add(SpeechMessageVM.Create(exception, severity));
+            if (CheckAccess())
+                action();
+            else
+                Dispatcher.Invoke(action);
+        }
+
+        public void AddMessage(string eventName, string message, MessageSeverity severity = MessageSeverity.Information)
+        {
+            Action action = () => _messages.Add(SpeechMessageVM.Create(eventName, message, severity));
+            if (CheckAccess())
+                action();
+            else
+                Dispatcher.Invoke(action);
+        }
+
+        public void AddMessage(string eventName, string message, IEnumerable<string> eventDetail, MessageSeverity severity = MessageSeverity.Information)
+        {
+            Action action = () => _messages.Add(SpeechMessageVM.Create(eventName, message, severity, eventDetail));
+            if (CheckAccess())
+                action();
+            else
+                Dispatcher.Invoke(action);
+        }
+        
         public const string PropertyName_Messages = "Messages";
 
         private static readonly DependencyPropertyKey MessagesPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_Messages, typeof(ReadOnlyObservableCollection<SpeechMessageVM>), typeof(SpeechProgressVM),
@@ -699,15 +644,21 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #region CurrentState Property Members
 
-        public const string PropertyName_CurrentState = "CurrentState";
-
-        private static readonly DependencyPropertyKey CurrentStatePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CurrentState, typeof(SpeechState), typeof(SpeechProgressVM),
-                new PropertyMetadata(SpeechState.NotStarted));
+        public const string DependencyPropertyName_CurrentState = "CurrentState";
 
         /// <summary>
         /// Identifies the <seealso cref="CurrentState"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty CurrentStateProperty = CurrentStatePropertyKey.DependencyProperty;
+        public static readonly DependencyProperty CurrentStateProperty = DependencyProperty.Register(DependencyPropertyName_CurrentState, typeof(SpeechState), typeof(SpeechProgressVM),
+                new PropertyMetadata(SpeechState.NotStarted,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as SpeechProgressVM).CurrentState_PropertyChanged((SpeechState)(e.OldValue), (SpeechState)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as SpeechProgressVM).CurrentState_PropertyChanged((SpeechState)(e.OldValue), (SpeechState)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as SpeechProgressVM).CurrentState_CoerceValue(baseValue)));
 
         /// <summary>
         /// 
@@ -720,28 +671,52 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                     return (SpeechState)(GetValue(CurrentStateProperty));
                 return Dispatcher.Invoke(() => CurrentState);
             }
-            private set
+            set
             {
                 if (CheckAccess())
-                    SetValue(CurrentStatePropertyKey, value);
+                    SetValue(CurrentStateProperty, value);
                 else
                     Dispatcher.Invoke(() => CurrentState = value);
             }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="CurrentState"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="SpeechState"/> value before the <seealso cref="CurrentState"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="SpeechState"/> value after the <seealso cref="CurrentState"/> property was changed.</param>
+        protected virtual void CurrentState_PropertyChanged(SpeechState oldValue, SpeechState newValue) { }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="CurrentState"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual SpeechState CurrentState_CoerceValue(object baseValue)
+        {
+            SpeechState? speechState = baseValue as SpeechState?;
+            return (speechState.HasValue) ? speechState.Value : SpeechState.NotStarted;
         }
 
         #endregion
 
         #region PercentComplete Property Members
 
-        public const string PropertyName_PercentComplete = "PercentComplete";
-
-        private static readonly DependencyPropertyKey PercentCompletePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_PercentComplete, typeof(int), typeof(SpeechProgressVM),
-                new PropertyMetadata(0));
+        public const string DependencyPropertyName_PercentComplete = "PercentComplete";
 
         /// <summary>
         /// Identifies the <seealso cref="PercentComplete"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty PercentCompleteProperty = PercentCompletePropertyKey.DependencyProperty;
+        public static readonly DependencyProperty PercentCompleteProperty = DependencyProperty.Register(DependencyPropertyName_PercentComplete, typeof(int), typeof(SpeechProgressVM),
+                new PropertyMetadata(0,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as SpeechProgressVM).PercentComplete_PropertyChanged((int)(e.OldValue), (int)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as SpeechProgressVM).PercentComplete_PropertyChanged((int)(e.OldValue), (int)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as SpeechProgressVM).PercentComplete_CoerceValue(baseValue)));
 
         /// <summary>
         /// 
@@ -754,168 +729,36 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                     return (int)(GetValue(PercentCompleteProperty));
                 return Dispatcher.Invoke(() => PercentComplete);
             }
-            private set
+            set
             {
                 if (CheckAccess())
-                    SetValue(PercentCompletePropertyKey, value);
+                    SetValue(PercentCompleteProperty, value);
                 else
                     Dispatcher.Invoke(() => PercentComplete = value);
             }
         }
 
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="PercentComplete"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="int"/> value before the <seealso cref="PercentComplete"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="PercentComplete"/> property was changed.</param>
+        protected virtual void PercentComplete_PropertyChanged(int oldValue, int newValue) { }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="PercentComplete"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual int PercentComplete_CoerceValue(object baseValue)
+        {
+            int? i = baseValue as int?;
+            if (!i.HasValue || i.Value < 0)
+                return 0;
+
+            return (i.Value > 100) ? 100 : i.Value;
+        }
+
         #endregion
-
-        internal void Update(TimeSpan audioPosition, string text, int characterPosition, int characterCount, int rate, VoiceInfo voice, bool stressed, int volume)
-        {
-            if (!CheckAccess())
-            {
-                Dispatcher.Invoke(() => Update(audioPosition, text, characterPosition, characterCount, rate, voice, stressed, volume), DispatcherPriority.Input);
-                return;
-            }
-
-            AudioPosition.SetTimeSpan(audioPosition);
-            CurrentText = text ?? "";
-            CharacterPosition = characterPosition;
-            CharacterCount = characterCount;
-            PercentComplete = (characterPosition * 100) / characterCount;
-            Rate = rate;
-            Voice.SetVoice(voice);
-            Stressed = stressed;
-            Volume = volume;
-        }
-
-        internal void AddErrorMessage(Exception error, MessageSeverity severity = MessageSeverity.Error)
-        {
-            if (CheckAccess())
-            {
-                CurrentState = CurrentState | SpeechState.HasFault;
-                _messages.Add(SpeechMessageVM.Create(error, severity));
-                if (_messages.Count > 128)
-                    _messages.RemoveAt(0);
-            }
-            else
-                Dispatcher.Invoke(() => AddErrorMessage(error), DispatcherPriority.Input);
-        }
-
-        internal void SetPhoneme(string phoneme, TimeSpan duration, string nextPhoneme)
-        {
-            if (CheckAccess())
-                Phoneme.SetQueue(phoneme, duration, nextPhoneme);
-            else
-                Dispatcher.Invoke(() => SetPhoneme(phoneme, duration, nextPhoneme), DispatcherPriority.Input);
-        }
-
-        internal void SetViseme(int viseme, TimeSpan duration, int nextViseme)
-        {
-            if (CheckAccess())
-                Viseme.SetQueue(viseme, duration, nextViseme);
-            else
-                Dispatcher.Invoke(() => SetViseme(viseme, duration, nextViseme), DispatcherPriority.Input);
-        }
-
-        internal void SetBookmark(string bookmark)
-        {
-            if (CheckAccess())
-            {
-                LatestBookmark = bookmark ?? "";
-                _messages.Add(SpeechMessageVM.Create("Bookmark reached", bookmark));
-                if (_messages.Count > 128)
-                    _messages.RemoveAt(0);
-            }
-            else
-                Dispatcher.Invoke(() => SetBookmark(bookmark), DispatcherPriority.Input);
-        }
-
-        internal void SetStartedState()
-        {
-            if (CheckAccess())
-            {
-                CurrentState = SpeechState.Speaking;
-                _cancelSpeechCommand.IsEnabled = true;
-                _pauseSpeechCommand.IsEnabled = true;
-                _resumeSpeechCommand.IsEnabled = false;
-                _toggleSpeechCommand.IsEnabled = true;
-            }
-            else
-                Dispatcher.Invoke(() => SetStartedState(), DispatcherPriority.Input);
-        }
-
-        internal void SetCompletedState()
-        {
-            if (CheckAccess())
-            {
-                _cancelSpeechCommand.IsEnabled = false;
-                _pauseSpeechCommand.IsEnabled = false;
-                _resumeSpeechCommand.IsEnabled = false;
-                _toggleSpeechCommand.IsEnabled = false;
-                if (CurrentState.HasFlag(SpeechState.Canceled))
-                    CurrentState = SpeechState.Completed | ((CurrentState.HasFlag(SpeechState.HasFault)) ? SpeechState.Canceled | SpeechState.HasFault : SpeechState.Canceled);
-                else
-                    CurrentState = (CurrentState.HasFlag(SpeechState.HasFault)) ? SpeechState.Completed | SpeechState.HasFault : SpeechState.Completed;
-            }
-            else
-                Dispatcher.Invoke(() => SetCompletedState(), DispatcherPriority.Input);
-        }
-
-        internal void SetCanceledState()
-        {
-            if (CheckAccess())
-            {
-                _cancelSpeechCommand.IsEnabled = false;
-                _pauseSpeechCommand.IsEnabled = false;
-                _resumeSpeechCommand.IsEnabled = false;
-                _toggleSpeechCommand.IsEnabled = false;
-                CurrentState = SpeechState.Canceled | ((CurrentState.HasFlag(SpeechState.HasFault)) ? SpeechState.Completed | SpeechState.HasFault : SpeechState.Completed);
-            }
-            else
-                Dispatcher.Invoke(() => SetCanceledState(), DispatcherPriority.Input);
-        }
-
-        internal void SetErrorState(Exception exception)
-        {
-            if (CheckAccess())
-            {
-                _cancelSpeechCommand.IsEnabled = false;
-                _pauseSpeechCommand.IsEnabled = false;
-                _resumeSpeechCommand.IsEnabled = false;
-                _toggleSpeechCommand.IsEnabled = false;
-                CurrentState = SpeechState.HasFault | ((CurrentState.HasFlag(SpeechState.Canceled)) ? SpeechState.Completed | SpeechState.Canceled : SpeechState.Completed);
-                _messages.Add(SpeechMessageVM.Create(exception, MessageSeverity.Critical));
-                if (_messages.Count > 128)
-                    _messages.RemoveAt(0);
-            }
-            else
-                Dispatcher.Invoke(() => SetErrorState(exception), DispatcherPriority.Input);
-        }
-
-        internal void SetPausedState()
-        {
-            if (CheckAccess())
-            {
-                _pauseSpeechCommand.IsEnabled = false;
-                _resumeSpeechCommand.IsEnabled = true;
-                if (CurrentState.HasFlag(SpeechState.Canceled))
-                    CurrentState = SpeechState.Paused | ((CurrentState.HasFlag(SpeechState.HasFault)) ? SpeechState.Canceled | SpeechState.HasFault : SpeechState.Canceled);
-                else
-                    CurrentState = (CurrentState.HasFlag(SpeechState.HasFault)) ? SpeechState.Paused | SpeechState.HasFault : SpeechState.Paused;
-            }
-            else
-                Dispatcher.Invoke(() => SetCompletedState(), DispatcherPriority.Input);
-        }
-
-        internal void SetUnpausedState()
-        {
-            if (CheckAccess())
-            {
-                _pauseSpeechCommand.IsEnabled = true;
-                _resumeSpeechCommand.IsEnabled = false;
-                if (CurrentState.HasFlag(SpeechState.Canceled))
-                    CurrentState = SpeechState.Speaking | ((CurrentState.HasFlag(SpeechState.HasFault)) ? SpeechState.Canceled | SpeechState.HasFault : SpeechState.Canceled);
-                else
-                    CurrentState = (CurrentState.HasFlag(SpeechState.HasFault)) ? SpeechState.Speaking | SpeechState.HasFault : SpeechState.Speaking;
-            }
-            else
-                Dispatcher.Invoke(() => SetCompletedState(), DispatcherPriority.Input);
-        }
     }
 }

@@ -3,21 +3,173 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Schema;
 
 namespace Erwine.Leonard.T.SsmlNotePad.Common
 {
+    interface INodeIndexInfo
+    {
+        int OuterStartIndex { get; }
+        int? InnerStartIndex { get; set; }
+        int? InnerEndIndex { get; set; }
+        int? OuterEndIndex { get; set; }
+        string LocalName { get; }
+        string NamespaceURI { get; }
+        XmlNodeType NodeType { get; }
+    }
+    public class NodeIndexInfo : INodeIndexInfo
+    {
+        public NodeIndexInfo(string localName, string namespaceURI, XmlNodeType nodeType, int index)
+        {
+            LocalName = localName;
+            NamespaceURI = namespaceURI;
+            NodeType = nodeType;
+            OuterStartIndex = index;
+        }
+
+        public int OuterStartIndex { get; private set; }
+        public int InnerStartIndex { get { return (_innerStartIndex.HasValue) ? _innerStartIndex.Value : OuterStartIndex; } }
+        private int? _innerStartIndex = null;
+        int? INodeIndexInfo.InnerStartIndex
+        {
+            get { return _innerStartIndex; }
+            set
+            {
+                if (_innerStartIndex.HasValue)
+                    throw new InvalidOperationException("Value cannot be modified once it is set.");
+
+                _innerStartIndex = value;
+            }
+        }
+        private int? _innerEndIndex = null;
+        public int InnerEndIndex { get { return (_innerEndIndex.HasValue) ? _innerEndIndex.Value : OuterEndIndex; } }
+        int? INodeIndexInfo.InnerEndIndex
+        {
+            get { return _innerEndIndex; }
+            set
+            {
+                if (_innerEndIndex.HasValue)
+                    throw new InvalidOperationException("Value cannot be modified once it is set.");
+
+                _innerEndIndex = value;
+            }
+        }
+        private int? _outerEndIndex = null;
+        public int OuterEndIndex { get { return (_outerEndIndex.HasValue) ? _outerEndIndex.Value : OuterStartIndex; } }
+        int? INodeIndexInfo.OuterEndIndex
+        {
+            get { return _outerEndIndex; }
+            set
+            {
+                if (_outerEndIndex.HasValue)
+                    throw new InvalidOperationException("Value cannot be modified once it is set.");
+
+                _outerEndIndex = value;
+            }
+        }
+        public string LocalName { get; private set; }
+        public string NamespaceURI { get; private set; }
+        public XmlNodeType NodeType { get; private set; }
+    }
+
+    public class LineIndexInfo
+    {
+        public LineIndexInfo(int index, int length, string text)
+        {
+            Index = index;
+            Length = length;
+            TextAndLineEnding = text;
+        }
+
+        public int Index { get; private set; }
+        public int Length { get; private set; }
+        public string TextAndLineEnding { get; private set; }
+        public string Text { get { return (Length == 0) ? "" : TextAndLineEnding.Substring(0, Length); } }
+        public string LineEnding { get { return (Length == TextAndLineEnding.Length) ? "" : TextAndLineEnding.Substring(Length); } }
+    }
+
     public static class XmlHelper
     {
-        public static string GetBaseUri() { return Path.Combine(Path.GetDirectoryName(typeof(XmlHelper).Assembly.Location), "Resources"); }
+        public static IEnumerable<NodeIndexInfo> GetNodeIndexInfo(string xml, out LineIndexInfo[] lineIndexes)
+        {
+            if ((lineIndexes = GetLineIndexes(xml).ToArray()).Length == 0)
+                return new NodeIndexInfo[0];
+
+            using (StringReader stringReader = new StringReader(xml))
+            {
+                using (XmlReader xmlReader = XmlReader.Create(stringReader))
+                    return GetNodeIndexInfo(xmlReader, lineIndexes);
+            }
+        }
+
+        public static IEnumerable<NodeIndexInfo> GetNodeIndexInfo(XmlReader xmlReader, LineIndexInfo[] lineIndexes)
+        {
+            IXmlLineInfo lineInfo = xmlReader as IXmlLineInfo;
+            INodeIndexInfo lastItem = new NodeIndexInfo(null, null, XmlNodeType.None, 0);
+            Stack<INodeIndexInfo> stack = new Stack<INodeIndexInfo>();
+            while (xmlReader.Read())
+            {
+                int newCharIndex = lineIndexes[lineInfo.LineNumber - 1].Index + lineInfo.LinePosition - 1;
+                INodeIndexInfo newItem;
+                if (xmlReader.NodeType == XmlNodeType.EndElement)
+                {
+                    newItem = stack.Pop();
+                    newItem.InnerEndIndex = newCharIndex - 1;
+                }
+                else
+                {
+                    if (xmlReader.NodeType == XmlNodeType.Element)
+                    {
+                        newItem = new NodeIndexInfo(xmlReader.LocalName, xmlReader.NamespaceURI, xmlReader.NodeType, newCharIndex - 1);
+                        if (!xmlReader.IsEmptyElement)
+                            stack.Push(newItem);
+                    }
+                    else
+                        newItem = new NodeIndexInfo(xmlReader.LocalName, xmlReader.NamespaceURI, xmlReader.NodeType, newCharIndex);
+                    if (stack.Count > 0 && !stack.Peek().InnerStartIndex.HasValue)
+                        stack.Peek().InnerStartIndex = newItem.OuterStartIndex; // BUG: Stack was already pushed if it was an element
+                }
+                yield return lastItem as NodeIndexInfo;
+                lastItem = newItem;
+            }
+        }
+
+        public static IEnumerable<LineIndexInfo> GetLineIndexes(string text)
+        {
+            if (text == null)
+                yield break;
+
+            int lineLength;
+            int startIndex = 0;
+            for (int charIndex = 0; charIndex < text.Length; charIndex++)
+            {
+                if (text[charIndex] == '\r')
+                {
+                    lineLength = charIndex - startIndex;
+                    if (charIndex < text.Length - 1 && text[charIndex + 1] == '\n')
+                        charIndex++;
+                }
+                else if (text[charIndex] == '\n')
+                    lineLength = charIndex - startIndex;
+                else
+                    continue;
+
+                yield return new LineIndexInfo(startIndex, lineLength, text.Substring(startIndex, charIndex - startIndex));
+            }
+
+            lineLength = text.Length - startIndex;
+            yield return new LineIndexInfo(startIndex, lineLength, (startIndex == text.Length) ? "" : text.Substring(startIndex));
+        }
 
         public static XmlSchemaSet CreateSsmlSchemaSet()
         {
-            string baseUri = GetBaseUri();
+            string baseUri = App.AppSettingsViewModel.BaseUriPath;
+            
             XmlSchemaSet schemaSet = new XmlSchemaSet();
-            schemaSet.Add("http://www.w3.org/2001/10/synthesis", Path.Combine(baseUri, "WindowsPhoneSynthesis.xsd"));
-            schemaSet.Add("http://www.w3.org/2001/10/synthesis", Path.Combine(baseUri, "WindowsPhoneSynthesis-core.xsd"));
+            schemaSet.Add(Markup.SsmlSchemaNamespaceURI, App.AppSettingsViewModel.SsmlSchemaFileName);
+            schemaSet.Add(Markup.SsmlSchemaNamespaceURI, App.AppSettingsViewModel.SsmlSchemaCoreFileName);
             return schemaSet;
         }
 
@@ -41,7 +193,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Common
                     ValidationType = ValidationType.Schema,
                     Schemas = CreateSsmlSchemaSet(),
                     CloseInput = false
-                }, GetBaseUri()))
+                }, App.AppSettingsViewModel.BaseUriPath))
                 {
                     document.Load(xmlReader);
                 }
@@ -402,6 +554,60 @@ namespace Erwine.Leonard.T.SsmlNotePad.Common
                 yield return 'x';
                 yield return 'A';
             }
+        }
+
+        internal static string RemoveConsecutiveEmptyLines(string text)
+        {
+            List<string> lines = text.SplitLines().ToList();
+            for (int i=1; i< lines.Count; i++)
+            {
+                if (!lines[i-1].Any(c => !Char.IsWhiteSpace(c)) && !lines[i].Any(c => !Char.IsWhiteSpace(c)))
+                {
+                    do
+                    {
+                        lines.RemoveAt(i - 1);
+                    } while (i < lines.Count && !lines[i].Any(c => !Char.IsWhiteSpace(c)));
+                }
+            }
+
+            return String.Join(Environment.NewLine, lines.ToArray());
+        }
+
+        internal static string RemoveEmptyLines(string text)
+        {
+            return String.Join(Environment.NewLine, text.SplitLines().Where(l => l.TrimEnd().Length > 0).ToArray());
+        }
+
+        internal static string JoinLines(string text)
+        {
+            string[] lines = text.SplitLines(true).ToArray();
+            if (lines == null || lines.Length == 0)
+                return "";
+            if (lines.Length == 1)
+                return lines[0];
+
+            return String.Join(" ", lines.Take(1).Select(l => l.TrimEnd()).Concat(lines.Skip(1).Take(lines.Length - 2).Select(l => l.Trim()))
+                .Concat(new string[] { lines[lines.Length - 1].TrimStart() }).ToArray());
+        }
+
+        internal static string CleanUpLineEndings(string text)
+        {
+            return String.Join(Environment.NewLine, text.SplitLines(true).Select(l => l.TrimEnd()).ToArray());
+        }
+
+        public static readonly Regex AbnormalNewlineRegex = new Regex(@"\r(?=[^\n]|$)|(?<!\r)\n", RegexOptions.Compiled);
+
+        internal static string NormalizeNewLines(string text)
+        {
+            if (AbnormalNewlineRegex.IsMatch(text))
+                return AbnormalNewlineRegex.Replace(text, "\r\n");
+
+            return text;
+        }
+
+        internal static string RemoveOuterWhitespace(string text)
+        {
+            return String.Join(Environment.NewLine, text.SplitLines(true).Select(l => l.Trim()).ToArray());
         }
 
         private static IEnumerable<char> _XmlEncodeDACU(IEnumerable<char> source)
@@ -1034,6 +1240,261 @@ namespace Erwine.Leonard.T.SsmlNotePad.Common
                 yield return 'x';
                 yield return 'A';
             }
+        }
+
+        //public static readonly Regex DigitAbbrevRegex = new Regex(@"(?<=(^|[^a-zA-Z\d])\d+(\.\d+)?\s*)(?<a>[gmkt](hz|b(ps)?)|""|'|cm|bps|hz|lbs|m[Am]|nm|oz|pb|V|W)(?=[^A-Za-z\d]|$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static readonly Regex DigitAbbrevRegex = new Regex(Properties.Settings.Default.DigitAbbrevPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        //public static readonly Regex SpellOutRegex = new Regex(@"(?<![a-zA-Z\d])(A(CL?|M[DI]|PI|RP|T[AX]?)|BEDO|D(A|[Oo]D|RIMe)|E(CC|DO|IDE|MI|SD)|eSATA|I(DE?|OS|P(X|v[46])?|rDA|R|S[OA]|TX?)|i(OS|os)|LED?|NDEF|O(HRM|SI?|LED)|P(ATA|CIe|DIF)|QIC|R(E|ARP)|S(ATA|CA|EID|LI|NEP)|UEFI)(?=s?[^a-zA-Z\d]|$)", RegexOptions.Compiled);
+        public static readonly Regex SpellOutRegex = new Regex(Properties.Settings.Default.SpellOutPattern, RegexOptions.Compiled);
+        public static readonly Regex SubRegex = new Regex(@"(?<![a-zA-Z\d])(ADRAM|BD-R|CMOS|DVD[+-]RW?|EE?PROM|IEEE|LRDIMM|RDIMM|S(CSI|DRAM|RAM)|UDIMM|Wi-?Fi|°(\s*[FC])?|[a-zA-Z]+\+)(?=[^a-zA-Z\d]|$)", RegexOptions.Compiled);
+        public static readonly Regex MiniMicroRegex = new Regex(@"(?<![a-zA-Z\d])(?<p>mini|micro)(?<a>SD(HC|XC)?)(?=[^a-zA-Z\d]|$)", RegexOptions.Compiled);
+        public static readonly Regex CurrencyRegex = new Regex(@"\$\s*(?<d>\d+(,\d+)*)(\.(?<c>\d{2}))?(?=[^\d]|$)", RegexOptions.Compiled);
+        public static readonly Regex DimensionsRegex = new Regex(@"(?<=\d+(\.\d+)?\s*)[×x](?=\s*\d+(\.\d+)?)", RegexOptions.Compiled);
+        public static readonly Regex SignVoltsRegex = new Regex(@"(\+|-)(?<n>\d+(\.\d+)?)\s*(?<d>V([AD]C)?)(?=[^A-Za-z\d]|$)", RegexOptions.Compiled);
+
+        internal static string AutoReplace(string selectedText)
+        {
+            if (String.IsNullOrWhiteSpace(selectedText))
+                return selectedText;
+
+            if (DigitAbbrevRegex.IsMatch(selectedText))
+            {
+                Dictionary<string, string> mapping = Properties.Settings.Default.DigitAbbrevAlias.Split(';').Select(s => s.Trim()).Where(s => s.Length > 0)
+                    .Select(s => s.Split(new char[] { '=' }, 2)).SelectMany(a => a[0].Split(',').Select(k => new { Key = k, Value = a[1] }))
+                    .ToDictionary(a => a.Key, a => a.Value);
+                selectedText = DigitAbbrevRegex.Replace(selectedText, m =>
+                {
+                    string s = m.Value.Trim();
+                    string alias;
+                    if (!mapping.ContainsKey(s))
+                        return m.Value;
+
+                    alias = mapping[s];
+                    //switch (s)
+                    //{
+                    //    case "GHZ":
+                    //    case "GHz":
+                    //    case "Ghz":
+                    //        alias = "GigaHertz";
+                    //        break;
+                    //    case "MHZ":
+                    //    case "MHz":
+                    //    case "Mhz":
+                    //        alias = "MegaHertz";
+                    //        break;
+                    //    case "KHZ":
+                    //    case "KHz":
+                    //    case "Khz":
+                    //        alias = "KiloHertz";
+                    //        break;
+                    //    case "Hz":
+                    //    case "hz":
+                    //        alias = "Hertz";
+                    //        break;
+                    //    case "Tb":
+                    //        alias = "TeraBits";
+                    //        break;
+                    //    case "TB":
+                    //        alias = "TeraBytes";
+                    //        break;
+                    //    case "Gb":
+                    //        alias = "GigaBits";
+                    //        break;
+                    //    case "GB":
+                    //        alias = "GigaBytes";
+                    //        break;
+                    //    case "PB":
+                    //        alias = "PentaBytes";
+                    //        break;
+                    //    case "Mb":
+                    //        alias = "MegaBits";
+                    //        break;
+                    //    case "MB":
+                    //        alias = "MegaBytes";
+                    //        break;
+                    //    case "Kb":
+                    //        alias = "KiloBits";
+                    //        break;
+                    //    case "KB":
+                    //        alias = "KiloBytes";
+                    //        break;
+                    //    case "Gbps":
+                    //        alias = "GigaBits per second";
+                    //        break;
+                    //    case "GBps":
+                    //        alias = "GigaBytes per second";
+                    //        break;
+                    //    case "Mbps":
+                    //        alias = "MegaBits per second";
+                    //        break;
+                    //    case "MBps":
+                    //        alias = "MegaBytes per second";
+                    //        break;
+                    //    case "Kbps":
+                    //        alias = "KiloBits per second";
+                    //        break;
+                    //    case "KBps":
+                    //        alias = "KiloBytes per second";
+                    //        break;
+                    //    case "bps":
+                    //        alias = "bits per second";
+                    //        break;
+                    //    case "nm":
+                    //        alias = "nanometers";
+                    //        break;
+                    //    case "mm":
+                    //        alias = "millimeters";
+                    //        break;
+                    //    case "cm":
+                    //        alias = "centimeters";
+                    //        break;
+                    //    case "\"":
+                    //        alias = "inches";
+                    //        break;
+                    //    case "'":
+                    //        alias = "feet";
+                    //        break;
+                    //    case "V":
+                    //        alias = "Volts";
+                    //        break;
+                    //    case "VDC":
+                    //        alias = "Volts D C";
+                    //        break;
+                    //    case "VAC":
+                    //        alias = "Volts A C";
+                    //        break;
+                    //    case "W":
+                    //        alias = "Watts";
+                    //        break;
+                    //    case "MP":
+                    //        alias = "MegaPixels";
+                    //        break;
+                    //    case "mA":
+                    //        alias = "milliamperes";
+                    //        break;
+                    //    case "lbs":
+                    //        alias = "pounds";
+                    //        break;
+                    //    case "oz":
+                    //        alias = "ounces";
+                    //        break;
+                    //    default:
+                    //        alias = null;
+                    //        break;
+                    //}
+                    
+                    return String.Format("<sub alias=\" {0}\">{1}</sub>", XmlHelper.XmlEncode(alias, XmlEncodeOption.DoubleQuotedAttribute), m.Value);
+                });
+            }
+
+            if (SpellOutRegex.IsMatch(selectedText))
+                selectedText = SpellOutRegex.Replace(selectedText, m => String.Format("<say-as interpret-as=\"characters\">{0}</say-as>", m.Value));
+
+            if (DimensionsRegex.IsMatch(selectedText))
+                selectedText = DimensionsRegex.Replace(selectedText, m => "<sub alias=\" by \">x</sub>");
+
+            if (MiniMicroRegex.IsMatch(selectedText))
+                selectedText = MiniMicroRegex.Replace(selectedText, m => String.Format("<sub alias=\"{0} {1}\">{2}</sub>", m.Groups["p"].Value, m.Groups["a"].Value, m.Value));
+
+            if (SignVoltsRegex.IsMatch(selectedText))
+                selectedText = SignVoltsRegex.Replace(selectedText, m =>
+                {
+                    string alias;
+                    if (m.Groups["d"].Value == "VDC")
+                        alias = "Volts D C";
+                    else
+                        alias = (m.Groups["d"].Value == "VAC") ? "Volts A C" : "Volts";
+
+                    return String.Format("<sub alias=\" {0}tive {1} {2}\">{3}</sub>", (m.Value[0] == '+') ? "posi" : "nega", m.Groups["n"].Value, alias, m.Value);
+                });
+
+            if (CurrencyRegex.IsMatch(selectedText))
+                selectedText = CurrencyRegex.Replace(selectedText, m =>
+                {
+                    if (m.Groups["c"].Success)
+                        return String.Format("<sub alias=\"{0} dollars and {1} cents\">{2}</sub>", m.Groups["d"].Value, m.Groups["c"].Value, m.Value);
+                    return String.Format("<sub alias=\"{0} dollars \">{1}</sub>", m.Groups["d"].Value, m.Value);
+                });
+            
+            if (!SubRegex.IsMatch(selectedText))
+                return selectedText;
+
+            return SubRegex.Replace(selectedText, m =>
+            {
+                string s = m.Value.Trim();
+                string alias;
+                switch (s)
+                {
+                    case "ADRAM":
+                        alias = "A-DRAM";
+                        break;
+                    case "BD-R":
+                        alias = "BD minus R";
+                        break;
+                    case "CMOS":
+                        alias = "C Moss";
+                        break;
+                    case "DVD+R":
+                        alias = "DVD plus R";
+                        break;
+                    case "DVD-R":
+                        alias = "DVD minus R";
+                        break;
+                    case "DVD+RW":
+                        alias = "DVD plus RW";
+                        break;
+                    case "DVD-RW":
+                        alias = "DVD minus RW";
+                        break;
+                    case "EPROM":
+                        alias = "E PROM";
+                        break;
+                    case "EEPROM":
+                        alias = "E E PROM";
+                        break;
+                    case "IEEE":
+                        alias = "I triple E";
+                        break;
+                    case "LRDIMM":
+                        alias = "L R DIMM";
+                        break;
+                    case "RDIMM":
+                        alias = "R DIMM";
+                        break;
+                    case "SCSI":
+                        alias = "skuzzy";
+                        break;
+                    case "SDRAM":
+                        alias = "S DRAM";
+                        break;
+                    case "SRAM":
+                        alias = "S RAM";
+                        break;
+                    case "UDIMM":
+                        alias = "U DIMM";
+                        break;
+                    case "Wi-Fi":
+                    case "WiFi":
+                        alias = "why fie";
+                        break;
+                    case "°":
+                        alias = "Degrees";
+                        break;
+                    default:
+                        if (s.EndsWith("+"))
+                            alias = String.Format("{0} plus", s.Substring(0, s.Length - 1));
+                        else if (s.StartsWith("°"))
+                            alias = (s.EndsWith("C")) ? "Degrees Celsius" : "Degrees Fahrenheit";
+                        else
+                            alias = null;
+                        break;
+                }
+
+                if (alias == null)
+                    return m.Value;
+
+                return String.Format("<sub alias=\"{0}\">{1}</sub>", XmlHelper.XmlEncode(alias, XmlEncodeOption.DoubleQuotedAttribute), m.Value);
+            });
         }
 
         private static IEnumerable<char> _XmlEncodeDC(IEnumerable<char> source)

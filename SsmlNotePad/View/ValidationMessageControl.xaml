@@ -7,7 +7,6 @@
              mc:Ignorable="d" 
         xmlns:ViewModel="clr-namespace:Erwine.Leonard.T.SsmlNotePad.ViewModel"
              d:DesignHeight="300" d:DesignWidth="300">
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -21,15 +20,15 @@
             <ColumnDefinition Width="67*"/>
             <ColumnDefinition Width="58*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="Line Number:"/>
-        <TextBlock x:Name="textBlock1" Grid.Column="1" TextWrapping="Wrap" Text="{Binding LineNumber}"/>
-        <TextBlock x:Name="textBlock2" Grid.Column="2" TextWrapping="Wrap" Text="Column:"/>
-        <TextBlock x:Name="textBlock3" Grid.Column="3" TextWrapping="Wrap" Text="{Binding LinePosition}"/>
-        <TextBlock x:Name="textBlock4" Grid.Row="1" TextWrapping="Wrap" Text="Message:"/>
-        <TextBlock x:Name="textBlock5" Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" Text="{Binding Message}" Grid.ColumnSpan="3"/>
-        <TextBlock x:Name="textBlock6" Grid.Row="2" TextWrapping="Wrap" Text="Stack Trace:"/>
-        <TextBlock x:Name="textBlock7" Grid.Column="1" Grid.Row="2" TextWrapping="Wrap" Text="{Binding StackTrace}" Grid.ColumnSpan="3"/>
-        <DataGrid x:Name="dataGrid" Grid.Row="3" Grid.ColumnSpan="4" ItemsSource="{Binding InnerErrors}" IsReadOnly="True">
+        <TextBlock TextWrapping="Wrap" Text="Line Number:"/>
+        <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding LineNumber}"/>
+        <TextBlock Grid.Column="2" TextWrapping="Wrap" Text="Column:"/>
+        <TextBlock Grid.Column="3" TextWrapping="Wrap" Text="{Binding LinePosition}"/>
+        <TextBlock Grid.Row="1" TextWrapping="Wrap" Text="Message:"/>
+        <TextBlock Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" Text="{Binding Message}" Grid.ColumnSpan="3"/>
+        <TextBlock Grid.Row="2" TextWrapping="Wrap" Text="Stack Trace:"/>
+        <TextBlock Grid.Column="1" Grid.Row="2" TextWrapping="Wrap" Text="{Binding StackTrace}" Grid.ColumnSpan="3"/>
+        <DataGrid Grid.Row="3" Grid.ColumnSpan="4" ItemsSource="{Binding InnerErrors}" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding LineNumber}" ClipboardContentBinding="{x:Null}" Header="Line" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding LinePosition}" ClipboardContentBinding="{x:Null}" Header="Col" IsReadOnly="True"/>

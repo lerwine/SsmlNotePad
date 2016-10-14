@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
@@ -13,35 +12,16 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         {
             if (!value.HasValue)
                 return "";
-
-            if (value.Value == SpeechState.NotStarted)
-                return "Not Started";
-
-            if (value.Value.HasFlag(SpeechState.Canceled))
+            
+            switch (value.Value)
             {
-                if (value.Value.HasFlag(SpeechState.HasFault))
-                    return "Cancelled (had errors)";
-
-                return "Cancelled";
+                case SpeechState.NotStarted:
+                    return "Not Started";
+                case SpeechState.Faulted:
+                    return "Unexpected error";
+                default:
+                    return value.Value.ToString("F");
             }
-
-            if (value.Value.HasFlag(SpeechState.Completed))
-            {
-                if (value.Value.HasFlag(SpeechState.HasFault))
-                    return "Completed with errors";
-
-                return "Completed";
-            }
-
-            if (value.Value.HasFlag(SpeechState.Speaking))
-            {
-                if (value.Value.HasFlag(SpeechState.HasFault))
-                    return "Speaking (has errors)";
-
-                return "Speaking";
-            }
-
-            return "Paused";
         }
 
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)

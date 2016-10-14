@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
-    [ValueConversion(typeof(SpeechState?), typeof(Style))]
+    [ValueConversion(typeof(SpeechState), typeof(Style))]
     public class SpeechStateToStyleConverter : DependencyObject, IValueConverter
     {
         #region NullStyle Property Members
@@ -165,7 +165,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                     Dispatcher.Invoke(() => PausedStyle = value);
             }
         }
-        
+
         #endregion
 
         public Style Convert(SpeechState? value, object parameter, CultureInfo culture)
@@ -173,15 +173,17 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
             if (!value.HasValue)
                 return NullStyle;
 
-            if (value.Value == SpeechState.NotStarted)
-                return NormalStyle;
-            if (value.Value.HasFlag(SpeechState.HasFault))
-                return FaultedStyle;
-            if (value.Value.HasFlag(SpeechState.Canceled))
-                return CanceledStyle;
-            if (value.Value.HasFlag(SpeechState.Speaking) || value.Value.HasFlag(SpeechState.Completed))
-                return NormalStyle;
-            return PausedStyle;
+            switch (value.Value)
+            {
+                case SpeechState.Faulted:
+                    return FaultedStyle;
+                case SpeechState.Canceled:
+                    return CanceledStyle;
+                case SpeechState.Paused:
+                    return PausedStyle;
+            }
+
+            return NormalStyle;
         }
 
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)

@@ -325,5 +325,38 @@ namespace Erwine.Leonard.T.SsmlNotePad.Properties {
                 this["LastPlsFilePath"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("(?<=(^|[^a-zA-Z\\d])\\d+(\\.\\d+)?\\s*)(?<a>[gmkt](hz|b(ps)?)|\"|\'|cm|bps|hz|lbs|m[Am]|" +
+            "nm|oz|pb|V|W)(?=[^A-Za-z\\d]|$)")]
+        public string DigitAbbrevPattern {
+            get {
+                return ((string)(this["DigitAbbrevPattern"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("(?<![a-zA-Z\\d])(A(CL?|M[DI]|PI|RP|T[AX]?)|BEDO|D(A|[Oo]D|RIMe)|E(CC|DO|IDE|MI|SD)" +
+            "|eSATA|I(DE?|OS|P(X|v[46])?|rDA|R|S[OA]|TX?)|i(OS|os)|LED?|NDEF|O(HRM|SI?|LED)|P" +
+            "(ATA|CIe|DIF)|QIC|R(E|ARP)|S(ATA|CA|EID|LI|NEP)|UEFI)(?=s?[^a-zA-Z\\d]|$)")]
+        public string SpellOutPattern {
+            get {
+                return ((string)(this["SpellOutPattern"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"GHZ,GHz,Ghz=GigaHertz;MHZ,MHz,Mhz=MegaHertz;;KHZ,KHz,Khz=KiloHertz;Hz,hz=Hertz;PB=PentaBytes;Tb=TeraBits;TB=TeraBytes;Gb=GigaBits;GB=GigaBytes;
+Mb =MegaBits;MB=MegaBytes;Kb=KiloBits;KB=KiloBytes;Gbps=GigaBits per second;GBps=GigaBytes per second;Mbps=MegaBits per second;MBps=MegaBytes per second;
+Kbps =KiloBits per second;KBps=KiloBytes per second;bps=bits per second;nm=nanometers;mm=millimeters;cm=centimeters;""=inches;'=feet;V=Volts;VDC=Volts D C;
+VAC=Volts A C;W=Watts;MP=MegaPixels;mA=milliamperes;lbs,Lbs=pounds;oz,Oz=ounces;")]
+        public string DigitAbbrevAlias {
+            get {
+                return ((string)(this["DigitAbbrevAlias"]));
+            }
+        }
     }
 }

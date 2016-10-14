@@ -165,23 +165,6 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
-        ///&lt;speak version=&quot;1.0&quot; xmlns=&quot;http://www.w3.org/2001/10/synthesis&quot; xml:lang=&quot;en-US&quot;&gt;
-        ///  &lt;emphasis&gt;Test PromptEmphasis.NotSet&lt;/emphasis&gt;
-        ///  &lt;emphasis level=&quot;strong&quot;&gt;Test PromptEmphasis.Strong&lt;/emphasis&gt;
-        ///  &lt;emphasis level=&quot;moderate&quot;&gt;Test PromptEmphasis.Moderate&lt;/emphasis&gt;
-        ///  &lt;emphasis level=&quot;none&quot;&gt;Test PromptEmphasis.None&lt;/emphasis&gt;
-        ///  &lt;emphasis level=&quot;reduced&quot;&gt;Test PromptEmphasis.Reduced&lt;/emphasis&gt;
-        ///    &lt;prosody&gt;Test PromptVolume.NotSet&lt;/prosody&gt;
-        ///  &lt;prosody volume=&quot;si [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string SampleSsmlDocument {
-            get {
-                return ResourceManager.GetString("SampleSsmlDocument", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
         ///&lt;xsd:schema xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;
         ///	    elementFormDefault=&quot;qualified&quot;&gt;

@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+  <meta name="EncodingApplication" content="SsmlNotePad, Version=1.0.0.1, Culture=neutral, PublicKeyToken=83f27502d5818d53" />
   <emphasis>Test PromptEmphasis.NotSet</emphasis>
   <emphasis level="strong">Test PromptEmphasis.Strong</emphasis>
   <emphasis level="moderate">Test PromptEmphasis.Moderate</emphasis>

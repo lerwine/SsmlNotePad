@@ -9,12 +9,55 @@
         mc:Ignorable="d"
         Title="Speech Generation Progress" Height="600" Width="800">
     <Window.Resources>
+        <Converter:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <Converter:VoiceAgeToStringConverter x:Key="VoiceAgeToStringConverter"/>
+        <Converter:VoiceGenderToStringConverter x:Key="VoiceGenderToStringConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <Converter:SpeechStateToStringConverter x:Key="SpeechStateToStringConverter"/>
         <Style x:Key="StatusFieldBorderStyle" TargetType="{x:Type Border}">
             <Setter Property="Padding" Value="2" />
             <Setter Property="BorderBrush" Value="Black" />
         </Style>
+        <Style x:Key="StatusBorderContentStyle" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+        <Style x:Key="StatusBorderHeadingStyle" TargetType="TextBlock" BasedOn="{StaticResource StatusBorderContentStyle}">
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+        <Style x:Key="StatusFieldHeadingStyle" TargetType="TextBlock" BasedOn="{StaticResource StatusBorderHeadingStyle}">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+        <Style x:Key="InnerStatusFieldHeadingStyle" TargetType="TextBlock" BasedOn="{StaticResource StatusFieldHeadingStyle}">
+            <Setter Property="Margin" Value="8,0,0,0" />
+        </Style>
+        <Style x:Key="SpeechStatusBorderStyle" TargetType="{x:Type Border}">
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Padding" Value="4" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PopupBorderBrush}" />
+        </Style>
+        <Style x:Key="NormalProgressBarStyle" TargetType="{x:Type ProgressBar}">
+            <Setter Property="Foreground" Value="{StaticResource ProgressBar.Normal.Progress}"/>
+            <Setter Property="Background" Value="{StaticResource ProgressBar.Normal.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgressBar.Normal.Border}"/>
+        </Style>
+        <Style x:Key="ErrorProgressBarStyle" TargetType="{x:Type ProgressBar}">
+            <Setter Property="Foreground" Value="{StaticResource ProgressBar.Error.Progress}"/>
+            <Setter Property="Background" Value="{StaticResource ProgressBar.Error.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgressBar.Error.Border}"/>
+        </Style>
+        <Style x:Key="CanceledProgressBarStyle" TargetType="{x:Type ProgressBar}">
+            <Setter Property="Foreground" Value="{StaticResource ProgressBar.Canceled.Progress}"/>
+            <Setter Property="Background" Value="{StaticResource ProgressBar.Canceled.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgressBar.Canceled.Border}"/>
+        </Style>
+        <Style x:Key="PausedProgressBarStyle" TargetType="{x:Type ProgressBar}">
+            <Setter Property="Foreground" Value="{StaticResource ProgressBar.Paused.Progress}"/>
+            <Setter Property="Background" Value="{StaticResource ProgressBar.Paused.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgressBar.Paused.Border}"/>
+        </Style>
+        <Converter:SpeechStateToStyleConverter x:Key="SpeechStateToStyleConverter" CanceledStyle="{DynamicResource CanceledProgressBarStyle}" FaultedStyle="{DynamicResource ErrorProgressBarStyle}" NormalStyle="{DynamicResource NormalProgressBarStyle}" NullStyle="{DynamicResource NormalProgressBarStyle}" PausedStyle="{DynamicResource PausedProgressBarStyle}"/>
         <Converter:BooleanToStringConverter x:Key="StressToStringConverter" FalseValue="" NullValue="" TrueValue="!"/>
     </Window.Resources>
     <Window.DataContext>
@@ -22,240 +65,145 @@
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition />
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="1*" />
-            <RowDefinition Height="4*" />
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Border Style="{DynamicResource StatusFieldBorderStyle}" BorderThickness="1,1,0,0">
+        <TabControl>
+            <TabItem Header="Overview">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <TextBlock TextWrapping="Wrap" Text="Voice" FontWeight="Bold"/>
-                    <Button Content="{Binding Voice.DisplayText}" Grid.Row="1" Command="{Binding ShowVoiceDetailsCommand}"/>
-                </Grid>
-            </Border>
-            <Border Grid.Column="1" Style="{DynamicResource StatusFieldBorderStyle}" BorderThickness="1,1,0,0">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition />
-                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="Volume/Stress" Grid.ColumnSpan="2" FontWeight="Bold"/>
-                    <TextBlock Grid.Row="1" Text="{Binding Volume}"/>
-                    <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Stressed, Converter={StaticResource StressToStringConverter}}"/>
-                </Grid>
-            </Border>
-            <Border Grid.Column="2" Style="{DynamicResource StatusFieldBorderStyle}" BorderThickness="1,1,0,0">
-                <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition />
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Rate" FontWeight="Bold"/>
-                    <TextBlock Grid.Row="1" TextWrapping="Wrap" Text="{Binding Rate}"/>
+                    <Border Grid.ColumnSpan="2" Style="{DynamicResource SpeechStatusBorderStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Output" Style="{DynamicResource StatusBorderHeadingStyle}" />
+                            <TextBlock Grid.Row="1" TextWrapping="Wrap" Text="{Binding OutputDestination, Mode=OneWay}" Style="{DynamicResource StatusBorderContentStyle}" />
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1" Style="{DynamicResource SpeechStatusBorderStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Current Position" Grid.ColumnSpan="7" Style="{DynamicResource StatusBorderHeadingStyle}" />
+                            <TextBlock Grid.Row="1" Text="{Binding AudioPosition.HoursTotal, StringFormat=\{0:D\}}" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text=":" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding AudioPosition.Minutes, Mode=OneWay, StringFormat=\{0:D2\}}" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="3" Text=":" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding AudioPosition.Seconds, Mode=OneWay, StringFormat=\{0:D2\}}" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="5" Text="." Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="6" Text="{Binding AudioPosition.Milliseconds, Mode=OneWay, StringFormat=\{0:D6\}}" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="2" Grid.ColumnSpan="7" Text="{Binding CurrentText}" TextWrapping="Wrap" Style="{DynamicResource StatusBorderContentStyle}" />
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" Style="{DynamicResource SpeechStatusBorderStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Voice: " Style="{DynamicResource StatusFieldHeadingStyle}" />
+                            <TextBlock Text="{Binding Voice.DisplayText, Mode=OneWay}" TextWrapping="Wrap" Grid.Column="1" Grid.ColumnSpan="4" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Text="Gender: " Grid.Row="1" Style="{DynamicResource StatusFieldHeadingStyle}" />
+                            <TextBlock Text="{Binding Voice.Gender, Converter={StaticResource VoiceGenderToStringConverter}, Mode=OneWay}" TextWrapping="Wrap" Grid.Row="1" Grid.Column="1" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Text="Age: " Grid.Row="1" Grid.Column="2" Style="{DynamicResource InnerStatusFieldHeadingStyle}" />
+                            <TextBlock Text="{Binding Voice.Age, Converter={StaticResource VoiceAgeToStringConverter}, Mode=OneWay}" TextWrapping="Wrap" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="2" Text="{Binding Voice.Description, Mode=OneWay}" Grid.ColumnSpan="5" Visibility="{Binding Voice.Description, Converter={StaticResource StringToVisibilityConverter}, Mode=OneWay}" TextWrapping="Wrap" />
+                            <TextBlock Text="Rate: " Grid.Row="3" Style="{DynamicResource StatusFieldHeadingStyle}" />
+                            <TextBlock Text="{Binding Rate}" Grid.Row="3" Grid.Column="1" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Text="Volume: " Grid.Row="3" Grid.Column="2" Style="{DynamicResource InnerStatusFieldHeadingStyle}" />
+                            <TextBlock Text="{Binding Volume, StringFormat=\{0:D\}%}" Grid.Row="3" Grid.Column="3" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Text="!" Grid.Row="3" Grid.Column="4" Visibility="{Binding Stressed, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}" Style="{DynamicResource StatusBorderContentStyle}" />
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="2" DataContext="{Binding LatestBookmark, Mode=OneWay}" Grid.ColumnSpan="2" Style="{DynamicResource SpeechStatusBorderStyle}" VerticalAlignment="Top">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Last Bookmark" Grid.ColumnSpan="7" Style="{DynamicResource StatusBorderHeadingStyle}" />
+                            <TextBlock Grid.Row="1" Text="{Binding AudioPosition.HoursTotal, StringFormat=\{0:D\}}" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text=":" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding AudioPosition.Minutes, Mode=OneWay, StringFormat=\{0:D2\}}" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="3" Text=":" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding AudioPosition.Seconds, Mode=OneWay, StringFormat=\{0:D2\}}" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="5" Text="." Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="6" Text="{Binding AudioPosition.Milliseconds, Mode=OneWay, StringFormat=\{0:D6\}}" Style="{DynamicResource StatusBorderContentStyle}" />
+                            <TextBlock Text="{Binding Value}" Grid.Row="2" Grid.ColumnSpan="7" TextWrapping="Wrap" Style="{DynamicResource StatusBorderContentStyle}" />
+                        </Grid>
+                    </Border>
                 </Grid>
-            </Border>
-            <Border Grid.Column="3" Style="{DynamicResource StatusFieldBorderStyle}" BorderThickness="1,1,1,0">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <TextBlock TextWrapping="Wrap" Text="Last Bookmark" FontWeight="Bold"/>
-                    <TextBlock Grid.Row="1" TextWrapping="Wrap" Text="{Binding LatestBookmark}"/>
-                </Grid>
-            </Border>
-        </Grid>
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <Border Style="{DynamicResource StatusFieldBorderStyle}" BorderThickness="1,1,0,1">
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Position" Grid.ColumnSpan="5" HorizontalAlignment="Center" FontWeight="Bold"/>
-                    <TextBlock Grid.Row="1" Text="D" HorizontalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource PopupBorderBrush}"/>
-                    <TextBlock Grid.Row="2" Text="{Binding AudioPosition.Days, Mode=OneWay}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="1" Grid.Row="1" Text="H" HorizontalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource PopupBorderBrush}"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding AudioPosition.Hours, Mode=OneWay, StringFormat=\, \{0:D2\}}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="2" Grid.Row="1" Text="M" HorizontalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource PopupBorderBrush}"/>
-                    <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding AudioPosition.Minutes, Mode=OneWay, StringFormat=:\{0:D2\}}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="3" Grid.Row="1" Text="S" HorizontalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource PopupBorderBrush}"/>
-                    <TextBlock Grid.Column="3" Grid.Row="2" Text="{Binding AudioPosition.Seconds, Mode=OneWay, StringFormat=:\{0:D2\}}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="4" Grid.Row="2" Text="{Binding AudioPosition.Milliseconds, Mode=OneWay, StringFormat=.\{0:D\}}"/>
-                </Grid>
-            </Border>
-            <Border Grid.Row="1" Grid.Column="1" Style="{DynamicResource StatusFieldBorderStyle}" BorderThickness="1,1,0,1">
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Phoneme" Grid.ColumnSpan="7" HorizontalAlignment="Center" FontWeight="Bold"/>
-                    <TextBlock Grid.Row="1" Grid.RowSpan="2" Text="Current" VerticalAlignment="Bottom" FontWeight="Bold" Margin="0,0,8,0" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Row="3" Text="{Binding Phoneme.CurrentValue, Mode=OneWay}" Margin="0,0,8,0" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="1" Grid.Row="1" Text="Duration" Grid.ColumnSpan="5" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontWeight="Bold" />
-                    <TextBlock Grid.Column="1" Grid.Row="2" Text="D" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource PopupBorderBrush}" />
-                    <TextBlock Grid.Column="2" Grid.Row="2" Text="H" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource PopupBorderBrush}" />
-                    <TextBlock Grid.Column="3" Grid.Row="2" Text="M" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource PopupBorderBrush}" />
-                    <TextBlock Grid.Column="4" Grid.Row="2" Text="S" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource PopupBorderBrush}" />
-                    <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Phoneme.Duration.Days, Mode=OneWay}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="2" Grid.Row="3" Text="{Binding Phoneme.Duration.Hours, Mode=OneWay, StringFormat=\, \{0:D2\}}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="3" Grid.Row="3" Text="{Binding Phoneme.Duration.Minutes, Mode=OneWay, StringFormat=:\{0:D2\}}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="4" Grid.Row="3" Text="{Binding Phoneme.Duration.Seconds, Mode=OneWay, StringFormat=:\{0:D2\}}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="5" Grid.Row="3" Text="{Binding Phoneme.Duration.Milliseconds, Mode=OneWay, StringFormat=.\{0:D\}}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="11" Grid.Row="1" Grid.RowSpan="2" Text="Next" VerticalAlignment="Bottom" FontWeight="Bold" Margin="8,0,0,0" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="6" Grid.Row="3" Text="{Binding Phoneme.NextValue, Mode=OneWay}" Margin="8,0,0,0" HorizontalAlignment="Center" />
-                </Grid>
-            </Border>
-            <Border Grid.Row="1" Grid.Column="2" Style="{DynamicResource StatusFieldBorderStyle}" BorderThickness="1">
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Viseme" Grid.ColumnSpan="7" HorizontalAlignment="Center" FontWeight="Bold"/>
-                    <TextBlock Grid.Row="1" Grid.RowSpan="2" Text="Current" VerticalAlignment="Bottom" FontWeight="Bold" Margin="0,0,8,0" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Row="3" Text="{Binding Viseme.CurrentValue, Mode=OneWay}" Margin="0,0,8,0" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="1" Grid.Row="1" Text="Duration" Grid.ColumnSpan="5" VerticalAlignment="Bottom" FontWeight="Bold" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="1" Grid.Row="2" Text="D" VerticalAlignment="Bottom" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource PopupBorderBrush}" />
-                    <TextBlock Grid.Column="2" Grid.Row="2" Text="H" VerticalAlignment="Bottom" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource PopupBorderBrush}" />
-                    <TextBlock Grid.Column="3" Grid.Row="2" Text="M" VerticalAlignment="Bottom" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource PopupBorderBrush}" />
-                    <TextBlock Grid.Column="4" Grid.Row="2" Text="S" VerticalAlignment="Bottom" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource PopupBorderBrush}" />
-                    <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Viseme.Duration.Days, Mode=OneWay}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="2" Grid.Row="3" Text="{Binding Viseme.Duration.Hours, Mode=OneWay, StringFormat=\, \{0:D2\}}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="3" Grid.Row="3" Text="{Binding Viseme.Duration.Minutes, Mode=OneWay, StringFormat=:\{0:D2\}}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="4" Grid.Row="3" Text="{Binding Viseme.Duration.Seconds, Mode=OneWay, StringFormat=:\{0:D2\}}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="5" Grid.Row="3" Text="{Binding Viseme.Duration.Milliseconds, Mode=OneWay, StringFormat=.\{0:D\}}" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="11" Grid.Row="1" Grid.RowSpan="2" Text="Next" VerticalAlignment="Bottom" FontWeight="Bold" Margin="8,0,0,0" HorizontalAlignment="Center" />
-                    <TextBlock Grid.Column="6" Grid.Row="3" Text="{Binding Viseme.NextValue, Mode=OneWay}" Margin="8,0,0,0" HorizontalAlignment="Center" />
-                </Grid>
-            </Border>
-        </Grid>
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <TextBlock Text="Output: " FontWeight="Bold" />
-            <TextBlock Grid.Column="1" Text="{Binding OutputDestination, Mode=OneWay}" />
-        </Grid>
-        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="272,4" HorizontalAlignment="Center" Width="248">
+            </TabItem>
+            <TabItem Header="Messages">
+                <DataGrid ItemsSource="{Binding Messages}" AutoGenerateColumns="False" >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding EventName, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Event"/>
+                        <DataGridTextColumn Binding="{Binding Severity}" ClipboardContentBinding="{x:Null}" Header="Severity"/>
+                        <DataGridTextColumn Binding="{Binding Message, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Message" Width="*"/>
+                    </DataGrid.Columns>
+                    <DataGrid.RowDetailsTemplate>
+                        <DataTemplate>
+                            <local:SpeechMessageDetailControl />
+                        </DataTemplate>
+                    </DataGrid.RowDetailsTemplate>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Bookmarks">
+                <DataGrid ItemsSource="{Binding BookmarksReached}" AutoGenerateColumns="False" >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding AudioPosition.Text, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Position"/>
+                        <DataGridTextColumn Binding="{Binding Value}" ClipboardContentBinding="{x:Null}" Header="Name" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="272,4" HorizontalAlignment="Center" Width="248">
             <Button Width="75" Height="20" Content="Pause" Margin="8,0,0,0" Command="{Binding PauseSpeechCommand, Mode=OneWay}" />
             <Button Width="75" Height="20" Content="Resume" Margin="8,0,0,0" Command="{Binding ResumeSpeechCommand, Mode=OneWay}" />
             <Button Width="75" Height="20" Content="Cancel" Margin="8,0,0,0" Command="{Binding CancelSpeechCommand, Mode=OneWay}" />
         </StackPanel>
-        <Border Grid.Row="4" Style="{DynamicResource StatusFieldBorderStyle}" BorderThickness="1,1,1,0">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <TextBlock Text="Current Text" FontWeight="Bold" />
-                <TextBlock Grid.Row="1" TextWrapping="Wrap" Text="{Binding CurrentText, Mode=OneWay}" ScrollViewer.VerticalScrollBarVisibility="Auto" />
-            </Grid>
-        </Border>
-        <DataGrid Grid.Row="5" ItemsSource="{Binding Messages}" AutoGenerateColumns="False" IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding EventName, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Event"/>
-                <DataGridTextColumn Binding="{Binding Message, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Message" Width="*"/>
-            </DataGrid.Columns>
-            <DataGrid.RowDetailsTemplate>
-                <DataTemplate>
-                    <local:SpeechMessageDetailControl DataContext="{Binding Mode=OneWay}" />
-                </DataTemplate>
-            </DataGrid.RowDetailsTemplate>
-        </DataGrid>
-        <ProgressBar Value="{Binding PercentComplete, Mode=OneWay}" Grid.Row="6" />
-        <TextBlock Background="Transparent" Text="{Binding CurrentState, Converter={StaticResource SpeechStateToStringConverter}, Mode=OneWay}" Grid.Row="6" />
-        <Border Grid.RowSpan="6" Background="#A3646464" Visibility="{Binding VoiceDetailsVisible, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
-            <Border Background="{DynamicResource PopupBackgroundBrush}" BorderBrush="{DynamicResource PopupBorderBrush}" Margin="64" Padding="8" ScrollViewer.VerticalScrollBarVisibility="Auto" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="30*"/>
-                        <ColumnDefinition Width="57*"/>
-                        <ColumnDefinition Width="29*"/>
-                        <ColumnDefinition Width="46*"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Background="{DynamicResource PopupBorderBrush}" Grid.ColumnSpan="4" Padding="4" Margin="-4,-4,-4,4">
-                        <TextBlock Text="Voice Details" Foreground="{DynamicResource PopupBackgroundBrush}" FontWeight="Bold" />
-                    </Border>
-                    <TextBlock Text="Name: " HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,4" Grid.Row="1" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding Voice.Name, Mode=OneWay}" VerticalAlignment="Top" Margin="0,0,0,4" Grid.Row="1"/>
-                    <TextBlock Grid.Column="2" Text="Id: " HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8,0,0,4" Grid.Row="1" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="3" TextWrapping="Wrap" Text="{Binding Voice.Id, Mode=OneWay}" VerticalAlignment="Top" Margin="0,0,0,4" Grid.Row="1"/>
-                    <TextBlock Grid.Row="2" Text="Description: " HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,4" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="1" Grid.Row="2" TextWrapping="Wrap" Text="{Binding Voice.Description, Mode=OneWay}" Grid.ColumnSpan="3" VerticalAlignment="Top" Margin="0,0,0,4"/>
-                    <TextBlock Grid.Row="3" Text="Gender: " HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,4" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="1" Grid.Row="3" TextWrapping="Wrap" Text="{Binding Voice.Gender, Mode=OneWay}" VerticalAlignment="Top" Margin="0,0,0,4"/>
-                    <TextBlock Grid.Column="2" Grid.Row="3" Text="Age: " HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8,0,0,4" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="3" Grid.Row="3" TextWrapping="Wrap" Text="{Binding Voice.Age, Mode=OneWay}" VerticalAlignment="Top" Margin="0,0,0,4"/>
-                    <TextBlock Grid.Row="4" Text="Culture: " HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,4" FontWeight="Bold"/>
-                    <TextBlock Grid.Column="1" Grid.Row="4" TextWrapping="Wrap" Text="{Binding Voice.Culture, Mode=OneWay}" Grid.ColumnSpan="3" VerticalAlignment="Top" Margin="0,0,0,4"/>
-                    <Button Grid.ColumnSpan="4" Content="Close" HorizontalAlignment="Right" Grid.Row="5" Width="75"/>
-
-                </Grid>
-            </Border>
-        </Border>
+        <ProgressBar Value="{Binding PercentComplete, Mode=OneWay}" Grid.Row="2" />
+        <TextBlock Background="Transparent" Text="{Binding CurrentState, Converter={StaticResource SpeechStateToStringConverter}, Mode=OneWay}" Grid.Row="2" />
     </Grid>
 </Window>

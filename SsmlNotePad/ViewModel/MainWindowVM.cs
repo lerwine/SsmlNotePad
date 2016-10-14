@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 {
@@ -25,8 +27,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             LineNumbers = new ReadOnlyObservableViewModelCollection<LineNumberVM>(_lineNumbers);
             ValidationMessages = new ReadOnlyObservableViewModelCollection<XmlValidationMessageVM>(_validationMessages);
-            SpeechGenerationStatus = new SpeechGenerationStatusVM();
             _validationMessages.CollectionChanged += ValidationMessages_CollectionChanged;
+            PhonemeResults = new ReadOnlyObservableCollection<PhonemeResultVM>(_phonemeResult);
             ApplyNewDocument();
         }
 
@@ -88,6 +90,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             FileSaveDetailMessage = "";
 
             Text = Markup.BlankSsmlDocument;
+            // BUG: wait never returns
             if (_markupValidator != null)
                 _markupValidator.Wait();
             if (FileSaveStatus == FileSaveStatus.Modified)
@@ -367,6 +370,175 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
 
+        #region GetPhonemes Command Property Members
+
+        private Command.RelayCommand _getPhonemesCommand = null;
+
+        public Command.RelayCommand GetPhonemesCommand
+        {
+            get
+            {
+                if (_getPhonemesCommand == null)
+                    _getPhonemesCommand = new Command.RelayCommand(OnGetPhonemes);
+
+                return _getPhonemesCommand;
+            }
+        }
+
+        protected virtual void OnGetPhonemes(object parameter)
+        {
+            if (SelectionLength == 0)
+                return;
+            int index = SelectionStart;
+            if (index >= Text.Length)
+                return;
+            int length = (index + SelectionLength > Text.Length) ? Text.Length - index : SelectionLength;
+
+            string s = Text.Substring(index, length);
+            if (s.Trim().Length == 0)
+                return;
+
+            Process.CapturePhonemes cp = new Process.CapturePhonemes(s);
+            try
+            {
+                _phonemeResult.Clear();
+                foreach (Process.PhoneticGroupInfo grp in cp.Task.Result)
+                    _phonemeResult.Add(new PhonemeResultVM(grp));
+                PhonemesVisible = true;
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(App.Current.MainWindow, "Error", String.Format("Unexpected error while getting phonemes: {0}", exception.Message), MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
+
+        #region RemoveConsecutiveEmptyLines Command Property Members
+
+        private Command.RelayCommand _removeConsecutiveEmptyLinesCommand = null;
+
+        public Command.RelayCommand RemoveConsecutiveEmptyLinesCommand
+        {
+            get
+            {
+                if (_removeConsecutiveEmptyLinesCommand == null)
+                    _removeConsecutiveEmptyLinesCommand = new Command.RelayCommand(OnRemoveConsecutiveEmptyLines);
+
+                return _removeConsecutiveEmptyLinesCommand;
+            }
+        }
+
+        protected virtual void OnRemoveConsecutiveEmptyLines(object parameter)
+        {
+            TextBox textBox = parameter as TextBox;
+
+            textBox.SelectedText = Common.XmlHelper.RemoveConsecutiveEmptyLines(textBox.SelectedText);
+            textBox.UpdateLayout();
+        }
+
+        #endregion
+
+        #region RemoveEmptyLines Command Property Members
+
+        private Command.RelayCommand _removeEmptyLinesCommand = null;
+
+        public Command.RelayCommand RemoveEmptyLinesCommand
+        {
+            get
+            {
+                if (_removeEmptyLinesCommand == null)
+                    _removeEmptyLinesCommand = new Command.RelayCommand(OnRemoveEmptyLines);
+
+                return _removeEmptyLinesCommand;
+            }
+        }
+
+        protected virtual void OnRemoveEmptyLines(object parameter)
+        {
+            TextBox textBox = parameter as TextBox;
+
+            textBox.SelectedText = Common.XmlHelper.RemoveEmptyLines(textBox.SelectedText);
+            textBox.UpdateLayout();
+        }
+
+        #endregion
+
+        #region JoinLines Command Property Members
+
+        private Command.RelayCommand _joinLinesCommand = null;
+
+        public Command.RelayCommand JoinLinesCommand
+        {
+            get
+            {
+                if (_joinLinesCommand == null)
+                    _joinLinesCommand = new Command.RelayCommand(OnJoinLines);
+
+                return _joinLinesCommand;
+            }
+        }
+
+        protected virtual void OnJoinLines(object parameter)
+        {
+            TextBox textBox = parameter as TextBox;
+
+            textBox.SelectedText = Common.XmlHelper.JoinLines(textBox.SelectedText);
+            textBox.UpdateLayout();
+        }
+
+        #endregion
+
+        #region RemoveOuterWhitespace Command Property Members
+
+        private Command.RelayCommand _removeOuterWhitespaceCommand = null;
+
+        public Command.RelayCommand RemoveOuterWhitespaceCommand
+        {
+            get
+            {
+                if (_removeOuterWhitespaceCommand == null)
+                    _removeOuterWhitespaceCommand = new Command.RelayCommand(OnRemoveOuterWhitespace);
+
+                return _removeOuterWhitespaceCommand;
+            }
+        }
+
+        protected virtual void OnRemoveOuterWhitespace(object parameter)
+        {
+            TextBox textBox = parameter as TextBox;
+
+            textBox.SelectedText = Common.XmlHelper.RemoveOuterWhitespace(textBox.SelectedText);
+            textBox.UpdateLayout();
+        }
+
+        #endregion
+
+        #region CleanUpLineEndings Command Property Members
+
+        private Command.RelayCommand _cleanUpLineEndingsCommand = null;
+
+        public Command.RelayCommand CleanUpLineEndingsCommand
+        {
+            get
+            {
+                if (_cleanUpLineEndingsCommand == null)
+                    _cleanUpLineEndingsCommand = new Command.RelayCommand(OnCleanUpLineEndings);
+
+                return _cleanUpLineEndingsCommand;
+            }
+        }
+
+        protected virtual void OnCleanUpLineEndings(object parameter)
+        {
+            TextBox textBox = parameter as TextBox;
+
+            textBox.SelectedText = Common.XmlHelper.CleanUpLineEndings(textBox.SelectedText);
+            textBox.UpdateLayout();
+        }
+
+        #endregion
+
         #region SelectCurrentTag Command Property Members
 
         private Command.RelayCommand _selectCurrentTagCommand = null;
@@ -446,7 +618,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         }
 
         #endregion
-
+        
         #region FindText Command Property Members
 
         private Command.RelayCommand _findTextCommand = null;
@@ -466,7 +638,129 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             TextBox textBox = parameter as TextBox;
 
-            MessageBox.Show("FindText Command not implemented", "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            string pattern = textBox.SelectedText;
+            if (pattern.Trim().Length > 0)
+                Pattern = (UseRegularExpressions) ? Regex.Escape(pattern) : pattern;
+            FindReplaceMode = FindReplaceDisplayMode.Find;
+        }
+
+        #endregion
+        
+        #region FindNext Command Property Members
+
+        private Command.RelayCommand _findNextCommand = null;
+
+        public Command.RelayCommand FindNextCommand
+        {
+            get
+            {
+                if (_findNextCommand == null)
+                    _findNextCommand = new Command.RelayCommand(OnFindNext);
+
+                return _findNextCommand;
+            }
+        }
+
+        protected virtual void OnFindNext(object parameter)
+        {
+            TextBox textBox = parameter as TextBox;
+
+            string selectedText;
+            if (SelectionLength == 0 || SelectionStart >= Text.Length)
+                selectedText = "";
+            else
+                selectedText = Text.Substring(SelectionStart, ((SelectionStart + SelectionLength) > Text.Length) ? Text.Length - SelectionStart : SelectionLength);
+            
+            switch (FindReplaceMode)
+            {
+                case FindReplaceDisplayMode.None:
+                    if (selectedText.Trim().Length > 0)
+                        Pattern = (UseRegularExpressions) ? Regex.Escape(selectedText) : selectedText;
+                    FindReplaceMode = FindReplaceDisplayMode.Find;
+                    return;
+                case FindReplaceDisplayMode.Find:
+                    if (UseRegularExpressions && SearchExpression == null)
+                        return;
+                    FindReplaceMode = FindReplaceDisplayMode.FindNext;
+                    break;
+                case FindReplaceDisplayMode.Replace:
+                    if (UseRegularExpressions && SearchExpression == null)
+                        return;
+                    FindReplaceMode = FindReplaceDisplayMode.ReplaceNext;
+                    break;
+                case FindReplaceDisplayMode.ReplaceNext:
+                    if (SelectionLength == 0)
+                        return;
+                    Text = Text.Substring(0, SelectionStart) + ReplacementText + Text.Substring(SelectionStart + SelectionLength);
+                    break;
+            }
+
+            int index = SelectionStart + SelectionLength;
+            if (index >= Text.Length)
+            {
+                index = 0;
+                SelectionStart = 0;
+                SelectionLength = 0;
+            }
+            int length;
+            if (UseRegularExpressions)
+            {
+                Match m = SearchExpression.Match(Text, SelectionStart + SelectionLength);
+                if (m.Success)
+                {
+                    index = m.Index;
+                    length = m.Length;
+                }
+                else
+                {
+                    index = -1;
+                    length = 0;
+                }
+            }
+            else
+            {
+                index = Text.IndexOf(Pattern, SelectionStart + SelectionLength, (CaseSensitiveMatch) ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
+                length = Pattern.Length;
+            }
+            if (index == -1)
+            {
+                if (SelectionStart == 0)
+                {
+                    MessageBox.Show(App.Current.MainWindow, "Match not found", "Match not found", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    FindReplaceMode = (FindReplaceMode == FindReplaceDisplayMode.FindNext) ? FindReplaceDisplayMode.FindNotFound : FindReplaceDisplayMode.ReplaceNotFound;
+                    return;
+                }
+                index = 0;
+                if (UseRegularExpressions)
+                {
+                    Match m = SearchExpression.Match(Text, SelectionStart + SelectionLength);
+                    if (m.Success)
+                    {
+                        index = m.Index;
+                        length = m.Length;
+                    }
+                    else
+                    {
+                        index = -1;
+                        length = 0;
+                    }
+                }
+                else
+                {
+                    index = Text.IndexOf(Pattern, SelectionStart + SelectionLength, (CaseSensitiveMatch) ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
+                    length = Pattern.Length;
+                }
+                if (index == -1)
+                {
+                    MessageBox.Show(App.Current.MainWindow, "Match not found", "Match not found", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    FindReplaceMode = (FindReplaceMode == FindReplaceDisplayMode.FindNext) ? FindReplaceDisplayMode.FindNotFound : FindReplaceDisplayMode.ReplaceNotFound;
+                    return;
+                }
+            }
+            SelectionStart = index;
+            SelectionLength = length;
+            textBox.SelectionStart = SelectionStart;
+            textBox.SelectionLength = SelectionLength;
         }
 
         #endregion
@@ -490,7 +784,127 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             TextBox textBox = parameter as TextBox;
 
-            MessageBox.Show("ReplaceText Command not implemented", "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            string pattern = textBox.SelectedText;
+            if (pattern.Trim().Length > 0)
+                Pattern = (UseRegularExpressions) ? Regex.Escape(pattern) : pattern;
+            FindReplaceMode = FindReplaceDisplayMode.Replace;
+        }
+
+        #endregion
+        
+        #region SkipNext Command Property Members
+
+        private Command.RelayCommand _skipNextCommand = null;
+
+        public Command.RelayCommand SkipNextCommand
+        {
+            get
+            {
+                if (_skipNextCommand == null)
+                    _skipNextCommand = new Command.RelayCommand(OnSkipNext);
+
+                return _skipNextCommand;
+            }
+        }
+
+        protected virtual void OnSkipNext(object parameter)
+        {
+            TextBox textBox = parameter as TextBox;
+
+            string selectedText;
+            if (SelectionLength == 0 || SelectionStart >= Text.Length)
+                selectedText = "";
+            else
+                selectedText = Text.Substring(SelectionStart, ((SelectionStart + SelectionLength) > Text.Length) ? Text.Length - SelectionStart : SelectionLength);
+            
+            int index = SelectionStart + SelectionLength;
+            if (index >= Text.Length)
+            {
+                index = 0;
+                SelectionStart = 0;
+                SelectionLength = 0;
+            }
+            int length;
+            if (UseRegularExpressions)
+            {
+                Match m = SearchExpression.Match(Text, SelectionStart + SelectionLength);
+                if (m.Success)
+                {
+                    index = m.Index;
+                    length = m.Length;
+                }
+                else
+                {
+                    index = -1;
+                    length = 0;
+                }
+            }
+            else
+            {
+                index = Text.IndexOf(Pattern, SelectionStart + SelectionLength, (CaseSensitiveMatch) ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
+                length = Pattern.Length;
+            }
+            if (index == -1)
+            {
+                if (SelectionStart == 0)
+                {
+                    MessageBox.Show(App.Current.MainWindow, "Match not found", "Match not found", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    FindReplaceMode = FindReplaceDisplayMode.ReplaceNotFound;
+                    return;
+                }
+                index = 0;
+                if (UseRegularExpressions)
+                {
+                    Match m = SearchExpression.Match(Text, SelectionStart + SelectionLength);
+                    if (m.Success)
+                    {
+                        index = m.Index;
+                        length = m.Length;
+                    }
+                    else
+                    {
+                        index = -1;
+                        length = 0;
+                    }
+                }
+                else
+                {
+                    index = Text.IndexOf(Pattern, SelectionStart + SelectionLength, (CaseSensitiveMatch) ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
+                    length = Pattern.Length;
+                }
+                if (index == -1)
+                {
+                    MessageBox.Show(App.Current.MainWindow, "Match not found", "Match not found", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    FindReplaceMode = FindReplaceDisplayMode.ReplaceNotFound;
+                    return;
+                }
+            }
+            SelectionStart = index;
+            SelectionLength = length;
+            textBox.SelectionStart = SelectionStart;
+            textBox.SelectionLength = SelectionLength;
+        }
+
+        #endregion
+
+        #region FindReplaceCancel Command Property Members
+
+        private Command.RelayCommand _findReplaceCancelCommand = null;
+
+        public Command.RelayCommand FindReplaceCancelCommand
+        {
+            get
+            {
+                if (_findReplaceCancelCommand == null)
+                    _findReplaceCancelCommand = new Command.RelayCommand(OnFindReplaceCancel);
+
+                return _findReplaceCancelCommand;
+            }
+        }
+
+        protected virtual void OnFindReplaceCancel(object parameter)
+        {
+            FindReplaceMode = FindReplaceDisplayMode.None;
         }
 
         #endregion
@@ -640,6 +1054,30 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 textBox.SelectionLength -= 43;
             textBox.SelectionStart += (leadingWs.Length + 34);
             textBox.Focus();
+        }
+
+        #endregion
+
+        #region AutoReplace Command Property Members
+
+        private Command.RelayCommand _autoReplaceCommand = null;
+
+        public Command.RelayCommand AutoReplaceCommand
+        {
+            get
+            {
+                if (_autoReplaceCommand == null)
+                    _autoReplaceCommand = new Command.RelayCommand(OnAutoReplace);
+
+                return _autoReplaceCommand;
+            }
+        }
+
+        protected virtual void OnAutoReplace(object parameter)
+        {
+            TextBox textBox = parameter as TextBox;
+
+            textBox.SelectedText = Common.XmlHelper.AutoReplace(textBox.SelectedText);
         }
 
         #endregion
@@ -999,43 +1437,63 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
 
-        #endregion
+        #region SpeakAllText Command Property Members
 
-        #region Dependency Properties
+        private Command.RelayCommand _speakAllTextCommand = null;
 
-        #region SpeechGenerationStatus Property Members
-
-        public const string PropertyName_SpeechGenerationStatus = "SpeechGenerationStatus";
-
-        private static readonly DependencyPropertyKey SpeechGenerationStatusPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SpeechGenerationStatus, typeof(SpeechGenerationStatusVM), typeof(MainWindowVM),
-                new PropertyMetadata(null));
-
-        /// <summary>
-        /// Identifies the <seealso cref="SpeechGenerationStatus"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty SpeechGenerationStatusProperty = SpeechGenerationStatusPropertyKey.DependencyProperty;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public SpeechGenerationStatusVM SpeechGenerationStatus
+        public Command.RelayCommand SpeakAllTextCommand
         {
             get
             {
-                if (CheckAccess())
-                    return (SpeechGenerationStatusVM)(GetValue(SpeechGenerationStatusProperty));
-                return Dispatcher.Invoke(() => SpeechGenerationStatus);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(SpeechGenerationStatusPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => SpeechGenerationStatus = value);
+                if (_speakAllTextCommand == null)
+                    _speakAllTextCommand = new Command.RelayCommand(OnSpeakAllText);
+
+                return _speakAllTextCommand;
             }
         }
 
+        protected virtual void OnSpeakAllText(object parameter)
+        {
+            Process.SpeechSynthesis.ForDefaultAudioDevice(Text);
+        }
+
         #endregion
+
+        #region ExportAsWav Command Property Members
+
+        private Command.RelayCommand _exportAsWavCommand = null;
+
+        public Command.RelayCommand ExportAsWavCommand
+        {
+            get
+            {
+                if (_exportAsWavCommand == null)
+                    _exportAsWavCommand = new Command.RelayCommand(OnExportAsWav);
+
+                return _exportAsWavCommand;
+            }
+        }
+
+        protected virtual void OnExportAsWav(object parameter)
+        {
+            Window owner = App.GetWindowByDataContext<MainWindow, MainWindowVM>(this) ?? App.Current.MainWindow;
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.CheckPathExists = true;
+            dialog.OverwritePrompt = true;
+            string fileName;
+            if (String.IsNullOrEmpty(FileSaveLocation))
+                fileName = "";
+            else
+                try { fileName = Path.GetFileNameWithoutExtension(FileSaveLocation) + ".wav"; } catch { fileName = ""; }
+            if (Common.FileUtility.InvokeWavFileDialog(dialog, owner, fileName))
+                Process.SpeechSynthesis.ForWaveFile(Text, dialog.FileName, owner);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Dependency Properties
 
         #region HostWindow Property Members
 
@@ -1341,7 +1799,493 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
 
+        #region PhonemesVisible Property Members
+
+        public const string DependencyPropertyName_PhonemesVisible = "PhonemesVisible";
+
+        /// <summary>
+        /// Identifies the <seealso cref="PhonemesVisible"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty PhonemesVisibleProperty = DependencyProperty.Register(DependencyPropertyName_PhonemesVisible, typeof(bool), typeof(MainWindowVM),
+                new PropertyMetadata(false,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as MainWindowVM).PhonemesVisible_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).PhonemesVisible_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as MainWindowVM).PhonemesVisible_CoerceValue(baseValue)));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool PhonemesVisible
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (bool)(GetValue(PhonemesVisibleProperty));
+                return Dispatcher.Invoke(() => PhonemesVisible);
+            }
+            set
+            {
+                if (CheckAccess())
+                    SetValue(PhonemesVisibleProperty, value);
+                else
+                    Dispatcher.Invoke(() => PhonemesVisible = value);
+            }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="PhonemesVisible"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="PhonemesVisible"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="PhonemesVisible"/> property was changed.</param>
+        protected virtual void PhonemesVisible_PropertyChanged(bool oldValue, bool newValue)
+        {
+            // TODO: Implement MainWindowVM.PhonemesVisible_PropertyChanged(bool, bool)
+        }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="PhonemesVisible"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual bool PhonemesVisible_CoerceValue(object baseValue)
+        {
+            // TODO: Implement MainWindowVM.PhonemesVisible_CoerceValue(DependencyObject, object)
+            return (bool)baseValue;
+        }
+
+        #endregion
+
+        #region PhonemeResults Property Members
+
+        private ObservableCollection<PhonemeResultVM> _phonemeResult = new ObservableCollection<PhonemeResultVM>();
+
+        public const string PropertyName_PhonemeResults = "PhonemeResults";
+
+        private static readonly DependencyPropertyKey PhonemeResultsPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_PhonemeResults, typeof(ReadOnlyObservableCollection<PhonemeResultVM>), typeof(MainWindowVM),
+                new PropertyMetadata(null));
+
+        /// <summary>
+        /// Identifies the <seealso cref="PhonemeResults"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty PhonemeResultsProperty = PhonemeResultsPropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ReadOnlyObservableCollection<PhonemeResultVM> PhonemeResults
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (ReadOnlyObservableCollection<PhonemeResultVM>)(GetValue(PhonemeResultsProperty));
+                return Dispatcher.Invoke(() => PhonemeResults);
+            }
+            private set
+            {
+                if (CheckAccess())
+                    SetValue(PhonemeResultsPropertyKey, value);
+                else
+                    Dispatcher.Invoke(() => PhonemeResults = value);
+            }
+        }
+
+        #endregion
+
+        #region FindReplaceMode Property Members
+
+        public const string PropertyName_FindReplaceMode = "FindReplaceMode";
+
+        private static readonly DependencyPropertyKey FindReplaceModePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_FindReplaceMode, typeof(FindReplaceDisplayMode), typeof(MainWindowVM),
+                new PropertyMetadata(FindReplaceDisplayMode.None,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as MainWindowVM).FindReplaceMode_PropertyChanged((FindReplaceDisplayMode)(e.OldValue), (FindReplaceDisplayMode)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).FindReplaceMode_PropertyChanged((FindReplaceDisplayMode)(e.OldValue), (FindReplaceDisplayMode)(e.NewValue)));
+                }));
+
+        /// <summary>
+        /// Identifies the <seealso cref="FindReplaceMode"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty FindReplaceModeProperty = FindReplaceModePropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public FindReplaceDisplayMode FindReplaceMode
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (FindReplaceDisplayMode)(GetValue(FindReplaceModeProperty));
+                return Dispatcher.Invoke(() => FindReplaceMode);
+            }
+            private set
+            {
+                if (CheckAccess())
+                    SetValue(FindReplaceModePropertyKey, value);
+                else
+                    Dispatcher.Invoke(() => FindReplaceMode = value);
+            }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="FindReplaceMode"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="FindReplaceMode"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="FindReplaceMode"/> property was changed.</param>
+        protected virtual void FindReplaceMode_PropertyChanged(FindReplaceDisplayMode oldValue, FindReplaceDisplayMode newValue)
+        {
+            UpdateSearchCommands();
+        }
+
+        #endregion
+
+        #region CaseSensitiveMatch Property Members
+
+        public const string DependencyPropertyName_CaseSensitiveMatch = "CaseSensitiveMatch";
+
+        /// <summary>
+        /// Identifies the <seealso cref="CaseSensitiveMatch"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty CaseSensitiveMatchProperty = DependencyProperty.Register(DependencyPropertyName_CaseSensitiveMatch, typeof(bool), typeof(MainWindowVM),
+                new PropertyMetadata(false,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as MainWindowVM).CaseSensitiveMatch_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).CaseSensitiveMatch_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue)));
+                }));
+
+        /// <summary>
+        /// Whether searches are case-sensitive
+        /// </summary>
+        public bool CaseSensitiveMatch
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (bool)(GetValue(CaseSensitiveMatchProperty));
+                return Dispatcher.Invoke(() => CaseSensitiveMatch);
+            }
+            set
+            {
+                if (CheckAccess())
+                    SetValue(CaseSensitiveMatchProperty, value);
+                else
+                    Dispatcher.Invoke(() => CaseSensitiveMatch = value);
+            }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="CaseSensitiveMatch"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="CaseSensitiveMatch"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="CaseSensitiveMatch"/> property was changed.</param>
+        protected virtual void CaseSensitiveMatch_PropertyChanged(bool oldValue, bool newValue)
+        {
+            if (UseRegularExpressions)
+                ValidatePattern();
+        }
+
+        #endregion
+
+        #region UseRegularExpressions Property Members
+
+        public const string DependencyPropertyName_UseRegularExpressions = "UseRegularExpressions";
+
+        /// <summary>
+        /// Identifies the <seealso cref="UseRegularExpressions"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty UseRegularExpressionsProperty = DependencyProperty.Register(DependencyPropertyName_UseRegularExpressions, typeof(bool), typeof(MainWindowVM),
+                new PropertyMetadata(false,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as MainWindowVM).UseRegularExpressions_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).UseRegularExpressions_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue)));
+                }));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool UseRegularExpressions
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (bool)(GetValue(UseRegularExpressionsProperty));
+                return Dispatcher.Invoke(() => UseRegularExpressions);
+            }
+            set
+            {
+                if (CheckAccess())
+                    SetValue(UseRegularExpressionsProperty, value);
+                else
+                    Dispatcher.Invoke(() => UseRegularExpressions = value);
+            }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="UseRegularExpressions"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="UseRegularExpressions"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="UseRegularExpressions"/> property was changed.</param>
+        protected virtual void UseRegularExpressions_PropertyChanged(bool oldValue, bool newValue)
+        {
+            if (newValue)
+                ValidatePattern();
+            else
+                PatternValidationText = "";
+        }
+
+        #endregion
+
+        #region SearchExpression Property Members
+
+        public const string PropertyName_SearchExpression = "SearchExpression";
+
+        private static readonly DependencyPropertyKey SearchExpressionPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SearchExpression, typeof(Regex), typeof(MainWindowVM),
+                new PropertyMetadata(null));
+
+        /// <summary>
+        /// Identifies the <seealso cref="SearchExpression"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty SearchExpressionProperty = SearchExpressionPropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// Regular expression object for find or replace
+        /// </summary>
+        public Regex SearchExpression
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (Regex)(GetValue(SearchExpressionProperty));
+                return Dispatcher.Invoke(() => SearchExpression);
+            }
+            private set
+            {
+                if (CheckAccess())
+                    SetValue(SearchExpressionPropertyKey, value);
+                else
+                    Dispatcher.Invoke(() => SearchExpression = value);
+            }
+        }
+
+        #endregion
+
+        #region Pattern Property Members
+
+        public const string DependencyPropertyName_Pattern = "Pattern";
+
+        /// <summary>
+        /// Identifies the <seealso cref="Pattern"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty PatternProperty = DependencyProperty.Register(DependencyPropertyName_Pattern, typeof(string), typeof(MainWindowVM),
+                new PropertyMetadata("",
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as MainWindowVM).Pattern_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).Pattern_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as MainWindowVM).Pattern_CoerceValue(baseValue)));
+
+        /// <summary>
+        /// Pattern for use with find or replace
+        /// </summary>
+        public string Pattern
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (string)(GetValue(PatternProperty));
+                return Dispatcher.Invoke(() => Pattern);
+            }
+            set
+            {
+                if (CheckAccess())
+                    SetValue(PatternProperty, value);
+                else
+                    Dispatcher.Invoke(() => Pattern = value);
+            }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="Pattern"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="Pattern"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="Pattern"/> property was changed.</param>
+        protected virtual void Pattern_PropertyChanged(string oldValue, string newValue)
+        {
+            if (UseRegularExpressions)
+                ValidatePattern();
+        }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="Pattern"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string Pattern_CoerceValue(object baseValue) { return (baseValue as string) ?? ""; }
+
+        #endregion
+
+        private void ValidatePattern()
+        {
+            if (Pattern.Length != 0)
+            {
+                if (!UseRegularExpressions)
+                    PatternValidationText = "";
+                else
+                {
+                    try
+                    {
+                        SearchExpression = new Regex(Pattern, (CaseSensitiveMatch) ? RegexOptions.Compiled : RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                        PatternValidationText = "";
+                    }
+                    catch (Exception exception)
+                    {
+                        SearchExpression = null;
+                        PatternValidationText = exception.Message;
+                    }
+                }
+            }
+            else
+                PatternValidationText = "Pattern text cannot be empty.";
+
+            UpdateSearchCommands();
+        }
+
+        private void UpdateSearchCommands()
+        {
+            if (PatternValidationText.Length != 0)
+            {
+                FindNextCommand.IsEnabled = false;
+                SkipNextCommand.IsEnabled = false;
+                return;
+            }
+
+            switch (FindReplaceMode)
+            {
+                case FindReplaceDisplayMode.Find:
+                case FindReplaceDisplayMode.FindNext:
+                case FindReplaceDisplayMode.Replace:
+                    FindNextCommand.IsEnabled = true;
+                    SkipNextCommand.IsEnabled = false;
+                    break;
+                case FindReplaceDisplayMode.ReplaceNext:
+                    FindNextCommand.IsEnabled = true;
+                    SkipNextCommand.IsEnabled = true;
+                    break;
+                default:
+                    FindNextCommand.IsEnabled = false;
+                    SkipNextCommand.IsEnabled = false;
+                    break;
+            }
+        }
+
+        #region ReplacementText Property Members
+
+        public const string DependencyPropertyName_ReplacementText = "ReplacementText";
+
+        /// <summary>
+        /// Identifies the <seealso cref="ReplacementText"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ReplacementTextProperty = DependencyProperty.Register(DependencyPropertyName_ReplacementText, typeof(string), typeof(MainWindowVM),
+                new PropertyMetadata("",
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as MainWindowVM).ReplacementText_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).ReplacementText_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as MainWindowVM).ReplacementText_CoerceValue(baseValue)));
+
+        /// <summary>
+        /// Text to replace for replace command
+        /// </summary>
+        public string ReplacementText
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (string)(GetValue(ReplacementTextProperty));
+                return Dispatcher.Invoke(() => ReplacementText);
+            }
+            set
+            {
+                if (CheckAccess())
+                    SetValue(ReplacementTextProperty, value);
+                else
+                    Dispatcher.Invoke(() => ReplacementText = value);
+            }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="ReplacementText"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="ReplacementText"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="ReplacementText"/> property was changed.</param>
+        protected virtual void ReplacementText_PropertyChanged(string oldValue, string newValue) { }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="ReplacementText"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string ReplacementText_CoerceValue(object baseValue) { return (baseValue as string) ?? ""; }
+
+        #endregion
+
+        #region PatternValidationText Property Members
+
+        public const string PropertyName_PatternValidationText = "PatternValidationText";
+
+        private static readonly DependencyPropertyKey PatternValidationTextPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_PatternValidationText, typeof(string), typeof(MainWindowVM),
+                new PropertyMetadata(""));
+
+        /// <summary>
+        /// Identifies the <seealso cref="PatternValidationText"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty PatternValidationTextProperty = PatternValidationTextPropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// Displays error message when Pattern does not represent a valid regular expression.
+        /// </summary>
+        public string PatternValidationText
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (string)(GetValue(PatternValidationTextProperty));
+                return Dispatcher.Invoke(() => PatternValidationText);
+            }
+            private set
+            {
+                if (CheckAccess())
+                    SetValue(PatternValidationTextPropertyKey, value);
+                else
+                    Dispatcher.Invoke(() => PatternValidationText = value);
+            }
+        }
+
+        #endregion
+
         #region Text Property Members
+
+        public event EventHandler TextChanged;
 
         public const string DependencyPropertyName_Text = "Text";
 
@@ -1361,7 +2305,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 (DependencyObject d, object baseValue) => (d as MainWindowVM).Text_CoerceValue(baseValue)));
 
         /// <summary>
-        /// 
+        /// SSML markup text
         /// </summary>
         public string Text
         {
@@ -1392,7 +2336,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             object syncRoot = _syncRoot;
             if (syncRoot == null)
                 return;
-
+            
             lock (syncRoot)
             {
                 FileSaveStatus = FileSaveStatus.Modified;
@@ -1409,6 +2353,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                         Path.GetFileName(FileSaveLocation), FileSaveLocation);
                 }
             }
+
+            //TextChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -1416,64 +2362,124 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>
-        public virtual string Text_CoerceValue(object baseValue)
-        {
-            return (baseValue as string) ?? "";
-        }
+        public virtual string Text_CoerceValue(object baseValue) { return (baseValue as string) ?? ""; }
 
         #endregion
 
-        #region SelectedText Property Members
+        public event EventHandler SelectionChanged;
 
-        public const string DependencyPropertyName_SelectedText = "SelectedText";
+        #region SelectionStart Property Members
+
+        private bool _isSelectionChanging = false;
+
+        public const string DependencyPropertyName_SelectionStart = "SelectionStart";
 
         /// <summary>
-        /// Identifies the <seealso cref="SelectedText"/> dependency property.
+        /// Identifies the <seealso cref="SelectionStart"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty SelectedTextProperty = DependencyProperty.Register(DependencyPropertyName_SelectedText, typeof(string), typeof(MainWindowVM),
-                new PropertyMetadata("",
+        public static readonly DependencyProperty SelectionStartProperty = DependencyProperty.Register(DependencyPropertyName_SelectionStart, typeof(int), typeof(MainWindowVM),
+                new PropertyMetadata(0,
                 (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
                 {
                     if (d.CheckAccess())
-                        (d as MainWindowVM).SelectedText_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
+                        (d as MainWindowVM).SelectionStart_PropertyChanged((int)(e.OldValue), (int)(e.NewValue));
                     else
-                        d.Dispatcher.Invoke(() => (d as MainWindowVM).SelectedText_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as MainWindowVM).SelectedText_CoerceValue(baseValue)));
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).SelectionStart_PropertyChanged((int)(e.OldValue),
+                            (int)(e.NewValue)));
+                }));
 
         /// <summary>
-        /// 
+        /// Start index of selection
         /// </summary>
-        public string SelectedText
+        public int SelectionStart
         {
             get
             {
                 if (CheckAccess())
-                    return (string)(GetValue(SelectedTextProperty));
-                return Dispatcher.Invoke(() => SelectedText);
+                    return (int)(GetValue(SelectionStartProperty));
+                return Dispatcher.Invoke(() => SelectionStart);
             }
             set
             {
                 if (CheckAccess())
-                    SetValue(SelectedTextProperty, value);
+                    SetValue(SelectionStartProperty, value);
                 else
-                    Dispatcher.Invoke(() => SelectedText = value);
+                    Dispatcher.Invoke(() => SelectionStart = value);
             }
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="SelectedText"/> dependency property has changed.
+        /// This gets called after the value associated with the <seealso cref="SelectionStart"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="SelectedText"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="SelectedText"/> property was changed.</param>
-        protected virtual void SelectedText_PropertyChanged(string oldValue, string newValue) { }
+        /// <param name="oldValue">The <seealso cref="int"/> value before the <seealso cref="Text"/> 
+        /// property was changed.</param>
+        /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="Text"/> 
+        /// property was changed.</param>
+        protected virtual void SelectionStart_PropertyChanged(int oldValue, int newValue)
+        {
+            object syncRoot = _syncRoot;
+            if (syncRoot == null)
+                return;
+            
+        }
+
+        #endregion
+
+        #region SelectionLength Property Members
+
+        public const string DependencyPropertyName_SelectionLength = "SelectionLength";
 
         /// <summary>
-        /// This gets called whenever <seealso cref="SelectedText"/> is being re-evaluated, or coercion is specifically requested.
+        /// Identifies the <seealso cref="SelectionLength"/> dependency property.
         /// </summary>
-        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
-        /// <returns>The coerced value.</returns>
-        public virtual string SelectedText_CoerceValue(object baseValue) { return (baseValue as string) ?? ""; }
+        public static readonly DependencyProperty SelectionLengthProperty = DependencyProperty.Register(DependencyPropertyName_SelectionLength, typeof(int), typeof(MainWindowVM),
+                new PropertyMetadata(0,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as MainWindowVM).SelectionLength_PropertyChanged((int)(e.OldValue), (int)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).SelectionLength_PropertyChanged((int)(e.OldValue),
+                            (int)(e.NewValue)));
+                }));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public int SelectionLength
+        {
+            get
+            {
+                if (CheckAccess())
+                    return (int)(GetValue(SelectionLengthProperty));
+                return Dispatcher.Invoke(() => SelectionLength);
+            }
+            set
+            {
+                if (CheckAccess())
+                    SetValue(SelectionLengthProperty, value);
+                else
+                    Dispatcher.Invoke(() => SelectionLength = value);
+            }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="SelectionLength"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="int"/> value before the <seealso cref="Text"/> 
+        /// property was changed.</param>
+        /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="Text"/> 
+        /// property was changed.</param>
+        protected virtual void SelectionLength_PropertyChanged(int oldValue, int newValue)
+        {
+            object syncRoot = _syncRoot;
+            if (syncRoot == null)
+                return;
+
+            lock (syncRoot)
+            {
+            }
+        }
 
         #endregion
 
@@ -1667,7 +2673,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 }));
 
         /// <summary>
-        /// 
+        /// Whether line wrapis to be enabled.
         /// </summary>
         public bool LineWrapEnabled
         {
@@ -1713,7 +2719,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 }));
 
         /// <summary>
-        /// 
+        /// Whether to select text after inserting
         /// </summary>
         public bool SelectAfterInsert
         {
@@ -1743,15 +2749,21 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #region CurrentLineNumber Property Members
 
-        public const string PropertyName_CurrentLineNumber = "CurrentLineNumber";
-
-        private static readonly DependencyPropertyKey CurrentLineNumberPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CurrentLineNumber, typeof(int), typeof(MainWindowVM),
-                new PropertyMetadata(1));
+        public const string DependencyPropertyName_CurrentLineNumber = "CurrentLineNumber";
 
         /// <summary>
         /// Identifies the <seealso cref="CurrentLineNumber"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty CurrentLineNumberProperty = CurrentLineNumberPropertyKey.DependencyProperty;
+        public static readonly DependencyProperty CurrentLineNumberProperty = DependencyProperty.Register(DependencyPropertyName_CurrentLineNumber, typeof(int), typeof(MainWindowVM),
+                new PropertyMetadata(1,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as MainWindowVM).CurrentLineNumber_PropertyChanged((int)(e.OldValue), (int)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).CurrentLineNumber_PropertyChanged((int)(e.OldValue), (int)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as MainWindowVM).CurrentLineNumber_CoerceValue(baseValue)));
 
         /// <summary>
         /// 
@@ -1764,28 +2776,55 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                     return (int)(GetValue(CurrentLineNumberProperty));
                 return Dispatcher.Invoke(() => CurrentLineNumber);
             }
-            private set
+            set
             {
                 if (CheckAccess())
-                    SetValue(CurrentLineNumberPropertyKey, value);
+                    SetValue(CurrentLineNumberProperty, value);
                 else
                     Dispatcher.Invoke(() => CurrentLineNumber = value);
             }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="CurrentLineNumber"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="int"/> value before the <seealso cref="CurrentLineNumber"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="CurrentLineNumber"/> property was changed.</param>
+        protected virtual void CurrentLineNumber_PropertyChanged(int oldValue, int newValue)
+        {
+            // TODO: Implement MainWindowVM.CurrentLineNumber_PropertyChanged(int, int)
+        }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="CurrentLineNumber"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual int CurrentLineNumber_CoerceValue(object baseValue)
+        {
+            int i = (int)baseValue;
+            return (i < 1) ? 1 : i;
         }
 
         #endregion
 
         #region CurrentColNumber Property Members
 
-        public const string PropertyName_CurrentColNumber = "CurrentColNumber";
-
-        private static readonly DependencyPropertyKey CurrentColNumberPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CurrentColNumber, typeof(int), typeof(MainWindowVM),
-                new PropertyMetadata(1));
+        public const string DependencyPropertyName_CurrentColNumber = "CurrentColNumber";
 
         /// <summary>
         /// Identifies the <seealso cref="CurrentColNumber"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty CurrentColNumberProperty = CurrentColNumberPropertyKey.DependencyProperty;
+        public static readonly DependencyProperty CurrentColNumberProperty = DependencyProperty.Register(DependencyPropertyName_CurrentColNumber, typeof(int), typeof(MainWindowVM),
+                new PropertyMetadata(1,
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                {
+                    if (d.CheckAccess())
+                        (d as MainWindowVM).CurrentColNumber_PropertyChanged((int)(e.OldValue), (int)(e.NewValue));
+                    else
+                        d.Dispatcher.Invoke(() => (d as MainWindowVM).CurrentColNumber_PropertyChanged((int)(e.OldValue), (int)(e.NewValue)));
+                },
+                (DependencyObject d, object baseValue) => (d as MainWindowVM).CurrentColNumber_CoerceValue(baseValue)));
 
         /// <summary>
         /// 
@@ -1798,13 +2837,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                     return (int)(GetValue(CurrentColNumberProperty));
                 return Dispatcher.Invoke(() => CurrentColNumber);
             }
-            private set
+            set
             {
                 if (CheckAccess())
-                    SetValue(CurrentColNumberPropertyKey, value);
+                    SetValue(CurrentColNumberProperty, value);
                 else
                     Dispatcher.Invoke(() => CurrentColNumber = value);
             }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <seealso cref="CurrentColNumber"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="int"/> value before the <seealso cref="CurrentColNumber"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="CurrentColNumber"/> property was changed.</param>
+        protected virtual void CurrentColNumber_PropertyChanged(int oldValue, int newValue)
+        {
+            // TODO: Implement MainWindowVM.CurrentColNumber_PropertyChanged(int, int)
+        }
+
+        /// <summary>
+        /// This gets called whenever <seealso cref="CurrentColNumber"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual int CurrentColNumber_CoerceValue(object baseValue)
+        {
+            int i = (int)baseValue;
+            return (i < 1) ? 1 : i;
         }
 
         #endregion
@@ -1883,8 +2943,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         {
             if (!FileModified)
                 return true;
-
-            MessageBoxResult canReplace = MessageBox.Show("The current document has modifications that have not been saved.\r\nDo you want to save those changes?", 
+            
+            MessageBoxResult canReplace = MessageBox.Show(App.Current.MainWindow, "The current document has modifications that have not been saved.\r\nDo you want to save those changes?", 
                 "File Modified", MessageBoxButton.YesNoCancel , MessageBoxImage.Warning);
 
            switch (canReplace)
@@ -1900,25 +2960,25 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         internal void LayoutUpdated(TextBox textBox, EventArgs e)
         {
-            object syncRoot = _syncRoot;
-            if (syncRoot == null)
-                return;
+            //object syncRoot = _syncRoot;
+            //if (syncRoot == null)
+            //    return;
             
-            lock (syncRoot)
-            {
-                if (_lineNumbersUpdated)
-                    return;
-                _lineNumbersUpdated = true;
-                int characterIndex = textBox.SelectionStart;
-                int currentLine = textBox.GetLineIndexFromCharacterIndex(characterIndex);
-                CurrentLineNumber = currentLine + 1;
-                if (currentLine > -1)
-                    CurrentColNumber = (characterIndex - textBox.GetCharacterIndexFromLineIndex(currentLine)) + 1;
-                if (_lineNumberUpdater == null)
-                    _lineNumberUpdater = new Process.BackgroundJobManager<Process.LineNumberGenerator, int>(new Process.LineNumberGenerator(textBox, _lineNumbers));
-                else
-                    _lineNumberUpdater.Replace(new Process.LineNumberGenerator(textBox, _lineNumbers));
-            }
+            //lock (syncRoot)
+            //{
+            //    if (_lineNumbersUpdated)
+            //        return;
+            //    _lineNumbersUpdated = true;
+            //    int characterIndex = textBox.SelectionStart;
+            //    int currentLine = textBox.GetLineIndexFromCharacterIndex(characterIndex);
+            //    CurrentLineNumber = currentLine + 1;
+            //    if (currentLine > -1)
+            //        CurrentColNumber = (characterIndex - textBox.GetCharacterIndexFromLineIndex(currentLine)) + 1;
+            //    if (_lineNumberUpdater == null)
+            //        _lineNumberUpdater = new Process.BackgroundJobManager<Process.LineNumberGenerator, int>(new Process.LineNumberGenerator(textBox, _lineNumbers));
+            //    else
+            //        _lineNumberUpdater.Replace(new Process.LineNumberGenerator(textBox, _lineNumbers));
+            //}
         }
     }
 }

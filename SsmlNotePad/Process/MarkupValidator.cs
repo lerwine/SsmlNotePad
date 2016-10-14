@@ -34,11 +34,12 @@ namespace Erwine.Leonard.T.SsmlNotePad.Process
             get
             {
                 if (_baseUri == null)
-                    _baseUri = Common.XmlHelper.GetBaseUri();
+                    _baseUri = App.AppSettingsViewModel.BaseUriPath;
 
                 return _baseUri;
             }
         }
+
         private static XmlSchemaSet _schemaSet = null;
         private static XmlSchemaSet SchemaSet
         {

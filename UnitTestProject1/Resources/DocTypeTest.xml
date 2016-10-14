@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE dtd_sample[
+  <!ELEMENT file_info>
+  <!ATTLIST file_info name #REQUIRED>
+
+  <!ENTITY xml "eXtensible Markup Language">
+  <!ENTITY attlist_def SYSTEM "longtext.txt">
+  <!ENTITY % lists "(ol | ul)">
+  <!ENTITY file_pic SYSTEM "file.jpg" NDATA jpg>
+  <!NOTATION jpg SYSTEM "image/jpeg">
+  <!ELEMENT icon EMPTY>
+  <!ATTLIST icon source ENTITY #REQUIRED>
+]>

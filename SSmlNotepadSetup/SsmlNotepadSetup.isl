@@ -2622,7 +2622,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>COMPANY_NAME</td><td>1033</td><td>Leonard T. Erwine</td><td>0</td><td/><td>748974798</td></row>
+		<row><td>COMPANY_NAME</td><td>1033</td><td>Leonard T. Erwine</td><td>0</td><td/><td>-2069591006</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td/><td>748999278</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>748999278</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_DOTNETVERSION45FULL</td><td>1033</td><td>Microsoft .NET Framework 4.5 Full package or greater needs to be installed for this installation to continue.</td><td>0</td><td/><td>748962542</td></row>
@@ -3725,8 +3725,8 @@
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>748999278</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>748999278</td></row>
 		<row><td>ID_STRING1</td><td>1033</td><td/><td>0</td><td/><td>749001326</td></row>
-		<row><td>ID_STRING2</td><td>1033</td><td>http://www.erwinefamily.net</td><td>0</td><td/><td>1017427120</td></row>
-		<row><td>ID_STRING3</td><td>1033</td><td>Leonard T. Erwine</td><td>0</td><td/><td>748974798</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>http://www.LeonardT.Erwine.com</td><td>0</td><td/><td>-2069591006</td></row>
+		<row><td>ID_STRING3</td><td>1033</td><td>Leonard T. Erwine</td><td>0</td><td/><td>-2069591006</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>748999278</td></row>
 		<row><td>NEW_STRING1</td><td>1033</td><td>ssml</td><td>0</td><td/><td>883202602</td></row>
 		<row><td>NEW_STRING2</td><td>1033</td><td>ssml</td><td>0</td><td/><td>1017398083</td></row>
@@ -3957,8 +3957,8 @@
 		<col def="S0">Value</col>
 		<row><td>ActiveLanguage</td><td>1033</td></row>
 		<row><td>Comments</td><td/></row>
-		<row><td>CurrentMedia</td><td dt:dt="bin.base64" md5="6d78a46bf2c52ee27034bbcad20f7f95">
-QwBEAF8AUgBPAE0AAQBFAHgAcAByAGUAcwBzAA==
+		<row><td>CurrentMedia</td><td dt:dt="bin.base64" md5="de9f554a3bc05c12be9c31b998217995">
+UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 			</td></row>
 		<row><td>DefaultProductConfiguration</td><td>Express</td></row>
 		<row><td>EnableSwidtag</td><td>1</td></row>
@@ -3975,7 +3975,7 @@ QwBEAF8AUgBPAE0AAQBFAHgAcAByAGUAcwBzAA==
 		<row><td>ISTheme</td><td>InstallShield Blue.theme</td></row>
 		<row><td>ISUSLock</td><td>{95B6CDBB-65F3-4C28-ADC4-77CD42E8F577}</td></row>
 		<row><td>ISUSSignature</td><td>{03BB8E0D-BB86-43AE-B4B8-5BD06EF4C957}</td></row>
-		<row><td>ISVisitedViews</td><td>viewAssistant,viewAppFiles,viewRelease,viewShortcuts,viewFileExtensions,viewCustomActions,viewProject</td></row>
+		<row><td>ISVisitedViews</td><td>viewAssistant,viewAppFiles,viewRelease,viewShortcuts,viewFileExtensions,viewCustomActions,viewProject,viewISToday</td></row>
 		<row><td>Limited</td><td>1</td></row>
 		<row><td>LockPermissionMode</td><td>1</td></row>
 		<row><td>MsiExecCmdLineOptions</td><td/></row>
