@@ -43,17 +43,17 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="Margin"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="Margin"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="Thickness"/> value before the <seealso cref="Margin"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="Thickness"/> value after the <seealso cref="Margin"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="Thickness"/> value before the <see cref="Margin"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="Thickness"/> value after the <see cref="Margin"/> property was changed.</param>
         protected virtual void Margin_PropertyChanged(Thickness oldValue, Thickness newValue)
         {
             // TODO: Implement LineNumberVM.Margin_PropertyChanged(Thickness, Thickness)
         }
 
         /// <summary>
-        /// This gets called whenever <seealso cref="Margin"/> is being re-evaluated, or coercion is specifically requested.
+        /// This gets called whenever <see cref="Margin"/> is being re-evaluated, or coercion is specifically requested.
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>
@@ -104,17 +104,17 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="Number"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="Number"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="int"/> value before the <seealso cref="Number"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="Number"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="int"/> value before the <see cref="Number"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="int"/> value after the <see cref="Number"/> property was changed.</param>
         protected virtual void Number_PropertyChanged(int oldValue, int newValue)
         {
             // TODO: Implement LineNumberVM.Number_PropertyChanged(int, int)
         }
 
         /// <summary>
-        /// This gets called whenever <seealso cref="Number"/> is being re-evaluated, or coercion is specifically requested.
+        /// This gets called whenever <see cref="Number"/> is being re-evaluated, or coercion is specifically requested.
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>

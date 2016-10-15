@@ -36,8 +36,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// <summary>
         /// This gets called after the value associated with the <see cref="IsWarning"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="IsWarning"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="IsWarning"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="bool"/> value before the <see cref="IsWarning"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="bool"/> value after the <see cref="IsWarning"/> property was changed.</param>
         protected virtual void IsWarning_PropertyChanged(bool oldValue, bool newValue)
         {
             // TODO: Implement ViewModelValidationMessageVM.IsWarning_PropertyChanged(bool, bool)

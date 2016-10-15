@@ -48,10 +48,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="IsEnabled"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="IsEnabled"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="IsEnabled"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="IsEnabled"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="bool"/> value before the <see cref="IsEnabled"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="bool"/> value after the <see cref="IsEnabled"/> property was changed.</param>
         protected virtual void IsEnabled_PropertyChanged(bool oldValue, bool newValue)
         {
             if (CheckAccess())
@@ -95,10 +95,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="AllowSimultaneousExecute"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="AllowSimultaneousExecute"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="AllowSimultaneousExecute"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="AllowSimultaneousExecute"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="bool"/> value before the <see cref="AllowSimultaneousExecute"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="bool"/> value after the <see cref="AllowSimultaneousExecute"/> property was changed.</param>
         protected virtual void AllowSimultaneousExecute_PropertyChanged(bool oldValue, bool newValue)
         {
             if (CheckAccess())
@@ -108,7 +108,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         }
 
         /// <summary>
-        /// This gets called whenever <seealso cref="AllowSimultaneousExecute"/> is being re-evaluated, or coercion is specifically requested.
+        /// This gets called whenever <see cref="AllowSimultaneousExecute"/> is being re-evaluated, or coercion is specifically requested.
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>

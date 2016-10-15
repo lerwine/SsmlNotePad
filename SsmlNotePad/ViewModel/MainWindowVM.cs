@@ -895,10 +895,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="LineWrapEnabled"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="LineWrapEnabled"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="LineWrapEnabled"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="LineWrapEnabled"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="bool"/> value before the <see cref="LineWrapEnabled"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="bool"/> value after the <see cref="LineWrapEnabled"/> property was changed.</param>
         protected virtual void LineWrapEnabled_PropertyChanged(bool oldValue, bool newValue) { SetLineWrap(); }
 
         private void SetLineWrap()

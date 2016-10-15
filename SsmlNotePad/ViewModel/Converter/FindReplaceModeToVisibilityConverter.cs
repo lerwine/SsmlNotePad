@@ -76,17 +76,17 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="NoneValue"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="NoneValue"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="Visibility?"/> value before the <seealso cref="NoneValue"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="Visibility?"/> value after the <seealso cref="NoneValue"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="Visibility?"/> value before the <see cref="NoneValue"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="Visibility?"/> value after the <see cref="NoneValue"/> property was changed.</param>
         protected virtual void NoneValue_PropertyChanged(Visibility? oldValue, Visibility? newValue)
         {
             // TODO: Implement FindReplaceModeToVisibilityConverter.NoneValue_PropertyChanged(Visibility?, Visibility?)
         }
 
         /// <summary>
-        /// This gets called whenever <seealso cref="NoneValue"/> is being re-evaluated, or coercion is specifically requested.
+        /// This gets called whenever <see cref="NoneValue"/> is being re-evaluated, or coercion is specifically requested.
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>
