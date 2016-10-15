@@ -62,11 +62,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Markup.resx</DependentUpon>
     </Compile>
-    <Compile Include="OtherViewModelsUnitTest.cs" />
+    <Compile Include="MainViewModelUnitTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SsmlEditViewModelTest.cs" />
-    <Compile Include="TextUnitTests.cs" />
-    <Compile Include="XmlContextTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SsmlNotePad\SsmlNotePad.csproj">

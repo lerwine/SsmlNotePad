@@ -13,6 +13,10 @@ namespace Erwine.Leonard.T.SsmlNotePad
     /// </summary>
     public partial class App : Application
     {
+        public const string AppResourceName_MainWindowViewModel = "MainWindowViewModel";
+        public const string AppResourceName_AppSettingsViewModel = "AppSettingsViewModel";
+        public const string AppResourceName_SpeechGenerationProgressViewModel = "SpeechGenerationProgressViewModel";
+
         public static TWindow GetWindowByDataContext<TWindow, TDataContext>(TDataContext obj)
             where TWindow : Window
             where TDataContext : class
@@ -31,8 +35,8 @@ namespace Erwine.Leonard.T.SsmlNotePad
             get
             {
                 if (App.Current.CheckAccess())
-                    return App.Current.FindResource("MainWindowViewModel") as ViewModel.MainWindowVM;
-                return App.Current.Dispatcher.Invoke(() => App.Current.FindResource("MainWindowViewModel") as ViewModel.MainWindowVM);
+                    return App.Current.FindResource(AppResourceName_MainWindowViewModel) as ViewModel.MainWindowVM;
+                return App.Current.Dispatcher.Invoke(() => App.Current.FindResource(AppResourceName_MainWindowViewModel) as ViewModel.MainWindowVM);
             }
         }
 
@@ -41,8 +45,18 @@ namespace Erwine.Leonard.T.SsmlNotePad
             get
             {
                 if (App.Current.CheckAccess())
-                    return App.Current.FindResource("AppSettingsViewModel") as ViewModel.AppSettingsVM;
-                return App.Current.Dispatcher.Invoke(() => App.Current.FindResource("AppSettingsViewModel") as ViewModel.AppSettingsVM);
+                    return App.Current.FindResource(AppResourceName_AppSettingsViewModel) as ViewModel.AppSettingsVM;
+                return App.Current.Dispatcher.Invoke(() => App.Current.FindResource(AppResourceName_AppSettingsViewModel) as ViewModel.AppSettingsVM);
+            }
+        }
+
+        public static ViewModel.SpeechGenerationProgressVM SpeechGenerationProgressViewModel
+        {
+            get
+            {
+                if (App.Current.CheckAccess())
+                    return App.Current.FindResource(AppResourceName_SpeechGenerationProgressViewModel) as ViewModel.SpeechGenerationProgressVM;
+                return App.Current.Dispatcher.Invoke(() => App.Current.FindResource(AppResourceName_SpeechGenerationProgressViewModel) as ViewModel.SpeechGenerationProgressVM);
             }
         }
     }

@@ -21,7 +21,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         public const string DependencyPropertyName_IsEnabled = "IsEnabled";
 
         /// <summary>
-        /// Identifies the <seealso cref="IsEnabled"/> dependency property.
+        /// Identifies the <see cref="IsEnabled"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.Register(DependencyPropertyName_IsEnabled, typeof(bool), typeof(BaseCommand),
                 new PropertyMetadata(true,
@@ -67,7 +67,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         public const string DependencyPropertyName_AllowSimultaneousExecute = "AllowSimultaneousExecute";
 
         /// <summary>
-        /// Identifies the <seealso cref="AllowSimultaneousExecute"/> dependency property.
+        /// Identifies the <see cref="AllowSimultaneousExecute"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty AllowSimultaneousExecuteProperty = DependencyProperty.Register(DependencyPropertyName_AllowSimultaneousExecute, typeof(bool), typeof(BaseCommand),
                 new PropertyMetadata(false,

@@ -13,7 +13,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.ThemeGallery
                 new PropertyMetadata(""));
 
         /// <summary>
-        /// Identifies the <seealso cref="Key"/> dependency property.
+        /// Identifies the <see cref="Key"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty KeyProperty = KeyPropertyKey.DependencyProperty;
 
@@ -47,7 +47,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.ThemeGallery
                 new PropertyMetadata(default(T)));
 
         /// <summary>
-        /// Identifies the <seealso cref="Resource"/> dependency property.
+        /// Identifies the <see cref="Resource"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ResourceProperty = ResourcePropertyKey.DependencyProperty;
 

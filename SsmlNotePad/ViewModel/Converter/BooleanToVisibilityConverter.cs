@@ -13,7 +13,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NullValue = "NullValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="NullValue"/> dependency property.
+        /// Identifies the <see cref="NullValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NullValueProperty = DependencyProperty.Register(DependencyPropertyName_NullValue, typeof(Visibility?), typeof(BooleanToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
@@ -45,7 +45,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_TrueValue = "TrueValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="TrueValue"/> dependency property.
+        /// Identifies the <see cref="TrueValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty TrueValueProperty = DependencyProperty.Register(DependencyPropertyName_TrueValue, typeof(Visibility?), typeof(BooleanToVisibilityConverter),
                 new PropertyMetadata(Visibility.Visible));
@@ -77,7 +77,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_FalseValue = "FalseValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="FalseValue"/> dependency property.
+        /// Identifies the <see cref="FalseValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty FalseValueProperty = DependencyProperty.Register(DependencyPropertyName_FalseValue, typeof(Visibility?), typeof(BooleanToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));

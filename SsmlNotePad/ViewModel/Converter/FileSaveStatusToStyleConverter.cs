@@ -13,7 +13,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NullStyle = "NullStyle";
 
         /// <summary>
-        /// Identifies the <seealso cref="NullStyle"/> dependency property.
+        /// Identifies the <see cref="NullStyle"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NullStyleProperty = DependencyProperty.Register(DependencyPropertyName_NullStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
                 new PropertyMetadata(null));
@@ -45,7 +45,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NewStyle = "NewStyle";
 
         /// <summary>
-        /// Identifies the <seealso cref="NewStyle"/> dependency property.
+        /// Identifies the <see cref="NewStyle"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NewStyleProperty = DependencyProperty.Register(DependencyPropertyName_NewStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
                 new PropertyMetadata(null));
@@ -77,7 +77,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_ModifiedStyle = "ModifiedStyle";
 
         /// <summary>
-        /// Identifies the <seealso cref="ModifiedStyle"/> dependency property.
+        /// Identifies the <see cref="ModifiedStyle"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ModifiedStyleProperty = DependencyProperty.Register(DependencyPropertyName_ModifiedStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
                 new PropertyMetadata(null));
@@ -109,7 +109,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_SaveErrorStyle = "SaveErrorStyle";
 
         /// <summary>
-        /// Identifies the <seealso cref="SaveErrorStyle"/> dependency property.
+        /// Identifies the <see cref="SaveErrorStyle"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SaveErrorStyleProperty = DependencyProperty.Register(DependencyPropertyName_SaveErrorStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
                 new PropertyMetadata(null));
@@ -141,7 +141,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_SaveWarningStyle = "SaveWarningStyle";
 
         /// <summary>
-        /// Identifies the <seealso cref="SaveWarningStyle"/> dependency property.
+        /// Identifies the <see cref="SaveWarningStyle"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SaveWarningStyleProperty = DependencyProperty.Register(DependencyPropertyName_SaveWarningStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
                 new PropertyMetadata(null));
@@ -173,7 +173,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_SaveSuccessStyle = "SaveSuccessStyle";
 
         /// <summary>
-        /// Identifies the <seealso cref="SaveSuccessStyle"/> dependency property.
+        /// Identifies the <see cref="SaveSuccessStyle"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SaveSuccessStyleProperty = DependencyProperty.Register(DependencyPropertyName_SaveSuccessStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
                 new PropertyMetadata(null));

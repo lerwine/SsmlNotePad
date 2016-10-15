@@ -1,4 +1,6 @@
-﻿namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
+﻿using System;
+
+namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 {
     public enum FindReplaceDisplayMode
     {

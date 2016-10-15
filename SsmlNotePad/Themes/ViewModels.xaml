@@ -3,4 +3,5 @@
                     xmlns:local="clr-namespace:Erwine.Leonard.T.SsmlNotePad">
     <ViewModel:AppSettingsVM x:Key="AppSettingsViewModel" />
     <ViewModel:MainWindowVM x:Key="MainWindowViewModel" />
+    <ViewModel:SpeechGenerationProgressVM x:Key="SpeechGenerationProgressViewModel" />
 </ResourceDictionary>

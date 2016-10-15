@@ -18,7 +18,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NullValue = "NullValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="NullValue"/> dependency property.
+        /// Identifies the <see cref="NullValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NullValueProperty = DependencyProperty.Register(DependencyPropertyName_NullValue, typeof(Visibility?), typeof(FindReplaceModeToVisibilityConverter),
                 new PropertyMetadata(null));
@@ -50,7 +50,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NoneValue = "NoneValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="NoneValue"/> dependency property.
+        /// Identifies the <see cref="NoneValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NoneValueProperty = DependencyProperty.Register(DependencyPropertyName_NoneValue, typeof(Visibility?), typeof(FindReplaceModeToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
@@ -103,7 +103,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_FindValue = "FindValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="FindValue"/> dependency property.
+        /// Identifies the <see cref="FindValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty FindValueProperty = DependencyProperty.Register(DependencyPropertyName_FindValue, typeof(Visibility?), typeof(FindReplaceModeToVisibilityConverter),
                 new PropertyMetadata(Visibility.Visible));
@@ -135,7 +135,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_FindNextValue = "FindNextValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="FindNextValue"/> dependency property.
+        /// Identifies the <see cref="FindNextValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty FindNextValueProperty = DependencyProperty.Register(DependencyPropertyName_FindNextValue, typeof(Visibility?), typeof(FindReplaceModeToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
@@ -167,7 +167,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_ReplaceValue = "ReplaceValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="ReplaceValue"/> dependency property.
+        /// Identifies the <see cref="ReplaceValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ReplaceValueProperty = DependencyProperty.Register(DependencyPropertyName_ReplaceValue, typeof(Visibility?), typeof(FindReplaceModeToVisibilityConverter),
                 new PropertyMetadata(Visibility.Visible));
@@ -199,7 +199,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_ReplaceNextValue = "ReplaceNextValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="ReplaceNextValue"/> dependency property.
+        /// Identifies the <see cref="ReplaceNextValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ReplaceNextValueProperty = DependencyProperty.Register(DependencyPropertyName_ReplaceNextValue, typeof(Visibility?), typeof(FindReplaceModeToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
@@ -231,7 +231,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_FindNotFoundValue = "FindNotFoundValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="FindNotFoundValue"/> dependency property.
+        /// Identifies the <see cref="FindNotFoundValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty FindNotFoundValueProperty = DependencyProperty.Register(DependencyPropertyName_FindNotFoundValue, typeof(Visibility?), typeof(FindReplaceModeToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
@@ -263,7 +263,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_ReplaceNotFoundValue = "ReplaceNotFoundValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="ReplaceNotFoundValue"/> dependency property.
+        /// Identifies the <see cref="ReplaceNotFoundValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ReplaceNotFoundValueProperty = DependencyProperty.Register(DependencyPropertyName_ReplaceNotFoundValue, typeof(Visibility?), typeof(FindReplaceModeToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));

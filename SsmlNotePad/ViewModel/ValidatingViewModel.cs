@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 new PropertyMetadata(ViewModelValidateState.Valid));
 
         /// <summary>
-        /// Identifies the <seealso cref="ViewModelValidateState"/> dependency property.
+        /// Identifies the <see cref="ViewModelValidateState"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ViewModelValidateStateProperty = ViewModelValidateStatePropertyKey.DependencyProperty;
 
@@ -27,19 +28,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// </summary>
         public ViewModelValidateState ViewModelValidateState
         {
-            get
-            {
-                if (CheckAccess())
-                    return (ViewModelValidateState)(GetValue(ViewModelValidateStateProperty));
-                return Dispatcher.Invoke(() => ViewModelValidateState);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(ViewModelValidateStatePropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => ViewModelValidateState = value);
-            }
+            get { return (ViewModelValidateState)(GetValue(ViewModelValidateStateProperty)); }
+            private set { SetValue(ViewModelValidateStatePropertyKey, value); }
         }
 
         bool INotifyDataErrorInfo.HasErrors { get { return ViewModelValidateState == ViewModelValidateState.Error; } }
@@ -48,41 +38,47 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #region ViewModelValidationMessages Property Members
 
-        private ViewModelValidationMessageVM[] _lastMessages = new ViewModelValidationMessageVM[0];
-
         /// <summary>
-        /// Read/Write collection to manage Validation errors.
+        /// Occurs when an item on <see cref="ViewModelValidationMessages"/> is added, removed, changed, moved, or the entire list is refreshed.
         /// </summary>
-        protected ObservableViewModelCollection<ViewModelValidationMessageVM> InnerViewModelValidationMessages { get; private set; }
-
-        public const string PropertyName_ViewModelValidationMessages = "ViewModelValidationMessages";
-
-        private static readonly DependencyPropertyKey ViewModelValidationMessagesPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ViewModelValidationMessages, typeof(ReadOnlyObservableViewModelCollection<ViewModelValidationMessageVM>), typeof(ValidatingViewModel),
-                new PropertyMetadata(null));
+        public event NotifyCollectionChangedEventHandler ViewModelValidationMessagesPropertyCollectionChanged;
 
         /// <summary>
-        /// Identifies the <seealso cref="ViewModelValidationMessages"/> dependency property.
+        /// Defines the name for the <see cref="ViewModelValidationMessages"/> dependency property.
+        /// </summary>
+        public const string PropertyName_ViewModelValidationMessages = "ViewModelValidationMessages";
+        
+        private static readonly DependencyPropertyKey ViewModelValidationMessagesPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ViewModelValidationMessages,
+            typeof(ReadOnlyObservableCollection<ViewModelValidationMessageVM>), typeof(ValidatingViewModel), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Identifies the <see cref="ViewModelValidationMessages"/> read-only dependency property.
         /// </summary>
         public static readonly DependencyProperty ViewModelValidationMessagesProperty = ViewModelValidationMessagesPropertyKey.DependencyProperty;
 
+        private ObservableCollection<ViewModelValidationMessageVM> _innerViewModelValidationMessages = new ObservableCollection<ViewModelValidationMessageVM>();
+        private ViewModelValidationMessageVM[] _lastMessages = new ViewModelValidationMessageVM[0];
+        
         /// <summary>
-        /// Contains Validation errors for a specified property or for the entire view model.
+        /// Contains validation messages.
         /// </summary>
-        public ReadOnlyObservableViewModelCollection<ViewModelValidationMessageVM> ViewModelValidationMessages
+        public ReadOnlyObservableCollection<ViewModelValidationMessageVM> ViewModelValidationMessages
         {
-            get
-            {
-                if (CheckAccess())
-                    return (ReadOnlyObservableViewModelCollection<ViewModelValidationMessageVM>)(GetValue(ViewModelValidationMessagesProperty));
-                return Dispatcher.Invoke(() => ViewModelValidationMessages);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(ViewModelValidationMessagesPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => ViewModelValidationMessages = value);
-            }
+            get { return (ReadOnlyObservableCollection<ViewModelValidationMessageVM>)(GetValue(ViewModelValidationMessagesProperty)); }
+            private set { SetValue(ViewModelValidationMessagesPropertyKey, value); }
+        }
+
+        /// <summary>
+        /// This gets called when an item in <see cref="ViewModelValidationMessages"/> is added, removed, changed, moved, or the entire collection is refreshed.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">Information about the event.</param>
+        protected virtual void ViewModelValidationMessages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (Dispatcher.CheckAccess())
+                OnViewModelValidationMessagesChanged(e.Action, e.OldStartingIndex,
+                    e.OldItems == null ? new ViewModelValidationMessageVM[0] : e.OldItems.OfType<ViewModelValidationMessageVM>(),
+                    e.NewStartingIndex, e.NewItems == null ? new ViewModelValidationMessageVM[0] : e.NewItems.OfType<ViewModelValidationMessageVM>());
         }
 
         #endregion
@@ -170,17 +166,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         public ValidatingViewModel()
         {
-            InnerViewModelValidationMessages = new ObservableViewModelCollection<ViewModel.ViewModelValidationMessageVM>();
-            InnerViewModelValidationMessages.CollectionChanged += ViewModelValidationMessages_CollectionChanged;
-            ViewModelValidationMessages = new ReadOnlyObservableViewModelCollection<ViewModelValidationMessageVM>(InnerViewModelValidationMessages);
-        }
-
-        private void ViewModelValidationMessages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (Dispatcher.CheckAccess())
-                OnViewModelValidationMessagesChanged(e.Action, e.OldStartingIndex,
-                    e.OldItems == null ? new ViewModelValidationMessageVM[0] : e.OldItems.OfType<ViewModelValidationMessageVM>(),
-                    e.NewStartingIndex, e.NewItems == null ? new ViewModelValidationMessageVM[0] : e.NewItems.OfType<ViewModelValidationMessageVM>());
+            _innerViewModelValidationMessages.CollectionChanged += ViewModelValidationMessages_CollectionChanged;
+            ViewModelValidationMessages = new ReadOnlyObservableCollection<ViewModelValidationMessageVM>(_innerViewModelValidationMessages);
         }
 
         protected void SetValidation(string propertyName, string message, bool isWarning = false)
@@ -194,20 +181,20 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 return;
             }
 
-            IEnumerable<ViewModelValidationMessageVM> current = InnerViewModelValidationMessages.Where(m => m != null && m.PropertyName == propertyName).ToArray();
+            IEnumerable<ViewModelValidationMessageVM> current = _innerViewModelValidationMessages.Where(m => m != null && m.PropertyName == propertyName).ToArray();
             if (!String.IsNullOrWhiteSpace(message))
             {
                 ViewModelValidationMessageVM keep = current.FirstOrDefault(m => m.Message == message && m.Details.Length == 0 && m.IsWarning == isWarning);
                 if (keep == null)
                 {
                     keep = new ViewModelValidationMessageVM(propertyName, message, isWarning);
-                    InnerViewModelValidationMessages.Add(keep);
+                    _innerViewModelValidationMessages.Add(keep);
                 }
                 current = current.Where(c => !ReferenceEquals(c, keep));
             }
 
             foreach (ViewModelValidationMessageVM vm in current.ToArray())
-                InnerViewModelValidationMessages.Remove(vm);
+                _innerViewModelValidationMessages.Remove(vm);
         }
 
         protected void AddValidation(string propertyName, string message, bool isWarning = false)
@@ -223,8 +210,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
             if (!CheckAccess())
                 Dispatcher.Invoke(() => AddValidation(propertyName, message, isWarning));
-            else if (!InnerViewModelValidationMessages.Any(m => m != null && m.PropertyName == propertyName && m.Message == message && m.Details.Length == 0 && m.IsWarning == isWarning))
-                InnerViewModelValidationMessages.Add(new ViewModelValidationMessageVM(propertyName, message, isWarning));
+            else if (!_innerViewModelValidationMessages.Any(m => m != null && m.PropertyName == propertyName && m.Message == message && m.Details.Length == 0 && m.IsWarning == isWarning))
+                _innerViewModelValidationMessages.Add(new ViewModelValidationMessageVM(propertyName, message, isWarning));
         }
 
         protected void SetValidation(string propertyName, string message, string details, bool isWarning = false)
@@ -247,20 +234,20 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 return;
             }
 
-            IEnumerable<ViewModelValidationMessageVM> current = InnerViewModelValidationMessages.Where(m => m != null && m.PropertyName == propertyName).ToArray();
+            IEnumerable<ViewModelValidationMessageVM> current = _innerViewModelValidationMessages.Where(m => m != null && m.PropertyName == propertyName).ToArray();
             if (!String.IsNullOrWhiteSpace(message))
             {
                 ViewModelValidationMessageVM keep = current.FirstOrDefault(m => m.Message == message && m.Details == details && m.IsWarning == isWarning);
                 if (keep == null)
                 {
                     keep = new ViewModelValidationMessageVM(propertyName, message, isWarning);
-                    InnerViewModelValidationMessages.Add(keep);
+                    _innerViewModelValidationMessages.Add(keep);
                 }
                 current = current.Where(c => !ReferenceEquals(c, keep));
             }
 
             foreach (ViewModelValidationMessageVM vm in current.ToArray())
-                InnerViewModelValidationMessages.Remove(vm);
+                _innerViewModelValidationMessages.Remove(vm);
         }
 
         protected void AddValidation(string propertyName, string message, string details, bool isWarning = false)
@@ -279,8 +266,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
             if (!CheckAccess())
                 Dispatcher.Invoke(() => AddValidation(propertyName, message, details, isWarning));
-            else if (!InnerViewModelValidationMessages.Any(m => m != null && m.PropertyName == propertyName && m.Message == message && m.Details == details && m.IsWarning == isWarning))
-                InnerViewModelValidationMessages.Add(new ViewModelValidationMessageVM(propertyName, message, details, isWarning));
+            else if (!_innerViewModelValidationMessages.Any(m => m != null && m.PropertyName == propertyName && m.Message == message && m.Details == details && m.IsWarning == isWarning))
+                _innerViewModelValidationMessages.Add(new ViewModelValidationMessageVM(propertyName, message, details, isWarning));
         }
 
         protected virtual void OnViewModelValidationMessagesChanged(NotifyCollectionChangedAction action, int oldStartingIndex,

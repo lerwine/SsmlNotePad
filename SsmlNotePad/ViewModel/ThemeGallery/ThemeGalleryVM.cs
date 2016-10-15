@@ -17,7 +17,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.ThemeGallery
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// Identifies the <seealso cref="Colors"/> dependency property.
+        /// Identifies the <see cref="Colors"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ColorsProperty = ColorsPropertyKey.DependencyProperty;
 
@@ -51,7 +51,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.ThemeGallery
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// Identifies the <seealso cref="Brushes"/> dependency property.
+        /// Identifies the <see cref="Brushes"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty BrushesProperty = BrushesPropertyKey.DependencyProperty;
 
@@ -85,7 +85,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.ThemeGallery
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// Identifies the <seealso cref="Geometries"/> dependency property.
+        /// Identifies the <see cref="Geometries"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty GeometriesProperty = GeometriesPropertyKey.DependencyProperty;
 

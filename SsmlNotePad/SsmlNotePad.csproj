@@ -66,63 +66,37 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Common\BufferedTextReader.cs" />
-    <Compile Include="Common\FileUtility.cs" />
-    <Compile Include="Common\Settings.cs" />
-    <Compile Include="Common\XmlEncodeOption.cs" />
-    <Compile Include="Common\XmlHelper.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Markup.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Markup.resx</DependentUpon>
     </Compile>
-    <Compile Include="Process\BackgroundJobManager.cs" />
-    <Compile Include="Process\BackgroundJobWorker.cs" />
-    <Compile Include="Process\CapturePhonemes.cs" />
-    <Compile Include="Process\LineNumberGenerator.cs" />
-    <Compile Include="Process\LinkedProcess.cs" />
-    <Compile Include="Process\MarkupValidator.cs" />
-    <Compile Include="Process\PhonemeInfo.cs" />
-    <Compile Include="Process\PhoneticGroupInfo.cs" />
-    <Compile Include="Process\SpeechSynthesis.cs" />
-    <Compile Include="Process\Utility.cs" />
-    <Compile Include="Process\XmlEncodingType.cs" />
+    <Compile Include="Model\SpeechProcessStateFlags.cs" />
+    <Compile Include="Model\SpeechProgressState.cs" />
+    <Compile Include="Model\SpeechProgressExtensionMethods.cs" />
+    <Compile Include="Model\TaskHelper.cs" />
+    <Compile Include="Model\TaskHelperCompletedEventArgs.cs" />
+    <Compile Include="Model\TextLine.cs" />
     <Compile Include="StringExtensions.cs" />
-    <Compile Include="Text\MultiLine.cs" />
-    <Compile Include="Text\TextLineInfo.cs" />
-    <Compile Include="Text\TextPointer.cs" />
-    <Compile Include="Text\TextRange.cs" />
     <Compile Include="ViewModel\AppSettingsVM.cs" />
-    <Compile Include="ViewModel\AudioFileVM.cs" />
     <Compile Include="ViewModel\Converter\BookmarkCollectionLatestItemConverter.cs" />
     <Compile Include="ViewModel\Converter\BooleanToStringConverter.cs" />
+    <Compile Include="ViewModel\Converter\ToClassConverterBase.cs" />
     <Compile Include="ViewModel\Converter\FileSaveStatusToStyleConverter.cs" />
     <Compile Include="ViewModel\Converter\FindReplaceModeToVisibilityConverter.cs" />
-    <Compile Include="ViewModel\Converter\MessageCollectionToLatestItemConverter.cs" />
     <Compile Include="ViewModel\Converter\SayAsToStringConverter.cs" />
-    <Compile Include="ViewModel\Converter\SpeechStateToIntConverter.cs" />
-    <Compile Include="ViewModel\Converter\SpeechStateToStyleConverter.cs" />
-    <Compile Include="ViewModel\Converter\SpeechStateToStringConverter.cs" />
+    <Compile Include="ViewModel\Converter\SpeechProgressToIntConverter.cs" />
+    <Compile Include="ViewModel\Converter\SpeechProgressToStyleConverter.cs" />
+    <Compile Include="ViewModel\Converter\SpeechProgressToStringConverter.cs" />
+    <Compile Include="ViewModel\Converter\ToValueConverterBase.cs" />
     <Compile Include="ViewModel\Converter\VoiceAgeToStringConverter.cs" />
     <Compile Include="ViewModel\Converter\VoiceGenderToStringConverter.cs" />
-    <Compile Include="ViewModel\DefaultSpeechSettingsVM.cs" />
     <Compile Include="ViewModel\FileSaveStatus.cs" />
     <Compile Include="ViewModel\FindReplaceDisplayMode.cs" />
+    <Compile Include="ViewModel\LineNumberVM.cs" />
     <Compile Include="ViewModel\MainWindowVM.cs" />
     <Compile Include="ViewModel\MessageSeverity.cs" />
-    <Compile Include="ViewModel\PhonemeResultVM.cs" />
-    <Compile Include="ViewModel\PhonemeVM.cs" />
-    <Compile Include="ViewModel\PositionalValueVM.cs" />
-    <Compile Include="ViewModel\SayAsVM.cs" />
-    <Compile Include="ViewModel\SpeechMessageVM.cs" />
-    <Compile Include="ViewModel\SpeechProgressVM.cs" />
-    <Compile Include="ViewModel\SpeechState.cs" />
-    <Compile Include="ViewModel\SubstitutionVM.cs" />
-    <Compile Include="ViewModel\ValueAndDurationQueueVM.cs" />
-    <Compile Include="ViewModel\TimeSpanVM.cs" />
-    <Compile Include="ViewModel\VoiceVM.cs" />
-    <Compile Include="ViewModel\XmlValidationMessageVM.cs" />
     <Compile Include="ViewModel\Command\AttachedItemCommand.cs" />
     <Compile Include="ViewModel\Command\BaseCommand.cs" />
     <Compile Include="ViewModel\Command\IHandlableEventArgs.cs" />
@@ -138,57 +112,13 @@
     <Compile Include="ViewModel\Converter\XmlNodeTypeConverter.cs" />
     <Compile Include="ViewModel\Converter\XmlNodeTypeToStringConverter.cs" />
     <Compile Include="ViewModel\Converter\XmlNodeTypeToVisibilityConverter.cs" />
-    <Compile Include="ViewModel\LineNumberVM.cs" />
-    <Compile Include="ViewModel\ObservableViewModelCollection.cs" />
-    <Compile Include="ViewModel\ReadOnlyObservableViewModelCollection.cs" />
-    <Compile Include="ViewModel\XmlValidationStatus.cs" />
+    <Compile Include="ViewModel\SpeechGenerationProgressVM.cs" />
     <Compile Include="ViewModel\ThemeGallery\ThemeGalleryItemVM.cs" />
     <Compile Include="ViewModel\ThemeGallery\ThemeGalleryVM.cs" />
     <Compile Include="ViewModel\ValidatingViewModel.cs" />
     <Compile Include="ViewModel\ViewModelValidateState.cs" />
     <Compile Include="ViewModel\ViewModelValidationMessageVM.cs" />
-    <Compile Include="ViewModel\Xml\Ssml\EditVM.cs" />
-    <Compile Include="ViewModel\Xml\Ssml\SsmlMarkupVM.cs" />
-    <Compile Include="View\AudioFileWindow.xaml.cs">
-      <DependentUpon>AudioFileWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\DefaultSpeechSettingsWindow.xaml.cs">
-      <DependentUpon>DefaultSpeechSettingsWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\GoToLineWindow.xaml.cs">
-      <DependentUpon>GoToLineWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\SayAsWindow.xaml.cs">
-      <DependentUpon>SayAsWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\SpeechMessageDetailControl.xaml.cs">
-      <DependentUpon>SpeechMessageDetailControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\SpeechProgressControl.xaml.cs">
-      <DependentUpon>SpeechProgressControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\SpeechProgressWindow.xaml.cs">
-      <DependentUpon>SpeechProgressWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\SubstitutionWindow.xaml.cs">
-      <DependentUpon>SubstitutionWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ThemeGalleryControl.xaml.cs">
-      <DependentUpon>ThemeGalleryControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ValidationMessageControl.xaml.cs">
-      <DependentUpon>ValidationMessageControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\ValidationMessagesWindow.xaml.cs">
-      <DependentUpon>ValidationMessagesWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\XmlTextEditor.xaml.cs">
-      <DependentUpon>XmlTextEditor.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Xml\XmlContextInfo.cs" />
-    <Compile Include="Xml\XmlNodeContext.cs" />
-    <Compile Include="Xml\XmlParseContextSettings.cs" />
-    <Compile Include="Xml\XmlValidationMessage.cs" />
+    <Compile Include="ViewModel\XmlValidationStatus.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -222,54 +152,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\ViewModels.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\AudioFileWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\DefaultSpeechSettingsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\GoToLineWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\SayAsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\SpeechMessageDetailControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\SpeechProgressControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\SpeechProgressWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\SubstitutionWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\ThemeGalleryControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\ValidationMessageControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\ValidationMessagesWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\XmlTextEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -372,8 +254,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Tasks\" />
-    <Folder Include="Xml\SSML\" />
+    <Folder Include="View\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

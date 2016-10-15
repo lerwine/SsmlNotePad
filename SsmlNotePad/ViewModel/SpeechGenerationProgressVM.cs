@@ -17,7 +17,7 @@ using System.Windows.Shapes;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 {
-    public class AppSettingsVM : ValidatingViewModel
+    public class SpeechGenerationProgressVM : DependencyObject
     {
     }
 }

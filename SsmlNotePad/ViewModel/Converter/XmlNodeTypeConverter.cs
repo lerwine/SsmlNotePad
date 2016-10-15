@@ -14,7 +14,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NullValue = "NullValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="NullValue"/> dependency property.
+        /// Identifies the <see cref="NullValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NullValueProperty = DependencyProperty.Register(DependencyPropertyName_NullValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -46,7 +46,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NoneValue = "NoneValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="NoneValue"/> dependency property.
+        /// Identifies the <see cref="NoneValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NoneValueProperty = DependencyProperty.Register(DependencyPropertyName_NoneValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -78,7 +78,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_ElementValue = "ElementValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="ElementValue"/> dependency property.
+        /// Identifies the <see cref="ElementValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ElementValueProperty = DependencyProperty.Register(DependencyPropertyName_ElementValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -110,7 +110,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_AttributeValue = "AttributeValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="AttributeValue"/> dependency property.
+        /// Identifies the <see cref="AttributeValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty AttributeValueProperty = DependencyProperty.Register(DependencyPropertyName_AttributeValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -142,7 +142,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_TextValue = "TextValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="TextValue"/> dependency property.
+        /// Identifies the <see cref="TextValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty TextValueProperty = DependencyProperty.Register(DependencyPropertyName_TextValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -174,7 +174,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_CDATAValue = "CDATAValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="CDATAValue"/> dependency property.
+        /// Identifies the <see cref="CDATAValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty CDATAValueProperty = DependencyProperty.Register(DependencyPropertyName_CDATAValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -206,7 +206,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_EntityReferenceValue = "EntityReferenceValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="EntityReferenceValue"/> dependency property.
+        /// Identifies the <see cref="EntityReferenceValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty EntityReferenceValueProperty = DependencyProperty.Register(DependencyPropertyName_EntityReferenceValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -238,7 +238,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_EntityValue = "EntityValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="EntityValue"/> dependency property.
+        /// Identifies the <see cref="EntityValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty EntityValueProperty = DependencyProperty.Register(DependencyPropertyName_EntityValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -270,7 +270,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_ProcessingInstructionValue = "ProcessingInstructionValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="ProcessingInstructionValue"/> dependency property.
+        /// Identifies the <see cref="ProcessingInstructionValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ProcessingInstructionValueProperty = DependencyProperty.Register(DependencyPropertyName_ProcessingInstructionValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -302,7 +302,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_CommentValue = "CommentValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="CommentValue"/> dependency property.
+        /// Identifies the <see cref="CommentValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty CommentValueProperty = DependencyProperty.Register(DependencyPropertyName_CommentValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -334,7 +334,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_DocumentValue = "DocumentValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="DocumentValue"/> dependency property.
+        /// Identifies the <see cref="DocumentValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty DocumentValueProperty = DependencyProperty.Register(DependencyPropertyName_DocumentValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -366,7 +366,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_DocumentTypeValue = "DocumentTypeValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="DocumentTypeValue"/> dependency property.
+        /// Identifies the <see cref="DocumentTypeValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty DocumentTypeValueProperty = DependencyProperty.Register(DependencyPropertyName_DocumentTypeValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -398,7 +398,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_DocumentFragmentValue = "DocumentFragmentValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="DocumentFragmentValue"/> dependency property.
+        /// Identifies the <see cref="DocumentFragmentValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty DocumentFragmentValueProperty = DependencyProperty.Register(DependencyPropertyName_DocumentFragmentValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -430,7 +430,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NotationValue = "NotationValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="NotationValue"/> dependency property.
+        /// Identifies the <see cref="NotationValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NotationValueProperty = DependencyProperty.Register(DependencyPropertyName_NotationValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -462,7 +462,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_WhitespaceValue = "WhitespaceValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="WhitespaceValue"/> dependency property.
+        /// Identifies the <see cref="WhitespaceValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty WhitespaceValueProperty = DependencyProperty.Register(DependencyPropertyName_WhitespaceValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -494,7 +494,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_SignificantWhitespaceValue = "SignificantWhitespaceValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="SignificantWhitespaceValue"/> dependency property.
+        /// Identifies the <see cref="SignificantWhitespaceValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SignificantWhitespaceValueProperty = DependencyProperty.Register(DependencyPropertyName_SignificantWhitespaceValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -526,7 +526,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_EndElementValue = "EndElementValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="EndElementValue"/> dependency property.
+        /// Identifies the <see cref="EndElementValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty EndElementValueProperty = DependencyProperty.Register(DependencyPropertyName_EndElementValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -558,7 +558,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_EndEntityValue = "EndEntityValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="EndEntityValue"/> dependency property.
+        /// Identifies the <see cref="EndEntityValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty EndEntityValueProperty = DependencyProperty.Register(DependencyPropertyName_EndEntityValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
@@ -590,7 +590,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_XmlDeclarationValue = "XmlDeclarationValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="XmlDeclarationValue"/> dependency property.
+        /// Identifies the <see cref="XmlDeclarationValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty XmlDeclarationValueProperty = DependencyProperty.Register(DependencyPropertyName_XmlDeclarationValue, typeof(T),
             typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));

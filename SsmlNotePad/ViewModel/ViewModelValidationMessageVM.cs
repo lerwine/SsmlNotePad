@@ -1,187 +1,234 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 {
-    /// <summary>
-    /// Represents a view model validation error.
-    /// </summary>
-    public sealed class ViewModelValidationMessageVM : DependencyObject, IEquatable<ViewModelValidationMessageVM>
+    public class ViewModelValidationMessageVM : DependencyObject
     {
+        #region IsWarning Property Members
+
+        // /// <summary>
+        // /// Occurs when the value of <see cref="IsWarning"/> has changed.
+        // /// </summary>
+        // public event EventHandler IsWarningPropertyChanged;
+
+        /// <summary>
+        /// Defines the name for the <see cref="IsWarning"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_IsWarning = "IsWarning";
+
+        /// <summary>
+        /// Identifies the <see cref="IsWarning"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty IsWarningProperty = DependencyProperty.Register(DependencyPropertyName_IsWarning, typeof(bool), typeof(ViewModelValidationMessageVM),
+                new PropertyMetadata(false,
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as ViewModelValidationMessageVM).IsWarning_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue))/*,
+                    (DependencyObject d, object baseValue) => (d as ViewModelValidationMessageVM).IsWarning_CoerceValue(baseValue)*/));
+
+        /// <summary>
+        /// Indicates whether the message is a warning.
+        /// </summary>
+        public bool IsWarning
+        {
+            get { return (bool)(GetValue(IsWarningProperty)); }
+            set { SetValue(IsWarningProperty, value); }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <see cref="IsWarning"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="IsWarning"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="IsWarning"/> property was changed.</param>
+        protected virtual void IsWarning_PropertyChanged(bool oldValue, bool newValue)
+        {
+            // TODO: Implement ViewModelValidationMessageVM.IsWarning_PropertyChanged(bool, bool)
+            // IsWarningPropertyChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        // /// <summary>
+        // /// This gets called whenever <see cref="IsWarning"/> is being re-evaluated, or coercion is specifically requested.
+        // /// </summary>
+        // /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        // /// <returns>The coerced value.</returns>
+        // public virtual bool IsWarning_CoerceValue(object baseValue)
+        // {
+        //     throw new NotImplementedException();
+        // }
+
+        #endregion
+
         #region PropertyName Property Members
 
-        public const string PropertyName_PropertyName = "PropertyName";
-
-        private static readonly DependencyPropertyKey PropertyNamePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_PropertyName, typeof(string), typeof(ViewModelValidationMessageVM),
-                new PropertyMetadata(""));
+        // /// <summary>
+        // /// Occurs when the value of <see cref="PropertyName"/> has changed.
+        // /// </summary>
+        // public event EventHandler PropertyNamePropertyChanged;
 
         /// <summary>
-        /// Identifies the <seealso cref="Items"/> dependency property.
+        /// Defines the name for the <see cref="PropertyName"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty PropertyNameProperty = PropertyNamePropertyKey.DependencyProperty;
+        public const string DependencyPropertyName_PropertyName = "PropertyName";
 
         /// <summary>
-        /// Name of dependency property associated with walidation message or empty if message is not specific to a single property.
+        /// Identifies the <see cref="PropertyName"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty PropertyNameProperty = DependencyProperty.Register(DependencyPropertyName_PropertyName, typeof(string), typeof(ViewModelValidationMessageVM),
+                new PropertyMetadata("",
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as ViewModelValidationMessageVM).PropertyName_PropertyChanged(e.OldValue as string, e.NewValue as string),
+                    (DependencyObject d, object baseValue) => (d as ViewModelValidationMessageVM).PropertyName_CoerceValue(baseValue)));
+
+        /// <summary>
+        /// Name of property being validated.
         /// </summary>
         public string PropertyName
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(PropertyNameProperty));
-                return Dispatcher.Invoke(() => PropertyName);
-            }
-            private set { SetValue(PropertyNamePropertyKey, value); }
+            get { return GetValue(PropertyNameProperty) as string; }
+            set { SetValue(PropertyNameProperty, value); }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <see cref="PropertyName"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <see cref="PropertyName"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <see cref="PropertyName"/> property was changed.</param>
+        protected virtual void PropertyName_PropertyChanged(string oldValue, string newValue)
+        {
+            // TODO: Implement ViewModelValidationMessageVM.PropertyName_PropertyChanged(string, string)
+            // PropertyNamePropertyChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// This gets called whenever <see cref="PropertyName"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string PropertyName_CoerceValue(object baseValue)
+        {
+            // TODO: Implement ViewModelValidationMessageVM.PropertyName_CoerceValue(DependencyObject, object)
+            return (baseValue as string) ?? "";
         }
 
         #endregion
 
         #region Message Property Members
 
-        public const string PropertyName_Message = "Message";
-
-        private static readonly DependencyPropertyKey MessagePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_Message, typeof(string), typeof(ViewModelValidationMessageVM),
-                new PropertyMetadata(""));
+        // /// <summary>
+        // /// Occurs when the value of <see cref="Message"/> has changed.
+        // /// </summary>
+        // public event EventHandler MessagePropertyChanged;
 
         /// <summary>
-        /// Identifies the <seealso cref="Message"/> dependency property.
+        /// Defines the name for the <see cref="Message"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty MessageProperty = MessagePropertyKey.DependencyProperty;
+        public const string DependencyPropertyName_Message = "Message";
 
         /// <summary>
-        /// Brief validation message.
+        /// Identifies the <see cref="Message"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty MessageProperty = DependencyProperty.Register(DependencyPropertyName_Message, typeof(string), typeof(ViewModelValidationMessageVM),
+                new PropertyMetadata("",
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as ViewModelValidationMessageVM).Message_PropertyChanged(e.OldValue as string, e.NewValue as string),
+                    (DependencyObject d, object baseValue) => (d as ViewModelValidationMessageVM).Message_CoerceValue(baseValue)));
+
+        /// <summary>
+        /// Validation message
         /// </summary>
         public string Message
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(MessageProperty));
-                return Dispatcher.Invoke(() => Message);
-            }
-            private set { SetValue(MessagePropertyKey, value ?? ""); }
+            get { return GetValue(MessageProperty) as string; }
+            set { SetValue(MessageProperty, value); }
+        }
+
+        /// <summary>
+        /// This gets called after the value associated with the <see cref="Message"/> dependency property has changed.
+        /// </summary>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <see cref="Message"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <see cref="Message"/> property was changed.</param>
+        protected virtual void Message_PropertyChanged(string oldValue, string newValue)
+        {
+            // TODO: Implement ViewModelValidationMessageVM.Message_PropertyChanged(string, string)
+            // MessagePropertyChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// This gets called whenever <see cref="Message"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string Message_CoerceValue(object baseValue)
+        {
+            // TODO: Implement ViewModelValidationMessageVM.Message_CoerceValue(DependencyObject, object)
+            return (baseValue as string) ?? "";
         }
 
         #endregion
 
         #region Details Property Members
 
-        public const string PropertyName_Details = "Details";
-
-        private static readonly DependencyPropertyKey DetailsPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_Details, typeof(string), typeof(ViewModelValidationMessageVM),
-                new PropertyMetadata(""));
+        // /// <summary>
+        // /// Occurs when the value of <see cref="Details"/> has changed.
+        // /// </summary>
+        // public event EventHandler DetailsPropertyChanged;
 
         /// <summary>
-        /// Identifies the <seealso cref="Details"/> dependency property.
+        /// Defines the name for the <see cref="Details"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty DetailsProperty = DetailsPropertyKey.DependencyProperty;
+        public const string DependencyPropertyName_Details = "Details";
 
         /// <summary>
-        /// Details about error or warning.
+        /// Identifies the <see cref="Details"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty DetailsProperty = DependencyProperty.Register(DependencyPropertyName_Details, typeof(string), typeof(ViewModelValidationMessageVM),
+                new PropertyMetadata("",
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as ViewModelValidationMessageVM).Details_PropertyChanged(e.OldValue as string, e.NewValue as string),
+                    (DependencyObject d, object baseValue) => (d as ViewModelValidationMessageVM).Details_CoerceValue(baseValue)));
+
+        /// <summary>
+        /// Validation message details.
         /// </summary>
         public string Details
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(DetailsProperty));
-                return Dispatcher.Invoke(() => Details);
-            }
-            private set { SetValue(DetailsPropertyKey, value ?? ""); }
+            get { return GetValue(DetailsProperty) as string; }
+            set { SetValue(DetailsProperty, value); }
         }
 
-        #endregion
-
-        #region IsWarning Property Members
-
-        public const string PropertyName_IsWarning = "IsWarning";
-
-        private static readonly DependencyPropertyKey IsWarningPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_IsWarning, typeof(bool), typeof(ViewModelValidationMessageVM),
-                new PropertyMetadata(false));
-
         /// <summary>
-        /// Identifies the <seealso cref="IsWarning"/> dependency property.
+        /// This gets called after the value associated with the <see cref="Details"/> dependency property has changed.
         /// </summary>
-        public static readonly DependencyProperty IsWarningProperty = IsWarningPropertyKey.DependencyProperty;
-
-        /// <summary>
-        /// Indicates whether the error is a warning.
-        /// </summary>
-        public bool IsWarning
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <see cref="Details"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <see cref="Details"/> property was changed.</param>
+        protected virtual void Details_PropertyChanged(string oldValue, string newValue)
         {
-            get
-            {
-                if (CheckAccess())
-                    return (bool)(GetValue(IsWarningProperty));
-                return Dispatcher.Invoke(() => IsWarning);
-            }
-            private set { SetValue(IsWarningPropertyKey, value); }
+            // TODO: Implement ViewModelValidationMessageVM.Details_PropertyChanged(string, string)
+            // DetailsPropertyChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// This gets called whenever <see cref="Details"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string Details_CoerceValue(object baseValue)
+        {
+            // TODO: Implement ViewModelValidationMessageVM.Details_CoerceValue(DependencyObject, object)
+            return (baseValue as string) ?? "";
         }
 
         #endregion
 
-        /// <summary>
-        /// Initialize new <see cref="ViewModelValidationMessageVM"/> object.
-        /// </summary>
-        /// <param name="property"><see cref="DependencyProperty"/> associated with error or warning or null if error is not specific to a single property.</param>
-        /// <param name="message">Brief validation message.</param>
-        /// <param name="details">Validation error or warning details.</param>
-        /// <param name="isWarning">Indicates wether the validation message is a warning.</param>
-        public ViewModelValidationMessageVM(DependencyProperty property, string message, string details = null, bool isWarning = false)
-            : this((property == null) ? "" : property.Name, message, details, isWarning) { }
+        public ViewModelValidationMessageVM(string propertyName, string message, string details, bool isWarning)
+            : this(propertyName, message, isWarning)
+        {
+            Details = details;
+        }
 
-        /// <summary>
-        /// Initialize new <see cref="ViewModelValidationMessageVM"/> object.
-        /// </summary>
-        /// <param name="propertyName">Name of dependency property associated with walidation message or empty if message is not specific to a single property.</param>
-        /// <param name="message">Brief validation message.</param>
-        /// <param name="details">Validation error or warning details.</param>
-        /// <param name="isWarning">Indicates wether the validation message is a warning.</param>
-        public ViewModelValidationMessageVM(string propertyName, string message, string details = null, bool isWarning = false)
+        public ViewModelValidationMessageVM(string propertyName, string message, bool isWarning)
         {
             PropertyName = propertyName;
-            if (String.IsNullOrWhiteSpace(message))
-            {
-                if (String.IsNullOrWhiteSpace(details))
-                    Message = (isWarning) ? "An Unexpected Error (warning) has occurred." : "Unexpected Error";
-                else
-                    Message = details;
-            }
-            else
-            {
-                Message = message;
-                Details = details;
-            }
-            IsWarning = isWarning;
+            Message = message;
+            IsWarning = IsWarning;
         }
 
-        /// <summary>
-        /// Initialize new <see cref="ViewModelValidationMessageVM"/> object.
-        /// </summary>
-        /// <param name="property"><see cref="DependencyProperty"/> associated with error or warning or null if error is not specific to a single property.</param>
-        /// <param name="message">Brief validation message.</param>
-        /// <param name="isWarning">Indicates wether the validation message is a warning.</param>
-        public ViewModelValidationMessageVM(DependencyProperty property, string message, bool isWarning) : this(property, message, null, isWarning) { }
+        public ViewModelValidationMessageVM() { }
 
-        /// <summary>
-        /// Initialize new <see cref="ViewModelValidationMessageVM"/> object.
-        /// </summary>
-        /// <param name="propertyName">Name of dependency property associated with walidation message or empty if message is not specific to a single property.</param>
-        /// <param name="message">Brief validation message.</param>
-        /// <param name="isWarning">Indicates wether the validation message is a warning.</param>
-        public ViewModelValidationMessageVM(string propertyName, string message, bool isWarning) : this(propertyName, message, null, isWarning) { }
-
-        /// <summary>
-        /// Initialize new <see cref="ViewModelValidationMessageVM"/> object which is not specific to any single property.
-        /// </summary>
-        /// <param name="message">Brief validation message.</param>
-        /// <param name="isWarning">Indicates wether the validation message is a warning.</param>
-        public ViewModelValidationMessageVM(string message, bool isWarning = false) : this(null as string, message, null, isWarning) { }
-
-        public bool Equals(ViewModelValidationMessageVM other)
-        {
-            return other != null && (ReferenceEquals(this, other) || PropertyName.Equals(other.PropertyName) && Message.Equals(other.Message) &&
-                Details.Equals(other.Details) && IsWarning.Equals(other.IsWarning));
-        }
     }
 }

@@ -14,7 +14,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NullValue = "NullValue";
 
         /// <summary>
-        /// Identifies the <seealso cref="NullValue"/> dependency property.
+        /// Identifies the <see cref="NullValue"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NullValueProperty = DependencyProperty.Register(DependencyPropertyName_NullValue, typeof(string), typeof(VoiceGenderToStringConverter),
                 new PropertyMetadata(""));

@@ -13,7 +13,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
                 new PropertyMetadata(default(T)));
 
         /// <summary>
-        /// Identifies the <seealso cref="Items"/> dependency property.
+        /// Identifies the <see cref="Items"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ItemProperty = ItemPropertyKey.DependencyProperty;
 

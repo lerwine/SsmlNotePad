@@ -13,7 +13,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NullVisibility = "NullVisibility";
 
         /// <summary>
-        /// Identifies the <seealso cref="NullVisibility"/> dependency property.
+        /// Identifies the <see cref="NullVisibility"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NullVisibilityProperty = DependencyProperty.Register(DependencyPropertyName_NullVisibility, typeof(Visibility?), typeof(ObjectToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
@@ -45,7 +45,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NonNullVisibility = "NonNullVisibility";
 
         /// <summary>
-        /// Identifies the <seealso cref="NonNullVisibility"/> dependency property.
+        /// Identifies the <see cref="NonNullVisibility"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NonNullVisibilityProperty = DependencyProperty.Register(DependencyPropertyName_NonNullVisibility, typeof(Visibility?), typeof(ObjectToVisibilityConverter),
                 new PropertyMetadata(Visibility.Visible));

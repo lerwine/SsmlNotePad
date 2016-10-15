@@ -14,7 +14,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NullVisibility = "NullVisibility";
 
         /// <summary>
-        /// Identifies the <seealso cref="NullVisibility"/> dependency property.
+        /// Identifies the <see cref="NullVisibility"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NullVisibilityProperty = DependencyProperty.Register(DependencyPropertyName_NullVisibility, typeof(Visibility?), typeof(StringToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
@@ -46,7 +46,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_EmptyVisibility = "EmptyVisibility";
 
         /// <summary>
-        /// Identifies the <seealso cref="EmptyVisibility"/> dependency property.
+        /// Identifies the <see cref="EmptyVisibility"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty EmptyVisibilityProperty = DependencyProperty.Register(DependencyPropertyName_EmptyVisibility, typeof(Visibility?), typeof(StringToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
@@ -78,7 +78,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_WhitespaceVisibility = "WhitespaceVisibility";
 
         /// <summary>
-        /// Identifies the <seealso cref="WhitespaceVisibility"/> dependency property.
+        /// Identifies the <see cref="WhitespaceVisibility"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty WhitespaceVisibilityProperty = DependencyProperty.Register(DependencyPropertyName_WhitespaceVisibility, typeof(Visibility?), typeof(StringToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
@@ -110,7 +110,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public const string DependencyPropertyName_NonWhitespaceVisibility = "NonWhitespaceVisibility";
 
         /// <summary>
-        /// Identifies the <seealso cref="NonWhitespaceVisibility"/> dependency property.
+        /// Identifies the <see cref="NonWhitespaceVisibility"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NonWhitespaceVisibilityProperty = DependencyProperty.Register(DependencyPropertyName_NonWhitespaceVisibility, typeof(Visibility?), typeof(StringToVisibilityConverter),
                 new PropertyMetadata(Visibility.Visible));
