@@ -72,6 +72,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Markup.resx</DependentUpon>
     </Compile>
+    <Compile Include="Model\FileUtility.cs" />
     <Compile Include="Model\SpeechProcessStateFlags.cs" />
     <Compile Include="Model\SpeechProgressState.cs" />
     <Compile Include="Model\SpeechProgressExtensionMethods.cs" />
