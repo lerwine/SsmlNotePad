@@ -7,55 +7,54 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
-    [ValueConversion(typeof(VoiceAge?), typeof(string))]
+    /// <summary>
+    /// Converts <seealso cref="VoiceAge"/> values to display text.
+    /// </summary>
+    [ValueConversion(typeof(VoiceAge), typeof(string))]
     public class VoiceAgeToStringConverter : DependencyObject, IValueConverter
     {
-        #region NullValue Property Members
-
-        public const string DependencyPropertyName_NullValue = "NullValue";
+        #region NullSource Property Members
 
         /// <summary>
-        /// Identifies the <see cref="NullValue"/> dependency property.
+        /// Defines the name for the <see cref="NullSource"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NullValueProperty = DependencyProperty.Register(DependencyPropertyName_NullValue, typeof(string), typeof(VoiceAgeToStringConverter),
+        public const string DependencyPropertyName_NullSource = "NullSource";
+
+        /// <summary>
+        /// Identifies the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty NullSourceProperty = DependencyProperty.Register(DependencyPropertyName_NullSource, typeof(string), typeof(VoiceAgeToStringConverter),
                 new PropertyMetadata(""));
 
         /// <summary>
-        /// 
+        /// <seealso cref="string"/> value to represent a null source value.
         /// </summary>
-        public string NullValue
+        public string NullSource
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(NullValueProperty));
-                return Dispatcher.Invoke(() => NullValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NullValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => NullValue = value);
-            }
+            get { return GetValue(NullSourceProperty) as string; }
+            set { SetValue(NullSourceProperty, value); }
         }
-        
+
         #endregion
 
+        /// <summary>
+        /// Converts a <seealso cref="VoiceAge"/> value to a <seealso cref="string"/> value.
+        /// </summary>
+        /// <param name="value">The <seealso cref="VoiceAge"/> produced by the binding source.</param>
+        /// <param name="parameter">Parameter passed by the binding source.</param>
+        /// <param name="culture">Culture specified through the binding source.</param>
+        /// <returns><seealso cref="VoiceAge"/> value converted to a <seealso cref="string"/> or null value.</returns>
         public string Convert(VoiceAge? value, object parameter, CultureInfo culture)
         {
             if (value.HasValue)
                 return (value.Value == VoiceAge.NotSet) ? "Not Set" : value.Value.ToString("F");
 
-            return NullValue;
+            return NullSource;
         }
 
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (targetType == null || targetType.Equals(typeof(VoiceAge)) || targetType.Equals(typeof(VoiceAge?)))
-                return Convert(value as VoiceAge?, parameter, culture);
-
-            return System.Convert.ChangeType(value, targetType);
+            return Convert(value as VoiceAge?, parameter, culture);
         }
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -5,9 +5,19 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
+    /// <summary>
+    /// Converts speech status enumerated value to a string value.
+    /// </summary>
     [ValueConversion(typeof(Model.SpeechProgressState), typeof(string))]
     public class SpeechProgressToStringConverter : DependencyObject, IValueConverter
     {
+        /// <summary>
+        /// Converts a <seealso cref="Model.SpeechProgressState"/> value to a <seealso cref="string"/> value.
+        /// </summary>
+        /// <param name="value">The <seealso cref="Model.SpeechProgressState"/> produced by the binding source.</param>
+        /// <param name="parameter">Parameter passed by the binding source.</param>
+        /// <param name="culture">Culture specified through the binding source.</param>
+        /// <returns><seealso cref="Model.SpeechProgressState"/>value converted to a <seealso cref="string"/> value.</returns>
         public string Convert(Model.SpeechProgressState? value, object parameter, CultureInfo culture)
         {
             if (!value.HasValue)

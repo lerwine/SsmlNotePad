@@ -1,127 +1,106 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
-    [ValueConversion(typeof(bool?), typeof(string))]
+    /// <summary>
+    /// Converts <seealso cref="bool"/> values to display text.
+    /// </summary>
+    [ValueConversion(typeof(bool), typeof(string))]
     public class BooleanToStringConverter : DependencyObject, IValueConverter
     {
-        #region NullValue Property Members
-
-        public const string DependencyPropertyName_NullValue = "NullValue";
+        #region NullSource Property Members
 
         /// <summary>
-        /// Identifies the <see cref="NullValue"/> dependency property.
+        /// Defines the name for the <see cref="NullSource"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NullValueProperty = DependencyProperty.Register(DependencyPropertyName_NullValue, typeof(string), typeof(BooleanToStringConverter),
+        public const string DependencyPropertyName_NullSource = "NullSource";
+
+        /// <summary>
+        /// Identifies the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty NullSourceProperty = DependencyProperty.Register(DependencyPropertyName_NullSource, typeof(string), typeof(BooleanToStringConverter),
                 new PropertyMetadata(""));
 
         /// <summary>
         /// String value when source is null.
         /// </summary>
-        public string NullValue
+        public string NullSource
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(NullValueProperty));
-                return Dispatcher.Invoke(() => NullValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NullValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => NullValue = value);
-            }
+            get { return GetValue(FalseProperty) as string; }
+            set { SetValue(FalseProperty, value); }
         }
 
         #endregion
 
-        #region TrueValue Property Members
-
-        public const string DependencyPropertyName_TrueValue = "TrueValue";
+        #region True Property Members
 
         /// <summary>
-        /// Identifies the <see cref="TrueValue"/> dependency property.
+        /// Defines the name for the <see cref="True"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty TrueValueProperty = DependencyProperty.Register(DependencyPropertyName_TrueValue, typeof(string), typeof(BooleanToStringConverter),
+        public const string DependencyPropertyName_True = "True";
+
+        /// <summary>
+        /// Identifies the <see cref="True"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty TrueProperty = DependencyProperty.Register(DependencyPropertyName_True, typeof(string), typeof(BooleanToStringConverter),
                 new PropertyMetadata("Yes"));
 
         /// <summary>
         /// String value when source is true.
         /// </summary>
-        public string TrueValue
+        public string True
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(TrueValueProperty));
-                return Dispatcher.Invoke(() => TrueValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(TrueValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => TrueValue = value);
-            }
+            get { return GetValue(FalseProperty) as string; }
+            set { SetValue(FalseProperty, value); }
         }
 
         #endregion
 
-        #region FalseValue Property Members
-
-        public const string DependencyPropertyName_FalseValue = "FalseValue";
+        #region False Property Members
 
         /// <summary>
-        /// Identifies the <see cref="FalseValue"/> dependency property.
+        /// Defines the name for the <see cref="False"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty FalseValueProperty = DependencyProperty.Register(DependencyPropertyName_FalseValue, typeof(string), typeof(BooleanToStringConverter),
+        public const string DependencyPropertyName_False = "False";
+
+        /// <summary>
+        /// Identifies the <see cref="False"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty FalseProperty = DependencyProperty.Register(DependencyPropertyName_False, typeof(string), typeof(BooleanToStringConverter),
                 new PropertyMetadata("No"));
 
         /// <summary>
         /// String value when source is false.
         /// </summary>
-        public string FalseValue
+        public string False
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(FalseValueProperty));
-                return Dispatcher.Invoke(() => FalseValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(FalseValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => FalseValue = value);
-            }
+            get { return GetValue(FalseProperty) as string; }
+            set { SetValue(FalseProperty, value); }
         }
-        
+
         #endregion
 
+        /// <summary>
+        /// Converts a <seealso cref="bool"/> value to display text.
+        /// </summary>
+        /// <param name="value">The <seealso cref="bool"/> produced by the binding source.</param>
+        /// <param name="parameter">Parameter passed by the binding source.</param>
+        /// <param name="culture">Culture specified through the binding source.</param>
+        /// <returns><seealso cref="bool"/> value converted to display text.</returns>
         public string Convert(bool? value, object parameter, CultureInfo culture)
         {
             if (value.HasValue)
-                return (value.Value) ? TrueValue : FalseValue;
+                return (value.Value) ? True : False;
 
-            return NullValue;
+            return NullSource;
         }
 
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (targetType == null || targetType.Equals(typeof(string)))
-                return Convert(value as bool?, parameter, culture);
-
-            return System.Convert.ChangeType(value, targetType);
+            return Convert(value as bool?, parameter, culture);
         }
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

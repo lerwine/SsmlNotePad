@@ -10,6 +10,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
     public class TaskHelper : IDisposable
     {
         private object _syncRoot = new object();
+        private List<Action<Task>> _continueWith = new List<Action<Task>>();
 
         public event EventHandler<TaskHelperCompletedEventArgs> TaskCompleted;
 
@@ -40,10 +41,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
             finally { tokenSource.Dispose(); }
         }
 
+        public void ContinueWith(Action<Task> action)
+        {
+            lock (_syncRoot)
+            {
+                if (action != null)
+                {
+                    if (Task.IsCompleted)
+                        Task.ContinueWith(action, TokenSource.Token);
+                    else
+                        _continueWith.Add(action);
+                }
+            }
+        }
+
         private void OnTaskCompleted(Task task)
         {
-            if (!task.IsCanceled)
-                TaskCompleted?.Invoke(this, new TaskHelperCompletedEventArgs(task));
+            if (task.IsCanceled)
+                return;
+
+            lock (_syncRoot)
+            {
+                foreach (Action<Task> action in _continueWith)
+                    task.ContinueWith(action, TokenSource.Token);
+
+                _continueWith.Clear();
+            }
+
+            TaskCompleted?.Invoke(this, new TaskHelperCompletedEventArgs(task));
         }
 
         #region IDisposable Support
@@ -79,6 +104,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
     public class TaskHelper<TResult> : IDisposable
     {
         private object _syncRoot = new object();
+        private List<Action<Task<TResult>>> _continueWith = new List<Action<Task<TResult>>>();
 
         public event EventHandler<TaskHelperCompletedEventArgs<TResult>> TaskCompleted;
 
@@ -98,7 +124,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
                 Task = Task<TResult>.Factory.StartNew(function, state, TokenSource.Token);
             }
 
-            if (TokenSource == null)
+            if (tokenSource == null)
                 return;
 
             try
@@ -109,10 +135,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
             finally { tokenSource.Dispose(); }
         }
 
+        public void ContinueWith(Action<Task<TResult>> action)
+        {
+            lock (_syncRoot)
+            {
+                if (action != null)
+                {
+                    if (Task.IsCompleted)
+                        Task.ContinueWith(action, TokenSource.Token);
+                    else
+                        _continueWith.Add(action);
+                }
+            }
+        }
+
         private void OnTaskCompleted(Task<TResult> task)
         {
-            if (!task.IsCanceled)
-                TaskCompleted?.Invoke(this, new TaskHelperCompletedEventArgs<TResult>(task));
+            if (task.IsCanceled)
+                return;
+
+            lock (_syncRoot)
+            {
+                foreach (Action<Task<TResult>> action in _continueWith)
+                    task.ContinueWith(action, TokenSource.Token);
+
+                _continueWith.Clear();
+            }
+
+            TaskCompleted?.Invoke(this, new TaskHelperCompletedEventArgs<TResult>(task));
         }
 
         #region IDisposable Support

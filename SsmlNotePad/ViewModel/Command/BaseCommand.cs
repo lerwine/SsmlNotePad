@@ -14,10 +14,16 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         private bool _canExecute = true;
         private int _execCount = 0;
 
+        /// <summary>
+        /// Occurs when changes occur that affect whether or not the command should execute.
+        /// </summary>
         public event EventHandler CanExecuteChanged;
 
         #region IsEnabled Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="IsEnabled"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_IsEnabled = "IsEnabled";
 
         /// <summary>
@@ -32,19 +38,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         /// </summary>
         public bool IsEnabled
         {
-            get
-            {
-                if (CheckAccess())
-                    return (bool)(GetValue(IsEnabledProperty));
-                return Dispatcher.Invoke(() => IsEnabled);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(IsEnabledProperty, value);
-                else
-                    Dispatcher.Invoke(() => IsEnabled = value);
-            }
+            get { return (bool)(GetValue(IsEnabledProperty)); }
+            set { SetValue(IsEnabledProperty, value); }
         }
 
         /// <summary>
@@ -52,18 +47,15 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         /// </summary>
         /// <param name="oldValue">The <seealso cref="bool"/> value before the <see cref="IsEnabled"/> property was changed.</param>
         /// <param name="newValue">The <seealso cref="bool"/> value after the <see cref="IsEnabled"/> property was changed.</param>
-        protected virtual void IsEnabled_PropertyChanged(bool oldValue, bool newValue)
-        {
-            if (CheckAccess())
-                UpdateCanExecute();
-            else
-                Dispatcher.Invoke(() => IsEnabled_PropertyChanged(oldValue, newValue));
-        }
+        protected virtual void IsEnabled_PropertyChanged(bool oldValue, bool newValue) { UpdateCanExecute(); }
 
         #endregion
 
         #region AllowSimultaneousExecute Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="AllowSimultaneousExecute"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_AllowSimultaneousExecute = "AllowSimultaneousExecute";
 
         /// <summary>
@@ -71,27 +63,15 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         /// </summary>
         public static readonly DependencyProperty AllowSimultaneousExecuteProperty = DependencyProperty.Register(DependencyPropertyName_AllowSimultaneousExecute, typeof(bool), typeof(BaseCommand),
                 new PropertyMetadata(false,
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as BaseCommand).AllowSimultaneousExecute_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue)),
-                (DependencyObject d, object baseValue) => (d as BaseCommand).AllowSimultaneousExecute_CoerceValue(baseValue)));
+                (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as BaseCommand).AllowSimultaneousExecute_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue))));
 
         /// <summary>
         /// True if multiple invocations can be executed simultaneously; otherwise false.
         /// </summary>
         public bool AllowSimultaneousExecute
         {
-            get
-            {
-                if (CheckAccess())
-                    return (bool)(GetValue(AllowSimultaneousExecuteProperty));
-                return Dispatcher.Invoke(() => AllowSimultaneousExecute);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(AllowSimultaneousExecuteProperty, value);
-                else
-                    Dispatcher.Invoke(() => AllowSimultaneousExecute = value);
-            }
+            get { return (bool)(GetValue(AllowSimultaneousExecuteProperty)); }
+            set { SetValue(AllowSimultaneousExecuteProperty, value); }
         }
 
         /// <summary>
@@ -99,20 +79,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         /// </summary>
         /// <param name="oldValue">The <seealso cref="bool"/> value before the <see cref="AllowSimultaneousExecute"/> property was changed.</param>
         /// <param name="newValue">The <seealso cref="bool"/> value after the <see cref="AllowSimultaneousExecute"/> property was changed.</param>
-        protected virtual void AllowSimultaneousExecute_PropertyChanged(bool oldValue, bool newValue)
-        {
-            if (CheckAccess())
-                UpdateCanExecute();
-            else
-                Dispatcher.Invoke(() => AllowSimultaneousExecute_PropertyChanged(oldValue, newValue));
-        }
-
-        /// <summary>
-        /// This gets called whenever <see cref="AllowSimultaneousExecute"/> is being re-evaluated, or coercion is specifically requested.
-        /// </summary>
-        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
-        /// <returns>The coerced value.</returns>
-        public virtual bool AllowSimultaneousExecute_CoerceValue(object baseValue) { return (bool)baseValue; }
+        protected virtual void AllowSimultaneousExecute_PropertyChanged(bool oldValue, bool newValue) { UpdateCanExecute(); }
 
         #endregion
 
@@ -255,6 +222,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Command
         /// <param name="parameter">Data used by the command.</param>
         protected abstract void OnExecute(THandlableEventArgs parameter);
 
+        /// <summary>
+        /// This gets called when the <see cref="BaseCommand"/> is being executed on the current command target.
+        /// </summary>
+        /// <param name="parameter">Data used by the command.</param>
         protected override void OnExecute(object parameter) { OnExecute((THandlableEventArgs)parameter); }
     }
 }

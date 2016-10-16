@@ -5,232 +5,154 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
-    [ValueConversion(typeof(XmlValidationStatus?), typeof(Style))]
-    public class StatusTypeToStyleConverter : DependencyObject, IValueConverter
+    /// <summary>
+    /// Converts <seealso cref="string"/> values to  <seealso cref="Visibility"/> values.
+    /// </summary>
+    [ValueConversion(typeof(Model.XmlValidationStatus), typeof(Style))]
+    public class StatusTypeToStyleConverter : ToClassConverterBase<Model.XmlValidationStatus, Style>
     {
-        #region NullStyle Property Members
-
-        public const string DependencyPropertyName_NullStyle = "NullStyle";
+        #region None Property Members
 
         /// <summary>
-        /// Identifies the <see cref="NullStyle"/> dependency property.
+        /// Defines the name for the <see cref="None"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NullStyleProperty = DependencyProperty.Register(DependencyPropertyName_NullStyle, typeof(Style), typeof(StatusTypeToStyleConverter),
-                new PropertyMetadata(null));
+        public const string DependencyPropertyName_None = "None";
 
         /// <summary>
-        /// Visibility value when source is null.
+        /// Identifies the <see cref="None"/> dependency property.
         /// </summary>
-        public Style NullStyle
-        {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(NullStyleProperty));
-                return Dispatcher.Invoke(() => NullStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NullStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => NullStyle = value);
-            }
-        }
-
-        #endregion
-
-        #region NoneStyle Property Members
-
-        public const string DependencyPropertyName_NoneStyle = "NoneStyle";
-
-        /// <summary>
-        /// Identifies the <see cref="NoneStyle"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty NoneStyleProperty = DependencyProperty.Register(DependencyPropertyName_NoneStyle, typeof(Style), typeof(StatusTypeToStyleConverter),
+        public static readonly DependencyProperty NoneProperty = DependencyProperty.Register(DependencyPropertyName_None, typeof(Style), typeof(StatusTypeToStyleConverter),
                 new PropertyMetadata(null));
 
         /// <summary>
         /// Visibility value when source is <see cref="XmlValidationStatus.None"/>.
         /// </summary>
-        public Style NoneStyle
+        public Style None
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(NoneStyleProperty));
-                return Dispatcher.Invoke(() => NoneStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NoneStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => NoneStyle = value);
-            }
+            get { return GetValue(NoneProperty) as Style; }
+            set { SetValue(NoneProperty, value); }
         }
 
         #endregion
 
-        #region InformationStyle Property Members
-
-        public const string DependencyPropertyName_InformationStyle = "InformationStyle";
+        #region Information Property Members
 
         /// <summary>
-        /// Identifies the <see cref="InformationStyle"/> dependency property.
+        /// Defines the name for the <see cref="Information"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty InformationStyleProperty = DependencyProperty.Register(DependencyPropertyName_InformationStyle, typeof(Style), typeof(StatusTypeToStyleConverter),
+        public const string DependencyPropertyName_Information = "Information";
+
+        /// <summary>
+        /// Identifies the <see cref="Information"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty InformationProperty = DependencyProperty.Register(DependencyPropertyName_Information, typeof(Style), typeof(StatusTypeToStyleConverter),
                 new PropertyMetadata(null));
 
         /// <summary>
         /// Visibility value when source is <see cref="XmlValidationStatus.Information"/>.
         /// </summary>
-        public Style InformationStyle
+        public Style Information
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(InformationStyleProperty));
-                return Dispatcher.Invoke(() => InformationStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(InformationStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => InformationStyle = value);
-            }
+            get { return GetValue(InformationProperty) as Style; }
+            set { SetValue(InformationProperty, value); }
         }
 
         #endregion
 
-        #region WarningStyle Property Members
-
-        public const string DependencyPropertyName_WarningStyle = "WarningStyle";
+        #region Warning Property Members
 
         /// <summary>
-        /// Identifies the <see cref="WarningStyle"/> dependency property.
+        /// Defines the name for the <see cref="Warning"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty WarningStyleProperty = DependencyProperty.Register(DependencyPropertyName_WarningStyle, typeof(Style), typeof(StatusTypeToStyleConverter),
+        public const string DependencyPropertyName_Warning = "Warning";
+
+        /// <summary>
+        /// Identifies the <see cref="Warning"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty WarningProperty = DependencyProperty.Register(DependencyPropertyName_Warning, typeof(Style), typeof(StatusTypeToStyleConverter),
                 new PropertyMetadata(null));
 
         /// <summary>
         /// Visibility value when source is <see cref="XmlValidationStatus.Warning"/>.
         /// </summary>
-        public Style WarningStyle
+        public Style Warning
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(WarningStyleProperty));
-                return Dispatcher.Invoke(() => WarningStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(WarningStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => WarningStyle = value);
-            }
+            get { return GetValue(WarningProperty) as Style; }
+            set { SetValue(WarningProperty, value); }
         }
 
         #endregion
 
-        #region ErrorStyle Property Members
-
-        public const string DependencyPropertyName_ErrorStyle = "ErrorStyle";
+        #region Error Property Members
 
         /// <summary>
-        /// Identifies the <see cref="ErrorStyle"/> dependency property.
+        /// Defines the name for the <see cref="Error"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty ErrorStyleProperty = DependencyProperty.Register(DependencyPropertyName_ErrorStyle, typeof(Style), typeof(StatusTypeToStyleConverter),
+        public const string DependencyPropertyName_Error = "Error";
+
+        /// <summary>
+        /// Identifies the <see cref="Error"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ErrorProperty = DependencyProperty.Register(DependencyPropertyName_Error, typeof(Style), typeof(StatusTypeToStyleConverter),
                 new PropertyMetadata(null));
 
         /// <summary>
         /// Visibility value when source is <see cref="XmlValidationStatus.Error"/>.
         /// </summary>
-        public Style ErrorStyle
+        public Style Error
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(ErrorStyleProperty));
-                return Dispatcher.Invoke(() => ErrorStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(ErrorStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => ErrorStyle = value);
-            }
+            get { return GetValue(ErrorProperty) as Style; }
+            set { SetValue(ErrorProperty, value); }
         }
 
         #endregion
 
-        #region CriticalStyle Property Members
-
-        public const string DependencyPropertyName_CriticalStyle = "CriticalStyle";
+        #region Critical Property Members
 
         /// <summary>
-        /// Identifies the <see cref="CriticalStyle"/> dependency property.
+        /// Defines the name for the <see cref="Critical"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty CriticalStyleProperty = DependencyProperty.Register(DependencyPropertyName_CriticalStyle, typeof(Style), typeof(StatusTypeToStyleConverter),
+        public const string DependencyPropertyName_Critical = "Critical";
+
+        /// <summary>
+        /// Identifies the <see cref="Critical"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty CriticalProperty = DependencyProperty.Register(DependencyPropertyName_Critical, typeof(Style), typeof(StatusTypeToStyleConverter),
                 new PropertyMetadata(null));
 
         /// <summary>
         /// Visibility value when source is <see cref="XmlValidationStatus.Critical"/>.
         /// </summary>
-        public Style CriticalStyle
+        public Style Critical
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(CriticalStyleProperty));
-                return Dispatcher.Invoke(() => CriticalStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(CriticalStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => CriticalStyle = value);
-            }
+            get { return GetValue(CriticalProperty) as Style; }
+            set { SetValue(CriticalProperty, value); }
         }
 
         #endregion
 
-        public Style Convert(XmlValidationStatus? value, object parameter, CultureInfo culture)
+        /// <summary>
+        /// Converts a <seealso cref="Model.XmlValidationStatus"/> value to a <seealso cref="Style"/> value.
+        /// </summary>
+        /// <param name="value">The <seealso cref="Model.XmlValidationStatus"/> produced by the binding source.</param>
+        /// <param name="parameter">Parameter passed by the binding source.</param>
+        /// <param name="culture">Culture specified through the binding source.</param>
+        /// <returns><seealso cref="Model.XmlValidationStatus"/> value converted to a <seealso cref="Style"/> or null value.</returns>
+        public override Style Convert(Model.XmlValidationStatus value, object parameter, CultureInfo culture)
         {
-            if (!value.HasValue)
-                return NullStyle;
-
-            switch (value.Value)
+            switch (value)
             {
-                case XmlValidationStatus.Critical:
-                    return CriticalStyle;
-                case XmlValidationStatus.Error:
-                    return ErrorStyle;
-                case XmlValidationStatus.Warning:
-                    return WarningStyle;
-                case XmlValidationStatus.Information:
-                    return InformationStyle;
+                case Model.XmlValidationStatus.Critical:
+                    return Critical;
+                case Model.XmlValidationStatus.Error:
+                    return Error;
+                case Model.XmlValidationStatus.Warning:
+                    return Warning;
+                case Model.XmlValidationStatus.Information:
+                    return Information;
             }
 
-            return NoneStyle;
-        }
-
-        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (targetType == null || targetType.Equals(typeof(Style)))
-                return Convert(value as XmlValidationStatus?, parameter, culture);
-
-            return System.Convert.ChangeType(value, targetType);
-        }
-
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
+            return None;
         }
     }
 }

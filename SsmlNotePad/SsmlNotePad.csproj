@@ -78,9 +78,11 @@
     <Compile Include="Model\TaskHelper.cs" />
     <Compile Include="Model\TaskHelperCompletedEventArgs.cs" />
     <Compile Include="Model\TextLine.cs" />
+    <Compile Include="Model\TextLineBackgroundParser.cs" />
+    <Compile Include="Model\XmlValidationResult.cs" />
+    <Compile Include="Model\XmlValidator.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="ViewModel\AppSettingsVM.cs" />
-    <Compile Include="ViewModel\Converter\BookmarkCollectionLatestItemConverter.cs" />
     <Compile Include="ViewModel\Converter\BooleanToStringConverter.cs" />
     <Compile Include="ViewModel\Converter\ToClassConverterBase.cs" />
     <Compile Include="ViewModel\Converter\FileSaveStatusToStyleConverter.cs" />
@@ -92,7 +94,7 @@
     <Compile Include="ViewModel\Converter\ToValueConverterBase.cs" />
     <Compile Include="ViewModel\Converter\VoiceAgeToStringConverter.cs" />
     <Compile Include="ViewModel\Converter\VoiceGenderToStringConverter.cs" />
-    <Compile Include="ViewModel\FileSaveStatus.cs" />
+    <Compile Include="Model\FileSaveStatus.cs" />
     <Compile Include="ViewModel\FindReplaceDisplayMode.cs" />
     <Compile Include="ViewModel\LineNumberVM.cs" />
     <Compile Include="ViewModel\MainWindowVM.cs" />
@@ -118,7 +120,7 @@
     <Compile Include="ViewModel\ValidatingViewModel.cs" />
     <Compile Include="ViewModel\ViewModelValidateState.cs" />
     <Compile Include="ViewModel\ViewModelValidationMessageVM.cs" />
-    <Compile Include="ViewModel\XmlValidationStatus.cs" />
+    <Compile Include="Model\XmlValidationStatus.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

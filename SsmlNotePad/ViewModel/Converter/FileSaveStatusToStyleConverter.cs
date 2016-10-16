@@ -5,232 +5,154 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
-    [ValueConversion(typeof(FileSaveStatus?), typeof(Style))]
-    public class FileSaveStatusToStyleConverter : DependencyObject, IValueConverter
+    /// <summary>
+    /// Converts <seealso cref="Model.FileSaveStatus"/> values to  <seealso cref="Style"/> values.
+    /// </summary>
+    [ValueConversion(typeof(Model.FileSaveStatus), typeof(Style))]
+    public class FileSaveStatusToStyleConverter : ToClassConverterBase<Model.FileSaveStatus, Style>
     {
-        #region NullStyle Property Members
-
-        public const string DependencyPropertyName_NullStyle = "NullStyle";
+        #region New Property Members
 
         /// <summary>
-        /// Identifies the <see cref="NullStyle"/> dependency property.
+        /// Defines the name for the <see cref="New"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NullStyleProperty = DependencyProperty.Register(DependencyPropertyName_NullStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
+        public const string DependencyPropertyName_New = "New";
+
+        /// <summary>
+        /// Identifies the <see cref="New"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty NewProperty = DependencyProperty.Register(DependencyPropertyName_New, typeof(Style), typeof(FileSaveStatusToStyleConverter),
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// A <seealso cref="Style"/> to indicate that a file is new and has never been saved.
         /// </summary>
-        public Style NullStyle
+        public Style New
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(NullStyleProperty));
-                return Dispatcher.Invoke(() => NullStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NullStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => NullStyle = value);
-            }
-        }
-        
-        #endregion
-
-        #region NewStyle Property Members
-
-        public const string DependencyPropertyName_NewStyle = "NewStyle";
-
-        /// <summary>
-        /// Identifies the <see cref="NewStyle"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty NewStyleProperty = DependencyProperty.Register(DependencyPropertyName_NewStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
-                new PropertyMetadata(null));
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Style NewStyle
-        {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(NewStyleProperty));
-                return Dispatcher.Invoke(() => NewStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NewStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => NewStyle = value);
-            }
-        }
-        
-        #endregion
-
-        #region ModifiedStyle Property Members
-
-        public const string DependencyPropertyName_ModifiedStyle = "ModifiedStyle";
-
-        /// <summary>
-        /// Identifies the <see cref="ModifiedStyle"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty ModifiedStyleProperty = DependencyProperty.Register(DependencyPropertyName_ModifiedStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
-                new PropertyMetadata(null));
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Style ModifiedStyle
-        {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(ModifiedStyleProperty));
-                return Dispatcher.Invoke(() => ModifiedStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(ModifiedStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => ModifiedStyle = value);
-            }
-        }
-        
-        #endregion
-
-        #region SaveErrorStyle Property Members
-
-        public const string DependencyPropertyName_SaveErrorStyle = "SaveErrorStyle";
-
-        /// <summary>
-        /// Identifies the <see cref="SaveErrorStyle"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty SaveErrorStyleProperty = DependencyProperty.Register(DependencyPropertyName_SaveErrorStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
-                new PropertyMetadata(null));
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Style SaveErrorStyle
-        {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(SaveErrorStyleProperty));
-                return Dispatcher.Invoke(() => SaveErrorStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(SaveErrorStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => SaveErrorStyle = value);
-            }
+            get { return GetValue(NewProperty) as Style; }
+            set { SetValue(NewProperty, value); }
         }
 
         #endregion
 
-        #region SaveWarningStyle Property Members
-
-        public const string DependencyPropertyName_SaveWarningStyle = "SaveWarningStyle";
+        #region Modified Property Members
 
         /// <summary>
-        /// Identifies the <see cref="SaveWarningStyle"/> dependency property.
+        /// Defines the name for the <see cref="Modified"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty SaveWarningStyleProperty = DependencyProperty.Register(DependencyPropertyName_SaveWarningStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
+        public const string DependencyPropertyName_Modified = "Modified";
+
+        /// <summary>
+        /// Identifies the <see cref="Modified"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ModifiedProperty = DependencyProperty.Register(DependencyPropertyName_Modified, typeof(Style), typeof(FileSaveStatusToStyleConverter),
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// A <seealso cref="Style"/> to indicate that a file has previously been saved to disk, but has been modified.
         /// </summary>
-        public Style SaveWarningStyle
+        public Style Modified
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(SaveWarningStyleProperty));
-                return Dispatcher.Invoke(() => SaveWarningStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(SaveWarningStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => SaveWarningStyle = value);
-            }
+            get { return GetValue(ModifiedProperty) as Style; }
+            set { SetValue(ModifiedProperty, value); }
         }
 
         #endregion
 
-        #region SaveSuccessStyle Property Members
-
-        public const string DependencyPropertyName_SaveSuccessStyle = "SaveSuccessStyle";
+        #region SaveError Property Members
 
         /// <summary>
-        /// Identifies the <see cref="SaveSuccessStyle"/> dependency property.
+        /// Defines the name for the <see cref="SaveError"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty SaveSuccessStyleProperty = DependencyProperty.Register(DependencyPropertyName_SaveSuccessStyle, typeof(Style), typeof(FileSaveStatusToStyleConverter),
+        public const string DependencyPropertyName_SaveError = "SaveError";
+
+        /// <summary>
+        /// Identifies the <see cref="SaveError"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty SaveErrorProperty = DependencyProperty.Register(DependencyPropertyName_SaveError, typeof(Style), typeof(FileSaveStatusToStyleConverter),
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// A <seealso cref="Style"/> to indicate that an error has occurred while trying to save file to disk.
         /// </summary>
-        public Style SaveSuccessStyle
+        public Style SaveError
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Style)(GetValue(SaveSuccessStyleProperty));
-                return Dispatcher.Invoke(() => SaveSuccessStyle);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(SaveSuccessStyleProperty, value);
-                else
-                    Dispatcher.Invoke(() => SaveSuccessStyle = value);
-            }
+            get { return GetValue(SaveErrorProperty) as Style; }
+            set { SetValue(SaveErrorProperty, value); }
         }
-        
+
         #endregion
 
-        public Style Convert(FileSaveStatus? value, object parameter, CultureInfo culture)
-        {
-            if (!value.HasValue)
-                return NullStyle;
+        #region SaveWarning Property Members
 
-            switch (value.Value)
+        /// <summary>
+        /// Defines the name for the <see cref="SaveWarning"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_SaveWarning = "SaveWarning";
+
+        /// <summary>
+        /// Identifies the <see cref="SaveWarning"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty SaveWarningProperty = DependencyProperty.Register(DependencyPropertyName_SaveWarning, typeof(Style), typeof(FileSaveStatusToStyleConverter),
+                new PropertyMetadata(null));
+
+        /// <summary>
+        /// A <seealso cref="Style"/> to indicate that a warning has been issued while saving file to disk.
+        /// </summary>
+        public Style SaveWarning
+        {
+            get { return GetValue(SaveWarningProperty) as Style; }
+            set { SetValue(SaveWarningProperty, value); }
+        }
+
+        #endregion
+
+        #region SaveSuccess Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="SaveSuccess"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_SaveSuccess = "SaveSuccess";
+
+        /// <summary>
+        /// Identifies the <see cref="SaveSuccess"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty SaveSuccessProperty = DependencyProperty.Register(DependencyPropertyName_SaveSuccess, typeof(Style), typeof(FileSaveStatusToStyleConverter),
+                new PropertyMetadata(null));
+
+        /// <summary>
+        /// A <seealso cref="Style"/> to indicate that a file has been successfuly saved to disk and has not been modified.
+        /// </summary>
+        public Style SaveSuccess
+        {
+            get { return GetValue(SaveSuccessProperty) as Style; }
+            set { SetValue(SaveSuccessProperty, value); }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Converts a <seealso cref="Model.FileSaveStatus"/> value to a <seealso cref="Style"/> value.
+        /// </summary>
+        /// <param name="value">The <seealso cref="Model.FileSaveStatus"/> produced by the binding source.</param>
+        /// <param name="parameter">Parameter passed by the binding source.</param>
+        /// <param name="culture">Culture specified through the binding source.</param>
+        /// <returns><seealso cref="Model.FileSaveStatus"/> value converted to a <seealso cref="Style"/> value.</returns>
+        public override Style Convert(Model.FileSaveStatus value, object parameter, CultureInfo culture)
+        {
+            switch (value)
             {
-                case FileSaveStatus.New:
-                    return NewStyle;
-                case FileSaveStatus.Modified:
-                    return ModifiedStyle;
-                case FileSaveStatus.SaveError:
-                    return SaveErrorStyle;
-                case FileSaveStatus.SaveWarning:
-                    return SaveWarningStyle;
+                case Model.FileSaveStatus.New:
+                    return New;
+                case Model.FileSaveStatus.Modified:
+                    return Modified;
+                case Model.FileSaveStatus.SaveError:
+                    return SaveError;
+                case Model.FileSaveStatus.SaveWarning:
+                    return SaveWarning;
             }
 
-            return SaveSuccessStyle;
-        }
-
-        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (targetType == null || targetType.Equals(typeof(Style)))
-                return Convert(value as FileSaveStatus?, parameter, culture);
-
-            return System.Convert.ChangeType(value, targetType);
-        }
-
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
+            return SaveSuccess;
         }
     }
 }

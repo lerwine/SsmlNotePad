@@ -5,6 +5,11 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
+    /// <summary>
+    /// Base class for non-nullable target values.
+    /// </summary>
+    /// <typeparam name="TSource">Type of source value being converted to.</typeparam>
+    /// <typeparam name="TTarget">Type of target value being converted to.</typeparam>
     public abstract class ToValueConverterBase<TSource, TTarget> : DependencyObject, IValueConverter
         where TTarget : struct
     {

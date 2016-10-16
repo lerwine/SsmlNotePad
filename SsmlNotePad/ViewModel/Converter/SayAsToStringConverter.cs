@@ -7,9 +7,19 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
-    [ValueConversion(typeof(SayAs?), typeof(string))]
+    /// <summary>
+    /// Converts <seealso cref="SayAs"/> values to display text.
+    /// </summary>
+    [ValueConversion(typeof(SayAs), typeof(string))]
     public class SayAsToStringConverter : DependencyObject, IValueConverter
     {
+        /// <summary>
+        /// Converts a <seealso cref="SayAs"/> value to a <seealso cref="string"/> value.
+        /// </summary>
+        /// <param name="value">The <seealso cref="SayAs"/> produced by the binding source.</param>
+        /// <param name="parameter">Parameter passed by the binding source.</param>
+        /// <param name="culture">Culture specified through the binding source.</param>
+        /// <returns><seealso cref="SayAs"/> value converted to a <seealso cref="string"/> value.</returns>
         public string Convert(SayAs? value, object parameter, CultureInfo culture)
         {
             if (!value.HasValue)
@@ -59,10 +69,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (targetType == null || targetType.Equals(typeof(string)))
-                return Convert(value as SayAs?, parameter, culture);
-
-            return System.Convert.ChangeType(value, targetType);
+            return Convert(value as SayAs?, parameter, culture);
         }
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

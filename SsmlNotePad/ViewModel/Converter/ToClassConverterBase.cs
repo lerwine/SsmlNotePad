@@ -9,12 +9,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         where TTarget : class
     {
         #region NullSource Property Members
-
-        // /// <summary>
-        // /// Occurs when the value of <see cref="NullSource"/> has changed.
-        // /// </summary>
-        // public event EventHandler NullSourcePropertyChanged;
-
+        
         /// <summary>
         /// Defines the name for the <see cref="NullSource"/> dependency property.
         /// </summary>
@@ -27,7 +22,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
             typeof(ToClassConverterBase<TSource, TTarget>), new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// <typeparamref name="TTarget"/> to return when the binding source produces a null value.
         /// </summary>
         public TTarget NullSource
         {

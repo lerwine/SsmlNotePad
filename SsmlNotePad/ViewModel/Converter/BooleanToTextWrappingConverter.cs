@@ -5,124 +5,70 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
-    [ValueConversion(typeof(bool?), typeof(TextWrapping?))]
-    public class BooleanToTextWrappingConverter : DependencyObject, IValueConverter
+    /// <summary>
+    /// Converts <seealso cref="bool"/> values to  <seealso cref="TextWrapping"/> values.
+    /// </summary>
+    [ValueConversion(typeof(bool), typeof(TextWrapping))]
+    public class BooleanToTextWrappingConverter : ToValueConverterBase<bool, TextWrapping>
     {
-        #region NullValue Property Members
-
-        public const string DependencyPropertyName_NullValue = "NullValue";
+        #region True Property Members
+        
+        /// <summary>
+        /// Defines the name for the <see cref="True"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_True = "True";
 
         /// <summary>
-        /// Identifies the <see cref="NullValue"/> dependency property.
+        /// Identifies the <see cref="True"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NullValueProperty = DependencyProperty.Register(DependencyPropertyName_NullValue, typeof(TextWrapping?), typeof(BooleanToTextWrappingConverter),
-                new PropertyMetadata(TextWrapping.NoWrap));
-
-        /// <summary>
-        /// TextWrapping value when source is null.
-        /// </summary>
-        public TextWrapping? NullValue
-        {
-            get
-            {
-                if (CheckAccess())
-                    return (TextWrapping?)(GetValue(NullValueProperty));
-                return Dispatcher.Invoke(() => NullValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NullValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => NullValue = value);
-            }
-        }
-
-        #endregion
-
-        #region TrueValue Property Members
-
-        public const string DependencyPropertyName_TrueValue = "TrueValue";
-
-        /// <summary>
-        /// Identifies the <see cref="TrueValue"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty TrueValueProperty = DependencyProperty.Register(DependencyPropertyName_TrueValue, typeof(TextWrapping?), typeof(BooleanToTextWrappingConverter),
+        public static readonly DependencyProperty TrueProperty = DependencyProperty.Register(DependencyPropertyName_True, typeof(TextWrapping?), typeof(BooleanToTextWrappingConverter),
                 new PropertyMetadata(TextWrapping.Wrap));
 
         /// <summary>
-        /// TextWrapping value when source is true.
+        /// <seealso cref="Nullable{TextWrapping}"/> value to represent a <seealso cref="true"/> binding source value.
         /// </summary>
-        public TextWrapping? TrueValue
+        public TextWrapping? True
         {
-            get
-            {
-                if (CheckAccess())
-                    return (TextWrapping?)(GetValue(TrueValueProperty));
-                return Dispatcher.Invoke(() => TrueValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(TrueValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => TrueValue = value);
-            }
+            get { return (TextWrapping?)(GetValue(TrueProperty)); }
+            set { SetValue(TrueProperty, value); }
         }
 
         #endregion
 
-        #region FalseValue Property Members
-
-        public const string DependencyPropertyName_FalseValue = "FalseValue";
+        #region False Property Members
+        
+        /// <summary>
+        /// Defines the name for the <see cref="False"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_False = "False";
 
         /// <summary>
-        /// Identifies the <see cref="FalseValue"/> dependency property.
+        /// Identifies the <see cref="False"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty FalseValueProperty = DependencyProperty.Register(DependencyPropertyName_FalseValue, typeof(TextWrapping), typeof(BooleanToTextWrappingConverter),
+        public static readonly DependencyProperty FalseProperty = DependencyProperty.Register(DependencyPropertyName_False, typeof(TextWrapping?), typeof(BooleanToTextWrappingConverter),
                 new PropertyMetadata(TextWrapping.NoWrap));
 
         /// <summary>
-        /// TextWrapping value when source is false.
+        /// <seealso cref="Nullable{TextWrapping}"/> value to represent a <seealso cref="false"/> binding source value.
         /// </summary>
-        public TextWrapping FalseValue
+        public TextWrapping? False
         {
-            get
-            {
-                if (CheckAccess())
-                    return (TextWrapping)(GetValue(FalseValueProperty));
-                return Dispatcher.Invoke(() => FalseValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(FalseValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => FalseValue = value);
-            }
+            get { return (TextWrapping?)(GetValue(FalseProperty)); }
+            set { SetValue(FalseProperty, value); }
         }
 
         #endregion
 
-        public TextWrapping? Convert(bool? value, object parameter, CultureInfo culture)
+        /// <summary>
+        /// Converts a <seealso cref="bool"/> value to a <seealso cref="TextWrapping"/> value.
+        /// </summary>
+        /// <param name="value">The <seealso cref="bool"/> produced by the binding source.</param>
+        /// <param name="parameter">Parameter passed by the binding source.</param>
+        /// <param name="culture">Culture specified through the binding source.</param>
+        /// <returns><seealso cref="bool"/> value converted to a <seealso cref="TextWrapping"/> or null value.</returns>
+        public override TextWrapping? Convert(bool value, object parameter, CultureInfo culture)
         {
-            if (value.HasValue)
-                return (value.Value) ? TrueValue : FalseValue;
-
-            return NullValue;
-        }
-
-        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (targetType == null || targetType.Equals(typeof(TextWrapping)) || targetType.Equals(typeof(TextWrapping?)))
-                return Convert(value as bool?, parameter, culture);
-
-            return System.Convert.ChangeType(value, targetType);
-        }
-
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
+            return (value) ? True : False;
         }
     }
 }

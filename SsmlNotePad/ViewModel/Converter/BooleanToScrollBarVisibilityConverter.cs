@@ -6,124 +6,70 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
-    [ValueConversion(typeof(bool?), typeof(ScrollBarVisibility?))]
-    public class BooleanToScrollBarVisibilityConverter : DependencyObject, IValueConverter
+    /// <summary>
+    /// Converts <seealso cref="bool"/> values to  <seealso cref="ScrollBarVisibility"/> values.
+    /// </summary>
+    [ValueConversion(typeof(bool), typeof(ScrollBarVisibility))]
+    public class BooleanToScrollBarVisibilityConverter : ToValueConverterBase<bool, ScrollBarVisibility>
     {
-        #region NullValue Property Members
-
-        public const string DependencyPropertyName_NullValue = "NullValue";
+        #region True Property Members
+        
+        /// <summary>
+        /// Defines the name for the <see cref="True"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_True = "True";
 
         /// <summary>
-        /// Identifies the <see cref="NullValue"/> dependency property.
+        /// Identifies the <see cref="True"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NullValueProperty = DependencyProperty.Register(DependencyPropertyName_NullValue, typeof(ScrollBarVisibility?), typeof(BooleanToScrollBarVisibilityConverter),
+        public static readonly DependencyProperty TrueProperty = DependencyProperty.Register(DependencyPropertyName_True, typeof(ScrollBarVisibility?), typeof(BooleanToScrollBarVisibilityConverter),
+                new PropertyMetadata(ScrollBarVisibility.Visible));
+
+        /// <summary>
+        /// <seealso cref="Nullable{ScrollBarVisibility}"/> value to represent a <seealso cref="true"/> binding source value.
+        /// </summary>
+        public ScrollBarVisibility? True
+        {
+            get { return (ScrollBarVisibility?)(GetValue(TrueProperty)); }
+            set { SetValue(TrueProperty, value); }
+        }
+
+        #endregion
+
+        #region False Property Members
+        
+        /// <summary>
+        /// Defines the name for the <see cref="False"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_False = "False";
+
+        /// <summary>
+        /// Identifies the <see cref="False"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty FalseProperty = DependencyProperty.Register(DependencyPropertyName_False, typeof(ScrollBarVisibility?), typeof(BooleanToScrollBarVisibilityConverter),
                 new PropertyMetadata(ScrollBarVisibility.Disabled));
 
         /// <summary>
-        /// ScrollBarVisibility value when source is null
+        /// <seealso cref="Nullable{ScrollBarVisibility}"/> value to represent a <seealso cref="false"/> binding source value.
         /// </summary>
-        public ScrollBarVisibility? NullValue
+        public ScrollBarVisibility? False
         {
-            get
-            {
-                if (CheckAccess())
-                    return (ScrollBarVisibility?)(GetValue(NullValueProperty));
-                return Dispatcher.Invoke(() => NullValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NullValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => NullValue = value);
-            }
+            get { return (ScrollBarVisibility?)(GetValue(FalseProperty)); }
+            set { SetValue(FalseProperty, value); }
         }
 
         #endregion
 
-        #region TrueValue Property Members
-
-        public const string DependencyPropertyName_TrueValue = "TrueValue";
-
         /// <summary>
-        /// Identifies the <see cref="TrueValue"/> dependency property.
+        /// Converts a <seealso cref="bool"/> value to a <seealso cref="ScrollBarVisibility"/> value.
         /// </summary>
-        public static readonly DependencyProperty TrueValueProperty = DependencyProperty.Register(DependencyPropertyName_TrueValue, typeof(ScrollBarVisibility?), typeof(BooleanToScrollBarVisibilityConverter),
-                new PropertyMetadata(ScrollBarVisibility.Auto));
-
-        /// <summary>
-        /// Value when source is true.
-        /// </summary>
-        public ScrollBarVisibility? TrueValue
+        /// <param name="value">The <seealso cref="bool"/> produced by the binding source.</param>
+        /// <param name="parameter">Parameter passed by the binding source.</param>
+        /// <param name="culture">Culture specified through the binding source.</param>
+        /// <returns><seealso cref="bool"/> value converted to a <seealso cref="ScrollBarVisibility"/> or null value.</returns>
+        public override ScrollBarVisibility? Convert(bool value, object parameter, CultureInfo culture)
         {
-            get
-            {
-                if (CheckAccess())
-                    return (ScrollBarVisibility?)(GetValue(TrueValueProperty));
-                return Dispatcher.Invoke(() => TrueValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(TrueValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => TrueValue = value);
-            }
-        }
-
-        #endregion
-
-        #region FalseValue Property Members
-
-        public const string DependencyPropertyName_FalseValue = "FalseValue";
-
-        /// <summary>
-        /// Identifies the <see cref="FalseValue"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty FalseValueProperty = DependencyProperty.Register(DependencyPropertyName_FalseValue, typeof(ScrollBarVisibility?), typeof(BooleanToScrollBarVisibilityConverter),
-                new PropertyMetadata(ScrollBarVisibility.Disabled));
-
-        /// <summary>
-        /// Value when source is false.
-        /// </summary>
-        public ScrollBarVisibility? FalseValue
-        {
-            get
-            {
-                if (CheckAccess())
-                    return (ScrollBarVisibility?)(GetValue(FalseValueProperty));
-                return Dispatcher.Invoke(() => FalseValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(FalseValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => FalseValue = value);
-            }
-        }
-
-        #endregion
-
-        public ScrollBarVisibility? Convert(bool? value, object parameter, CultureInfo culture)
-        {
-            if (value.HasValue)
-                return (value.Value) ? TrueValue : FalseValue;
-
-            return NullValue;
-        }
-
-        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (targetType == null || targetType.Equals(typeof(ScrollBarVisibility)) || targetType.Equals(typeof(ScrollBarVisibility?)))
-                return Convert(value as bool?, parameter, culture);
-
-            return System.Convert.ChangeType(value, targetType);
-        }
-
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
+            return (value) ? True : False;
         }
     }
 }

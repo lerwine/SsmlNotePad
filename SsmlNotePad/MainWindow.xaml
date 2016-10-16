@@ -9,43 +9,42 @@
         mc:Ignorable="d" DataContext="{DynamicResource MainWindowViewModel}"
         Title="{DynamicResource ApplicationTitle}" Height="600" Width="800">
     <Window.Resources>
-        <Converter:BooleanToStringConverter x:Key="UseRegularExpressionsToStringConverter" FalseValue="Substring Match" TrueValue="Use Regular Expressions"/>
-        <Converter:BooleanToStringConverter x:Key="CaseSensitiveMatchToStringConverter" FalseValue=", Ignore Case" TrueValue=", Case-Sensitive"/>
+        <Converter:BooleanToStringConverter x:Key="UseRegularExpressionsToStringConverter" False="Substring Match" True="Use Regular Expressions"/>
+        <Converter:BooleanToStringConverter x:Key="CaseSensitiveMatchToStringConverter" False=", Ignore Case" True=", Case-Sensitive"/>
         <Converter:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-        <Converter:FindReplaceModeToVisibilityConverter x:Key="FindVisibilityConverter" NullValue="Collapsed" ReplaceValue="Collapsed"/>
-        <Converter:FindReplaceModeToVisibilityConverter x:Key="FindNextVisibilityConverter" FindNextValue="Visible" FindValue="Collapsed" NullValue="Collapsed" ReplaceValue="Collapsed" FindNotFoundValue="Visible"/>
-        <Converter:FindReplaceModeToVisibilityConverter x:Key="ReplaceVisibilityConverter" FindValue="Collapsed" NullValue="Collapsed"/>
-        <Converter:FindReplaceModeToVisibilityConverter x:Key="ReplaceNextVisibilityConverter" FindValue="Collapsed" NullValue="Collapsed" ReplaceValue="Collapsed" ReplaceNextValue="Visible" ReplaceNotFoundValue="Visible"/>
+        <Converter:FindReplaceModeToVisibilityConverter x:Key="FindVisibilityConverter" NullSource="Collapsed" Replace="Collapsed"/>
+        <Converter:FindReplaceModeToVisibilityConverter x:Key="FindNextVisibilityConverter" FindNext="Visible" Find="Collapsed" NullSource="Collapsed" Replace="Collapsed" FindNotFound="Visible"/>
+        <Converter:FindReplaceModeToVisibilityConverter x:Key="ReplaceVisibilityConverter" Find="Collapsed" NullSource="Collapsed"/>
+        <Converter:FindReplaceModeToVisibilityConverter x:Key="ReplaceNextVisibilityConverter" Find="Collapsed" NullSource="Collapsed" Replace="Collapsed" ReplaceNext="Visible" ReplaceNotFound="Visible"/>
         <Converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <Converter:BookmarkCollectionLatestItemConverter x:Key="BookmarkCollectionLatestItemConverter"/>
-        <Converter:FileSaveStatusToStyleConverter x:Key="FileSaveStatusToPathStyleConverter" SaveErrorStyle="{DynamicResource ErrorIconPath}" 
-                                                  SaveSuccessStyle="{DynamicResource StatusIconPath}" 
-                                                  SaveWarningStyle="{DynamicResource WarningIconPath}" 
-                                                  NullStyle="{DynamicResource StatusIconPath}" 
-                                                  NewStyle="{DynamicResource ModifiedIconPath}" 
-                                                  ModifiedStyle="{DynamicResource NewIconPath}"/>
+        <Converter:FileSaveStatusToStyleConverter x:Key="FileSaveStatusToPathStyleConverter" SaveError="{DynamicResource ErrorIconPath}" 
+                                                  SaveSuccess="{DynamicResource StatusIconPath}" 
+                                                  SaveWarning="{DynamicResource WarningIconPath}" 
+                                                  NullSource="{DynamicResource StatusIconPath}" 
+                                                  New="{DynamicResource ModifiedIconPath}" 
+                                                  Modified="{DynamicResource NewIconPath}"/>
         <Converter:FileSaveStatusToStyleConverter x:Key="FileSaveStatusToButtonStyleConverter" 
-                                                  SaveWarningStyle="{DynamicResource WarningStatusButtonStyle}" 
-                                                  SaveSuccessStyle="{DynamicResource StatusButtonStyle}" 
-                                                  SaveErrorStyle="{DynamicResource ErrorStatusButtonStyle}" 
-                                                  NullStyle="{DynamicResource StatusButtonStyle}" 
-                                                  NewStyle="{DynamicResource NewStatusButtonStyle}" 
-                                                  ModifiedStyle="{DynamicResource ModifiedStatusButtonStyle}"/>
-        <Converter:StatusTypeToStyleConverter x:Key="StatusTypeToPathStyleConverter" CriticalStyle="{DynamicResource CriticalIconPath}" 
-                                              ErrorStyle="{DynamicResource ErrorIconPath}" 
-                                              InformationStyle="{DynamicResource InformationIconPath}" 
-                                              NoneStyle="{DynamicResource StatusIconPath}" 
-                                              NullStyle="{DynamicResource StatusIconPath}" 
-                                              WarningStyle="{DynamicResource WarningIconPath}"/>
+                                                  SaveWarning="{DynamicResource WarningStatusButtonStyle}" 
+                                                  SaveSuccess="{DynamicResource StatusButtonStyle}" 
+                                                  SaveError="{DynamicResource ErrorStatusButtonStyle}" 
+                                                  NullSource="{DynamicResource StatusButtonStyle}" 
+                                                  New="{DynamicResource NewStatusButtonStyle}" 
+                                                  Modified="{DynamicResource ModifiedStatusButtonStyle}"/>
+        <Converter:StatusTypeToStyleConverter x:Key="StatusTypeToPathStyleConverter" Critical="{DynamicResource CriticalIconPath}" 
+                                              Error="{DynamicResource ErrorIconPath}" 
+                                              Information="{DynamicResource InformationIconPath}" 
+                                              None="{DynamicResource StatusIconPath}" 
+                                              NullSource="{DynamicResource StatusIconPath}" 
+                                              Warning="{DynamicResource WarningIconPath}"/>
         <Converter:StatusTypeToStyleConverter x:Key="StatusTypeToButtonStyleConverter" 
-                                              CriticalStyle="{DynamicResource CriticalStatusButtonStyle}" 
-                                              ErrorStyle="{DynamicResource ErrorStatusButtonStyle}" 
-                                              InformationStyle="{DynamicResource InformationStatusButtonStyle}" 
-                                              NoneStyle="{DynamicResource StatusButtonStyle}" 
-                                              NullStyle="{DynamicResource StatusButtonStyle}" 
-                                              WarningStyle="{DynamicResource WarningStatusButtonStyle}" />
+                                              Critical="{DynamicResource CriticalStatusButtonStyle}" 
+                                              Error="{DynamicResource ErrorStatusButtonStyle}" 
+                                              Information="{DynamicResource InformationStatusButtonStyle}" 
+                                              None="{DynamicResource StatusButtonStyle}" 
+                                              NullSource="{DynamicResource StatusButtonStyle}" 
+                                              Warning="{DynamicResource WarningStatusButtonStyle}" />
         <Converter:BooleanToTextWrappingConverter x:Key="BooleanToTextWrappingConverter"/>
-        <Converter:BooleanToScrollBarVisibilityConverter x:Key="BooleanToHorizontalScrollBarVisibilityConverter" TrueValue="Disabled" FalseValue="Auto"/>
+        <Converter:BooleanToScrollBarVisibilityConverter x:Key="BooleanToHorizontalScrollBarVisibilityConverter" True="Disabled" False="Auto"/>
     </Window.Resources>
     <Window.InputBindings>
         <!--<KeyBinding Modifiers="Ctrl" Key="A" Command="ApplicationCommands.SelectAll" />-->

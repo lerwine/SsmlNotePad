@@ -6,162 +6,124 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
-    [ValueConversion(typeof(string), typeof(Visibility?))]
-    public class StringToVisibilityConverter : DependencyObject, IValueConverter
+    /// <summary>
+    /// Converts <seealso cref="string"/> values to  <seealso cref="Visibility"/> values.
+    /// </summary>
+    [ValueConversion(typeof(string), typeof(Visibility))]
+    public class StringToVisibilityConverter : ToValueConverterBase<string, Visibility>
     {
-        #region NullVisibility Property Members
-
-        public const string DependencyPropertyName_NullVisibility = "NullVisibility";
+        #region Null Property Members
 
         /// <summary>
-        /// Identifies the <see cref="NullVisibility"/> dependency property.
+        /// Defines the name for the <see cref="Null"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NullVisibilityProperty = DependencyProperty.Register(DependencyPropertyName_NullVisibility, typeof(Visibility?), typeof(StringToVisibilityConverter),
+        public const string DependencyPropertyName_Null = "Null";
+
+        /// <summary>
+        /// Identifies the <see cref="Null"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty NullProperty = DependencyProperty.Register(DependencyPropertyName_Null, typeof(Visibility?), typeof(StringToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
 
         /// <summary>
-        /// 
+        /// <seealso cref="Nullable{Visibility}"/> value to represent a null source value.
         /// </summary>
-        public Visibility? NullVisibility
+        public Visibility? Null
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Visibility?)(GetValue(NullVisibilityProperty));
-                return Dispatcher.Invoke(() => NullVisibility);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NullVisibilityProperty, value);
-                else
-                    Dispatcher.Invoke(() => NullVisibility = value);
-            }
+            get { return GetValue(NullProperty) as Visibility?; }
+            set { SetValue(NullProperty, value); }
         }
 
         #endregion
 
-        #region EmptyVisibility Property Members
-
-        public const string DependencyPropertyName_EmptyVisibility = "EmptyVisibility";
+        #region Empty Property Members
 
         /// <summary>
-        /// Identifies the <see cref="EmptyVisibility"/> dependency property.
+        /// Defines the name for the <see cref="Empty"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty EmptyVisibilityProperty = DependencyProperty.Register(DependencyPropertyName_EmptyVisibility, typeof(Visibility?), typeof(StringToVisibilityConverter),
+        public const string DependencyPropertyName_Empty = "Empty";
+
+        /// <summary>
+        /// Identifies the <see cref="Empty"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty EmptyProperty = DependencyProperty.Register(DependencyPropertyName_Empty, typeof(Visibility?), typeof(StringToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
 
         /// <summary>
-        /// 
+        /// <seealso cref="Nullable{Visibility}"/> value to represent a empty string source value.
         /// </summary>
-        public Visibility? EmptyVisibility
+        public Visibility? Empty
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Visibility?)(GetValue(EmptyVisibilityProperty));
-                return Dispatcher.Invoke(() => EmptyVisibility);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(EmptyVisibilityProperty, value);
-                else
-                    Dispatcher.Invoke(() => EmptyVisibility = value);
-            }
+            get { return GetValue(EmptyProperty) as Visibility?; }
+            set { SetValue(EmptyProperty, value); }
         }
 
         #endregion
 
-        #region WhitespaceVisibility Property Members
-
-        public const string DependencyPropertyName_WhitespaceVisibility = "WhitespaceVisibility";
+        #region Whitespace Property Members
 
         /// <summary>
-        /// Identifies the <see cref="WhitespaceVisibility"/> dependency property.
+        /// Defines the name for the <see cref="Whitespace"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty WhitespaceVisibilityProperty = DependencyProperty.Register(DependencyPropertyName_WhitespaceVisibility, typeof(Visibility?), typeof(StringToVisibilityConverter),
+        public const string DependencyPropertyName_Whitespace = "Whitespace";
+
+        /// <summary>
+        /// Identifies the <see cref="Whitespace"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty WhitespaceProperty = DependencyProperty.Register(DependencyPropertyName_Whitespace, typeof(Visibility?), typeof(StringToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
 
         /// <summary>
-        /// 
+        /// <seealso cref="Nullable{Visibility}"/> value to represent a non-empty source value which only contains whitespace.
         /// </summary>
-        public Visibility? WhitespaceVisibility
+        public Visibility? Whitespace
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Visibility?)(GetValue(WhitespaceVisibilityProperty));
-                return Dispatcher.Invoke(() => WhitespaceVisibility);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(WhitespaceVisibilityProperty, value);
-                else
-                    Dispatcher.Invoke(() => WhitespaceVisibility = value);
-            }
+            get { return GetValue(WhitespaceProperty) as Visibility?; }
+            set { SetValue(WhitespaceProperty, value); }
         }
 
         #endregion
 
-        #region NonWhitespaceVisibility Property Members
-
-        public const string DependencyPropertyName_NonWhitespaceVisibility = "NonWhitespaceVisibility";
+        #region NonWhitespace Property Members
 
         /// <summary>
-        /// Identifies the <see cref="NonWhitespaceVisibility"/> dependency property.
+        /// Defines the name for the <see cref="NonWhitespace"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NonWhitespaceVisibilityProperty = DependencyProperty.Register(DependencyPropertyName_NonWhitespaceVisibility, typeof(Visibility?), typeof(StringToVisibilityConverter),
+        public const string DependencyPropertyName_NonWhitespace = "NonWhitespace";
+
+        /// <summary>
+        /// Identifies the <see cref="NonWhitespace"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty NonWhitespaceProperty = DependencyProperty.Register(DependencyPropertyName_NonWhitespace, typeof(Visibility?), typeof(StringToVisibilityConverter),
                 new PropertyMetadata(Visibility.Visible));
 
         /// <summary>
-        /// 
+        /// <seealso cref="Nullable{Visibility}"/> value to represent a source value which contains at least one non-whitespace character.
         /// </summary>
-        public Visibility? NonWhitespaceVisibility
+        public Visibility? NonWhitespace
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Visibility?)(GetValue(NonWhitespaceVisibilityProperty));
-                return Dispatcher.Invoke(() => NonWhitespaceVisibility);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NonWhitespaceVisibilityProperty, value);
-                else
-                    Dispatcher.Invoke(() => NonWhitespaceVisibility = value);
-            }
+            get { return GetValue(WhitespaceProperty) as Visibility?; }
+            set { SetValue(WhitespaceProperty, value); }
         }
 
         #endregion
 
-        public virtual Visibility? Convert(string value, object parameter, CultureInfo culture)
+        /// <summary>
+        /// Converts a <seealso cref="string"/> value to a <seealso cref="Visibility"/> value.
+        /// </summary>
+        /// <param name="value">The <seealso cref="string"/> produced by the binding source.</param>
+        /// <param name="parameter">Parameter passed by the binding source.</param>
+        /// <param name="culture">Culture specified through the binding source.</param>
+        /// <returns><seealso cref="string"/> value converted to a <seealso cref="Visibility"/> or null value.</returns>
+        public override Visibility? Convert(string value, object parameter, CultureInfo culture)
         {
-            if (value == null)
-                return NullVisibility;
-
             if (value.Length == 0)
-                return EmptyVisibility;
+                return Empty;
 
             if (value.Any(c => !Char.IsWhiteSpace(c)))
-                return NonWhitespaceVisibility;
+                return NonWhitespace;
 
-            return WhitespaceVisibility;
-        }
-
-        object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (targetType == null || targetType.Equals(typeof(Visibility)) || targetType.Equals(typeof(Visibility?)))
-                return Convert(value as string, parameter, culture);
-
-            return System.Convert.ChangeType(value, targetType);
-        }
-
-        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
+            return Whitespace;
         }
     }
 }

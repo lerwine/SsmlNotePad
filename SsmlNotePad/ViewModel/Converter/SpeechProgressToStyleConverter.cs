@@ -5,6 +5,9 @@ using System.Windows.Data;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
+    /// <summary>
+    /// Converts speech status enumerated value to a Style value.
+    /// </summary>
     [ValueConversion(typeof(Model.SpeechProgressState), typeof(Style))]
     public class SpeechProgressToStyleConverter : ToClassConverterBase<Model.SpeechProgressState, Style>, IValueConverter
     {
@@ -22,7 +25,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// <see cref="Style"/> value which indicates that the speech synthesizer has not been started
+        /// (<see cref="Model.SpeechProgressState.NotStarted"/> source value).
         /// </summary>
         public Style NotStarted
         {
@@ -46,7 +50,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// <see cref="Style"/> value which indicates that the speech synthesizer is currently speaking, no faults have been encountered and is not in a
+        /// state of being canceled (<see cref="Model.SpeechProgressState.SpeakingNormal"/> source value).
         /// </summary>
         public Style SpeakingNormal
         {
@@ -70,7 +75,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// <see cref="Style"/> value which indicates that the speech synthesizer is currently speaking, at least one fault has been encountered and is
+        /// not in a state of being canceled (<see cref="Model.SpeechProgressState.SpeakingWithFault"/> source value).
         /// </summary>
         public Style SpeakingWithFault
         {
@@ -94,7 +100,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// <see cref="Style"/> value which indicates that the speech synthesizer is currently paused and no faults have been encountered
+        /// (<see cref="Model.SpeechProgressState.PausedNormal"/> source value).
         /// </summary>
         public Style PausedNormal
         {
@@ -118,7 +125,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// <see cref="Style"/> value which indicates that the speech synthesizer is currently paused and at least one fault has been encountered
+        /// (<see cref="Model.SpeechProgressState.PausedWithFault"/> source value).
         /// </summary>
         public Style PausedWithFault
         {
@@ -142,7 +150,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// <see cref="Style"/> value which indicates that the speech synthesizer is currently speaking and is in the state of being canceled
+        /// (<see cref="Model.SpeechProgressState.Cancelling"/> source value).
         /// </summary>
         public Style Cancelling
         {
@@ -166,7 +175,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// <see cref="Style"/> value which indicates that the speech synthesizer has completed successfully, no faults have been encountered and was not canceled
+        /// (<see cref="Model.SpeechProgressState.CompletedSuccess"/> source value).
         /// </summary>
         public Style CompletedSuccess
         {
@@ -190,7 +200,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// <see cref="Style"/> value which indicates that the speech synthesizer has completed, at least one fault has been encountered, and was not canceled
+        /// (<see cref="Model.SpeechProgressState.CompletedWithFault"/> source value).
         /// </summary>
         public Style CompletedWithFault
         {
@@ -214,7 +225,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// 
+        /// <see cref="Style"/> value which indicates that the speech synthesizer has completed and was canceled
+        /// (<seealso cref="Model.SpeechProgressState.Canceled"/> source value).
         /// </summary>
         public Style Canceled
         {

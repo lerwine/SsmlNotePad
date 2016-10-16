@@ -75,10 +75,16 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// <param name="e">Information about the event.</param>
         protected virtual void ViewModelValidationMessages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (Dispatcher.CheckAccess())
+            try
+            {
+                ViewModelValidationMessagesPropertyCollectionChanged?.Invoke(sender, e);
+            }
+            finally
+            {
                 OnViewModelValidationMessagesChanged(e.Action, e.OldStartingIndex,
                     e.OldItems == null ? new ViewModelValidationMessageVM[0] : e.OldItems.OfType<ViewModelValidationMessageVM>(),
                     e.NewStartingIndex, e.NewItems == null ? new ViewModelValidationMessageVM[0] : e.NewItems.OfType<ViewModelValidationMessageVM>());
+            }
         }
 
         #endregion

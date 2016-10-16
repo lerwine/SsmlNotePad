@@ -1,671 +1,527 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
-using System.Xml;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
 {
+    /// <summary>
+    /// Base class for converting <seealso cref="System.Xml.XmlNodeType"/> value to a <typeparam name="T" /> value.
+    /// </summary>
     public abstract class XmlNodeTypeConverter<T> : DependencyObject, IValueConverter
     {
-        #region NullValue Property Members
-
-        public const string DependencyPropertyName_NullValue = "NullValue";
+        #region NullSource Property Members
 
         /// <summary>
-        /// Identifies the <see cref="NullValue"/> dependency property.
+        /// Defines the name for the <see cref="NullSource"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NullValueProperty = DependencyProperty.Register(DependencyPropertyName_NullValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_NullSource = "NullSource";
 
         /// <summary>
-        /// Value to return when source value is null.
+        /// Identifies the <see cref="NullSource"/> dependency property.
         /// </summary>
-        public T NullValue
+        public static readonly DependencyProperty NullSourceProperty = DependencyProperty.Register(DependencyPropertyName_NullSource, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// <typeparamref name="T"/> to return when the binding source produces a null value.
+        /// </summary>
+        public T NullSource
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(NullValueProperty));
-                return Dispatcher.Invoke(() => NullValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NullValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => NullValue = value);
-            }
+            get { return (T)(GetValue(NullSourceProperty)); }
+            set { SetValue(NullSourceProperty, value); }
         }
 
         #endregion
 
-        #region NoneValue Property Members
-
-        public const string DependencyPropertyName_NoneValue = "NoneValue";
+        #region None Property Members
 
         /// <summary>
-        /// Identifies the <see cref="NoneValue"/> dependency property.
+        /// Defines the name for the <see cref="None"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NoneValueProperty = DependencyProperty.Register(DependencyPropertyName_NoneValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_None = "None";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.None"/>.
+        /// Identifies the <see cref="None"/> dependency property.
         /// </summary>
-        public T NoneValue
+        public static readonly DependencyProperty NoneProperty = DependencyProperty.Register(DependencyPropertyName_None, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.None"/>.
+        /// </summary>
+        public T None
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(NoneValueProperty));
-                return Dispatcher.Invoke(() => NoneValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NoneValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => NoneValue = value);
-            }
+            get { return (T)(GetValue(NoneProperty)); }
+            set { SetValue(NoneProperty, value); }
         }
 
         #endregion
 
-        #region ElementValue Property Members
-
-        public const string DependencyPropertyName_ElementValue = "ElementValue";
+        #region Element Property Members
 
         /// <summary>
-        /// Identifies the <see cref="ElementValue"/> dependency property.
+        /// Defines the name for the <see cref="Element"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty ElementValueProperty = DependencyProperty.Register(DependencyPropertyName_ElementValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_Element = "Element";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.Element"/>.
+        /// Identifies the <see cref="Element"/> dependency property.
         /// </summary>
-        public T ElementValue
+        public static readonly DependencyProperty ElementProperty = DependencyProperty.Register(DependencyPropertyName_Element, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.Element"/>.
+        /// </summary>
+        public T Element
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(ElementValueProperty));
-                return Dispatcher.Invoke(() => ElementValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(ElementValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => ElementValue = value);
-            }
+            get { return (T)(GetValue(ElementProperty)); }
+            set { SetValue(ElementProperty, value); }
         }
 
         #endregion
 
-        #region AttributeValue Property Members
-
-        public const string DependencyPropertyName_AttributeValue = "AttributeValue";
+        #region Attribute Property Members
 
         /// <summary>
-        /// Identifies the <see cref="AttributeValue"/> dependency property.
+        /// Defines the name for the <see cref="Attribute"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty AttributeValueProperty = DependencyProperty.Register(DependencyPropertyName_AttributeValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_Attribute = "Attribute";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.Attribute"/>.
+        /// Identifies the <see cref="Attribute"/> dependency property.
         /// </summary>
-        public T AttributeValue
+        public static readonly DependencyProperty AttributeProperty = DependencyProperty.Register(DependencyPropertyName_Attribute, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.Attribute"/>.
+        /// </summary>
+        public T Attribute
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(AttributeValueProperty));
-                return Dispatcher.Invoke(() => AttributeValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(AttributeValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => AttributeValue = value);
-            }
+            get { return (T)(GetValue(AttributeProperty)); }
+            set { SetValue(AttributeProperty, value); }
         }
 
         #endregion
 
-        #region TextValue Property Members
-
-        public const string DependencyPropertyName_TextValue = "TextValue";
+        #region Text Property Members
 
         /// <summary>
-        /// Identifies the <see cref="TextValue"/> dependency property.
+        /// Defines the name for the <see cref="Text"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty TextValueProperty = DependencyProperty.Register(DependencyPropertyName_TextValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_Text = "Text";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.Text"/>.
+        /// Identifies the <see cref="Text"/> dependency property.
         /// </summary>
-        public T TextValue
+        public static readonly DependencyProperty TextProperty = DependencyProperty.Register(DependencyPropertyName_Text, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.Text"/>.
+        /// </summary>
+        public T Text
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(TextValueProperty));
-                return Dispatcher.Invoke(() => TextValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(TextValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => TextValue = value);
-            }
+            get { return (T)(GetValue(TextProperty)); }
+            set { SetValue(TextProperty, value); }
         }
 
         #endregion
 
-        #region CDATAValue Property Members
-
-        public const string DependencyPropertyName_CDATAValue = "CDATAValue";
+        #region CDATA Property Members
 
         /// <summary>
-        /// Identifies the <see cref="CDATAValue"/> dependency property.
+        /// Defines the name for the <see cref="CDATA"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty CDATAValueProperty = DependencyProperty.Register(DependencyPropertyName_CDATAValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_CDATA = "CDATA";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.CDATA"/>.
+        /// Identifies the <see cref="CDATA"/> dependency property.
         /// </summary>
-        public T CDATAValue
+        public static readonly DependencyProperty CDATAProperty = DependencyProperty.Register(DependencyPropertyName_CDATA, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.CDATA"/>.
+        /// </summary>
+        public T CDATA
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(CDATAValueProperty));
-                return Dispatcher.Invoke(() => CDATAValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(CDATAValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => CDATAValue = value);
-            }
+            get { return (T)(GetValue(CDATAProperty)); }
+            set { SetValue(CDATAProperty, value); }
         }
 
         #endregion
 
-        #region EntityReferenceValue Property Members
-
-        public const string DependencyPropertyName_EntityReferenceValue = "EntityReferenceValue";
+        #region EntityReference Property Members
 
         /// <summary>
-        /// Identifies the <see cref="EntityReferenceValue"/> dependency property.
+        /// Defines the name for the <see cref="EntityReference"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty EntityReferenceValueProperty = DependencyProperty.Register(DependencyPropertyName_EntityReferenceValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_EntityReference = "EntityReference";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.EntityReference"/>.
+        /// Identifies the <see cref="EntityReference"/> dependency property.
         /// </summary>
-        public T EntityReferenceValue
+        public static readonly DependencyProperty EntityReferenceProperty = DependencyProperty.Register(DependencyPropertyName_EntityReference, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.EntityReference"/>.
+        /// </summary>
+        public T EntityReference
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(EntityReferenceValueProperty));
-                return Dispatcher.Invoke(() => EntityReferenceValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(EntityReferenceValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => EntityReferenceValue = value);
-            }
+            get { return (T)(GetValue(EntityReferenceProperty)); }
+            set { SetValue(EntityReferenceProperty, value); }
         }
 
         #endregion
 
-        #region EntityValue Property Members
-
-        public const string DependencyPropertyName_EntityValue = "EntityValue";
+        #region Entity Property Members
 
         /// <summary>
-        /// Identifies the <see cref="EntityValue"/> dependency property.
+        /// Defines the name for the <see cref="Entity"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty EntityValueProperty = DependencyProperty.Register(DependencyPropertyName_EntityValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_Entity = "Entity";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.Entity"/>.
+        /// Identifies the <see cref="Entity"/> dependency property.
         /// </summary>
-        public T EntityValue
+        public static readonly DependencyProperty EntityProperty = DependencyProperty.Register(DependencyPropertyName_Entity, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.Entity"/>.
+        /// </summary>
+        public T Entity
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(EntityValueProperty));
-                return Dispatcher.Invoke(() => EntityValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(EntityValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => EntityValue = value);
-            }
+            get { return (T)(GetValue(EntityProperty)); }
+            set { SetValue(EntityProperty, value); }
         }
 
         #endregion
 
-        #region ProcessingInstructionValue Property Members
-
-        public const string DependencyPropertyName_ProcessingInstructionValue = "ProcessingInstructionValue";
+        #region ProcessingInstruction Property Members
 
         /// <summary>
-        /// Identifies the <see cref="ProcessingInstructionValue"/> dependency property.
+        /// Defines the name for the <see cref="ProcessingInstruction"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty ProcessingInstructionValueProperty = DependencyProperty.Register(DependencyPropertyName_ProcessingInstructionValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_ProcessingInstruction = "ProcessingInstruction";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.ProcessingInstruction"/>.
+        /// Identifies the <see cref="ProcessingInstruction"/> dependency property.
         /// </summary>
-        public T ProcessingInstructionValue
+        public static readonly DependencyProperty ProcessingInstructionProperty = DependencyProperty.Register(DependencyPropertyName_ProcessingInstruction, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.ProcessingInstruction"/>.
+        /// </summary>
+        public T ProcessingInstruction
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(ProcessingInstructionValueProperty));
-                return Dispatcher.Invoke(() => ProcessingInstructionValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(ProcessingInstructionValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => ProcessingInstructionValue = value);
-            }
+            get { return (T)(GetValue(ProcessingInstructionProperty)); }
+            set { SetValue(ProcessingInstructionProperty, value); }
         }
 
         #endregion
 
-        #region CommentValue Property Members
-
-        public const string DependencyPropertyName_CommentValue = "CommentValue";
+        #region Comment Property Members
 
         /// <summary>
-        /// Identifies the <see cref="CommentValue"/> dependency property.
+        /// Defines the name for the <see cref="Comment"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty CommentValueProperty = DependencyProperty.Register(DependencyPropertyName_CommentValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_Comment = "Comment";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.Comment"/>.
+        /// Identifies the <see cref="Comment"/> dependency property.
         /// </summary>
-        public T CommentValue
+        public static readonly DependencyProperty CommentProperty = DependencyProperty.Register(DependencyPropertyName_Comment, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.Comment"/>.
+        /// </summary>
+        public T Comment
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(CommentValueProperty));
-                return Dispatcher.Invoke(() => CommentValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(CommentValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => CommentValue = value);
-            }
+            get { return (T)(GetValue(CommentProperty)); }
+            set { SetValue(CommentProperty, value); }
         }
 
         #endregion
 
-        #region DocumentValue Property Members
-
-        public const string DependencyPropertyName_DocumentValue = "DocumentValue";
+        #region Document Property Members
 
         /// <summary>
-        /// Identifies the <see cref="DocumentValue"/> dependency property.
+        /// Defines the name for the <see cref="Document"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty DocumentValueProperty = DependencyProperty.Register(DependencyPropertyName_DocumentValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_Document = "Document";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.Document"/>.
+        /// Identifies the <see cref="Document"/> dependency property.
         /// </summary>
-        public T DocumentValue
+        public static readonly DependencyProperty DocumentProperty = DependencyProperty.Register(DependencyPropertyName_Document, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.Document"/>.
+        /// </summary>
+        public T Document
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(DocumentValueProperty));
-                return Dispatcher.Invoke(() => DocumentValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(DocumentValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => DocumentValue = value);
-            }
+            get { return (T)(GetValue(DocumentProperty)); }
+            set { SetValue(DocumentProperty, value); }
         }
 
         #endregion
 
-        #region DocumentTypeValue Property Members
-
-        public const string DependencyPropertyName_DocumentTypeValue = "DocumentTypeValue";
+        #region DocumentType Property Members
 
         /// <summary>
-        /// Identifies the <see cref="DocumentTypeValue"/> dependency property.
+        /// Defines the name for the <see cref="DocumentType"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty DocumentTypeValueProperty = DependencyProperty.Register(DependencyPropertyName_DocumentTypeValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_DocumentType = "DocumentType";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.DocumentType"/>.
+        /// Identifies the <see cref="DocumentType"/> dependency property.
         /// </summary>
-        public T DocumentTypeValue
+        public static readonly DependencyProperty DocumentTypeProperty = DependencyProperty.Register(DependencyPropertyName_DocumentType, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.DocumentType"/>.
+        /// </summary>
+        public T DocumentType
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(DocumentTypeValueProperty));
-                return Dispatcher.Invoke(() => DocumentTypeValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(DocumentTypeValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => DocumentTypeValue = value);
-            }
+            get { return (T)(GetValue(DocumentTypeProperty)); }
+            set { SetValue(DocumentTypeProperty, value); }
         }
 
         #endregion
 
-        #region DocumentFragmentValue Property Members
-
-        public const string DependencyPropertyName_DocumentFragmentValue = "DocumentFragmentValue";
+        #region DocumentFragment Property Members
 
         /// <summary>
-        /// Identifies the <see cref="DocumentFragmentValue"/> dependency property.
+        /// Defines the name for the <see cref="DocumentFragment"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty DocumentFragmentValueProperty = DependencyProperty.Register(DependencyPropertyName_DocumentFragmentValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_DocumentFragment = "DocumentFragment";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.DocumentFragment"/>.
+        /// Identifies the <see cref="DocumentFragment"/> dependency property.
         /// </summary>
-        public T DocumentFragmentValue
+        public static readonly DependencyProperty DocumentFragmentProperty = DependencyProperty.Register(DependencyPropertyName_DocumentFragment, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.DocumentFragment"/>.
+        /// </summary>
+        public T DocumentFragment
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(DocumentFragmentValueProperty));
-                return Dispatcher.Invoke(() => DocumentFragmentValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(DocumentFragmentValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => DocumentFragmentValue = value);
-            }
+            get { return (T)(GetValue(DocumentFragmentProperty)); }
+            set { SetValue(DocumentFragmentProperty, value); }
         }
 
         #endregion
 
-        #region NotationValue Property Members
-
-        public const string DependencyPropertyName_NotationValue = "NotationValue";
+        #region Notation Property Members
 
         /// <summary>
-        /// Identifies the <see cref="NotationValue"/> dependency property.
+        /// Defines the name for the <see cref="Notation"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty NotationValueProperty = DependencyProperty.Register(DependencyPropertyName_NotationValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_Notation = "Notation";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.Notation"/>.
+        /// Identifies the <see cref="Notation"/> dependency property.
         /// </summary>
-        public T NotationValue
+        public static readonly DependencyProperty NotationProperty = DependencyProperty.Register(DependencyPropertyName_Notation, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.Notation"/>.
+        /// </summary>
+        public T Notation
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(NotationValueProperty));
-                return Dispatcher.Invoke(() => NotationValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(NotationValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => NotationValue = value);
-            }
+            get { return (T)(GetValue(NotationProperty)); }
+            set { SetValue(NotationProperty, value); }
         }
 
         #endregion
 
-        #region WhitespaceValue Property Members
-
-        public const string DependencyPropertyName_WhitespaceValue = "WhitespaceValue";
+        #region Whitespace Property Members
 
         /// <summary>
-        /// Identifies the <see cref="WhitespaceValue"/> dependency property.
+        /// Defines the name for the <see cref="Whitespace"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty WhitespaceValueProperty = DependencyProperty.Register(DependencyPropertyName_WhitespaceValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_Whitespace = "Whitespace";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.Whitespace"/>.
+        /// Identifies the <see cref="Whitespace"/> dependency property.
         /// </summary>
-        public T WhitespaceValue
+        public static readonly DependencyProperty WhitespaceProperty = DependencyProperty.Register(DependencyPropertyName_Whitespace, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.Whitespace"/>.
+        /// </summary>
+        public T Whitespace
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(WhitespaceValueProperty));
-                return Dispatcher.Invoke(() => WhitespaceValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(WhitespaceValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => WhitespaceValue = value);
-            }
+            get { return (T)(GetValue(WhitespaceProperty)); }
+            set { SetValue(WhitespaceProperty, value); }
         }
 
         #endregion
 
-        #region SignificantWhitespaceValue Property Members
-
-        public const string DependencyPropertyName_SignificantWhitespaceValue = "SignificantWhitespaceValue";
+        #region SignificantWhitespace Property Members
 
         /// <summary>
-        /// Identifies the <see cref="SignificantWhitespaceValue"/> dependency property.
+        /// Defines the name for the <see cref="SignificantWhitespace"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty SignificantWhitespaceValueProperty = DependencyProperty.Register(DependencyPropertyName_SignificantWhitespaceValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_SignificantWhitespace = "SignificantWhitespace";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.SignificantWhitespace"/>.
+        /// Identifies the <see cref="SignificantWhitespace"/> dependency property.
         /// </summary>
-        public T SignificantWhitespaceValue
+        public static readonly DependencyProperty SignificantWhitespaceProperty = DependencyProperty.Register(DependencyPropertyName_SignificantWhitespace, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.SignificantWhitespace"/>.
+        /// </summary>
+        public T SignificantWhitespace
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(SignificantWhitespaceValueProperty));
-                return Dispatcher.Invoke(() => SignificantWhitespaceValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(SignificantWhitespaceValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => SignificantWhitespaceValue = value);
-            }
+            get { return (T)(GetValue(SignificantWhitespaceProperty)); }
+            set { SetValue(SignificantWhitespaceProperty, value); }
         }
 
         #endregion
 
-        #region EndElementValue Property Members
-
-        public const string DependencyPropertyName_EndElementValue = "EndElementValue";
+        #region EndElement Property Members
 
         /// <summary>
-        /// Identifies the <see cref="EndElementValue"/> dependency property.
+        /// Defines the name for the <see cref="EndElement"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty EndElementValueProperty = DependencyProperty.Register(DependencyPropertyName_EndElementValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_EndElement = "EndElement";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.EndElement"/>.
+        /// Identifies the <see cref="EndElement"/> dependency property.
         /// </summary>
-        public T EndElementValue
+        public static readonly DependencyProperty EndElementProperty = DependencyProperty.Register(DependencyPropertyName_EndElement, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.EndElement"/>.
+        /// </summary>
+        public T EndElement
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(EndElementValueProperty));
-                return Dispatcher.Invoke(() => EndElementValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(EndElementValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => EndElementValue = value);
-            }
+            get { return (T)(GetValue(EndElementProperty)); }
+            set { SetValue(EndElementProperty, value); }
         }
 
         #endregion
 
-        #region EndEntityValue Property Members
-
-        public const string DependencyPropertyName_EndEntityValue = "EndEntityValue";
+        #region EndEntity Property Members
 
         /// <summary>
-        /// Identifies the <see cref="EndEntityValue"/> dependency property.
+        /// Defines the name for the <see cref="EndEntity"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty EndEntityValueProperty = DependencyProperty.Register(DependencyPropertyName_EndEntityValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_EndEntity = "EndEntity";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.EndEntity"/>.
+        /// Identifies the <see cref="EndEntity"/> dependency property.
         /// </summary>
-        public T EndEntityValue
+        public static readonly DependencyProperty EndEntityProperty = DependencyProperty.Register(DependencyPropertyName_EndEntity, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.EndEntity"/>.
+        /// </summary>
+        public T EndEntity
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(EndEntityValueProperty));
-                return Dispatcher.Invoke(() => EndEntityValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(EndEntityValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => EndEntityValue = value);
-            }
+            get { return (T)(GetValue(EndEntityProperty)); }
+            set { SetValue(EndEntityProperty, value); }
         }
 
         #endregion
 
-        #region XmlDeclarationValue Property Members
-
-        public const string DependencyPropertyName_XmlDeclarationValue = "XmlDeclarationValue";
+        #region XmlDeclaration Property Members
 
         /// <summary>
-        /// Identifies the <see cref="XmlDeclarationValue"/> dependency property.
+        /// Defines the name for the <see cref="XmlDeclaration"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty XmlDeclarationValueProperty = DependencyProperty.Register(DependencyPropertyName_XmlDeclarationValue, typeof(T),
-            typeof(XmlNodeTypeConverter<TabControl>), new PropertyMetadata(default(T)));
+        public const string DependencyPropertyName_XmlDeclaration = "XmlDeclaration";
 
         /// <summary>
-        /// Value to return when source value is <see cref="XmlNodeType.XmlDeclaration"/>.
+        /// Identifies the <see cref="XmlDeclaration"/> dependency property.
         /// </summary>
-        public T XmlDeclarationValue
+        public static readonly DependencyProperty XmlDeclarationProperty = DependencyProperty.Register(DependencyPropertyName_XmlDeclaration, typeof(T),
+            typeof(XmlNodeTypeConverter<T>), new PropertyMetadata(default(T)));
+
+        /// <summary>
+        /// Value to return when source value is <see cref="System.Xml.XmlNodeType.XmlDeclaration"/>.
+        /// </summary>
+        public T XmlDeclaration
         {
-            get
-            {
-                if (CheckAccess())
-                    return (T)(GetValue(XmlDeclarationValueProperty));
-                return Dispatcher.Invoke(() => XmlDeclarationValue);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(XmlDeclarationValueProperty, value);
-                else
-                    Dispatcher.Invoke(() => XmlDeclarationValue = value);
-            }
+            get { return (T)(GetValue(XmlDeclarationProperty)); }
+            set { SetValue(XmlDeclarationProperty, value); }
         }
 
         #endregion
 
-        public T Convert(XmlNodeType? value, object parameter, CultureInfo culture)
+        /// <summary>
+        /// Converts a <seealso cref="FindReplaceDisplayMode"/> value to a <typeparamref name="T"/> value.
+        /// </summary>
+        /// <param name="value">The <seealso cref="FindReplaceDisplayMode"/> produced by the binding source.</param>
+        /// <param name="parameter">Parameter passed by the binding source.</param>
+        /// <param name="culture">Culture specified through the binding source.</param>
+        /// <returns><seealso cref="FindReplaceDisplayMode"/>value converted to a <typeparamref name="T"/> value.</returns>
+        public T Convert(System.Xml.XmlNodeType? value, object parameter, CultureInfo culture)
         {
             if (!value.HasValue)
-                return NullValue;
+                return NullSource;
 
             switch (value.Value)
             {
-                case XmlNodeType.Element:
-                    return ElementValue;
-                case XmlNodeType.Attribute:
-                    return AttributeValue;
-                case XmlNodeType.Text:
-                    return TextValue;
-                case XmlNodeType.CDATA:
-                    return CDATAValue;
-                case XmlNodeType.EntityReference:
-                    return EntityReferenceValue;
-                case XmlNodeType.Entity:
-                    return EntityValue;
-                case XmlNodeType.ProcessingInstruction:
-                    return ProcessingInstructionValue;
-                case XmlNodeType.Comment:
-                    return CommentValue;
-                case XmlNodeType.Document:
-                    return DocumentValue;
-                case XmlNodeType.DocumentType:
-                    return DocumentTypeValue;
-                case XmlNodeType.DocumentFragment:
-                    return DocumentFragmentValue;
-                case XmlNodeType.Notation:
-                    return NotationValue;
-                case XmlNodeType.Whitespace:
-                    return WhitespaceValue;
-                case XmlNodeType.SignificantWhitespace:
-                    return SignificantWhitespaceValue;
-                case XmlNodeType.EndElement:
-                    return EndElementValue;
-                case XmlNodeType.EndEntity:
-                    return EndEntityValue;
-                case XmlNodeType.XmlDeclaration:
-                    return XmlDeclarationValue;
+                case System.Xml.XmlNodeType.Element:
+                    return Element;
+                case System.Xml.XmlNodeType.Attribute:
+                    return Attribute;
+                case System.Xml.XmlNodeType.Text:
+                    return Text;
+                case System.Xml.XmlNodeType.CDATA:
+                    return CDATA;
+                case System.Xml.XmlNodeType.EntityReference:
+                    return EntityReference;
+                case System.Xml.XmlNodeType.Entity:
+                    return Entity;
+                case System.Xml.XmlNodeType.ProcessingInstruction:
+                    return ProcessingInstruction;
+                case System.Xml.XmlNodeType.Comment:
+                    return Comment;
+                case System.Xml.XmlNodeType.Document:
+                    return Document;
+                case System.Xml.XmlNodeType.DocumentType:
+                    return DocumentType;
+                case System.Xml.XmlNodeType.DocumentFragment:
+                    return DocumentFragment;
+                case System.Xml.XmlNodeType.Notation:
+                    return Notation;
+                case System.Xml.XmlNodeType.Whitespace:
+                    return Whitespace;
+                case System.Xml.XmlNodeType.SignificantWhitespace:
+                    return SignificantWhitespace;
+                case System.Xml.XmlNodeType.EndElement:
+                    return EndElement;
+                case System.Xml.XmlNodeType.EndEntity:
+                    return EndEntity;
+                case System.Xml.XmlNodeType.XmlDeclaration:
+                    return XmlDeclaration;
             }
 
-            return NoneValue;
+            return None;
         }
 
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return Convert(value as XmlNodeType?, parameter, culture);
+            return Convert(value as System.Xml.XmlNodeType?, parameter, culture);
         }
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -19,9 +20,13 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
     public class MainWindowVM : DependencyObject
     {
         private object _syncRoot = new object();
+        private Model.TextLineBackgroundParser _textLines = new Model.TextLineBackgroundParser();
+        private Model.TaskHelper _setLineNumbers = new Model.TaskHelper();
 
         public MainWindowVM()
         {
+            _innerValidationMessages.CollectionChanged += ValidationMessages_CollectionChanged;
+            ValidationMessages = new ReadOnlyObservableCollection<ViewModelValidationMessageVM>(_innerValidationMessages);
             LineNumbers = new ObservableCollection<LineNumberVM>();
             SsmlTextBox = new TextBox
             {
@@ -824,7 +829,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         #endregion
 
         #endregion
-
+        
         #region SelectAfterInsert Property Members
 
         public const string DependencyPropertyName_SelectAfterInsert = "SelectAfterInsert";
@@ -955,8 +960,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         public const string PropertyName_FileSaveStatus = "FileSaveStatus";
 
-        private static readonly DependencyPropertyKey FileSaveStatusPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_FileSaveStatus, typeof(FileSaveStatus), typeof(MainWindowVM),
-                new PropertyMetadata(FileSaveStatus.New));
+        private static readonly DependencyPropertyKey FileSaveStatusPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_FileSaveStatus, typeof(Model.FileSaveStatus), typeof(MainWindowVM),
+                new PropertyMetadata(Model.FileSaveStatus.New));
 
         /// <summary>
         /// Identifies the <see cref="FileSaveStatus"/> dependency property.
@@ -966,12 +971,12 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// <summary>
         /// 
         /// </summary>
-        public FileSaveStatus FileSaveStatus
+        public Model.FileSaveStatus FileSaveStatus
         {
             get
             {
                 if (CheckAccess())
-                    return (FileSaveStatus)(GetValue(FileSaveStatusProperty));
+                    return (Model.FileSaveStatus)(GetValue(FileSaveStatusProperty));
                 return Dispatcher.Invoke(() => FileSaveStatus);
             }
             private set
@@ -1023,8 +1028,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         public const string PropertyName_ValidationStatus = "ValidationStatus";
 
-        private static readonly DependencyPropertyKey ValidationStatusPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ValidationStatus, typeof(XmlValidationStatus), typeof(MainWindowVM),
-                new PropertyMetadata(XmlValidationStatus.None));
+        private static readonly DependencyPropertyKey ValidationStatusPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ValidationStatus, typeof(Model.XmlValidationStatus), typeof(MainWindowVM),
+                new PropertyMetadata(Model.XmlValidationStatus.None));
 
         /// <summary>
         /// Identifies the <see cref="ValidationStatus"/> dependency property.
@@ -1034,12 +1039,12 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// <summary>
         /// 
         /// </summary>
-        public XmlValidationStatus ValidationStatus
+        public Model.XmlValidationStatus ValidationStatus
         {
             get
             {
                 if (CheckAccess())
-                    return (XmlValidationStatus)(GetValue(ValidationStatusProperty));
+                    return (Model.XmlValidationStatus)(GetValue(ValidationStatusProperty));
                 return Dispatcher.Invoke(() => ValidationStatus);
             }
             private set
@@ -1189,19 +1194,125 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
 
-        private void SsmlTextBox_SelectionChanged(object sender, RoutedEventArgs e)
+        #region ValidationMessages Property Members
+        
+        /// <summary>
+        /// Defines the name for the <see cref="ValidationMessages"/> dependency property.
+        /// </summary>
+        public const string PropertyName_ValidationMessages = "ValidationMessages";
+
+        private static readonly DependencyPropertyKey ValidationMessagesPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ValidationMessages,
+            typeof(ReadOnlyObservableCollection<ViewModelValidationMessageVM>), typeof(MainWindowVM), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Identifies the <see cref="ValidationMessages"/> read-only dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ValidationMessagesProperty = ValidationMessagesPropertyKey.DependencyProperty;
+
+        private ObservableCollection<ViewModelValidationMessageVM> _innerValidationMessages = new ObservableCollection<ViewModelValidationMessageVM>();
+
+        /// <summary>
+        /// Inner collection for <see cref="ValidationMessages"/>.
+        /// </summary>
+        protected ObservableCollection<ViewModelValidationMessageVM> InnerValidationMessages { get { return _innerValidationMessages; } }
+
+        /// <summary>
+        /// XML validation messages.
+        /// </summary>
+        public ReadOnlyObservableCollection<ViewModelValidationMessageVM> ValidationMessages
         {
-            throw new NotImplementedException();
+            get { return (ReadOnlyObservableCollection<ViewModelValidationMessageVM>)(GetValue(ValidationMessagesProperty)); }
+            private set { SetValue(ValidationMessagesPropertyKey, value); }
+        }
+        
+        /// <summary>
+        /// This gets called when an item in <see cref="ValidationMessages"/> is added, removed, changed, moved, or the entire collection is refreshed.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">Information about the event.</param>
+        protected virtual void ValidationMessages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            // TODO: Implement MainWindowVM.ValidationMessages_CollectionChanged(object, NotifyCollectionChangedEventArgs)
         }
 
-        private void SsmlTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        #endregion
+
+        private void SsmlTextBox_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            _textLines.GetTextLines(null, (o, s, t) => 
+            {
+                Model.TextLine[] lines = t.Result;
+                Dispatcher.Invoke(() =>
+                {
+                    int absIndex = SsmlTextBox.SelectionStart;
+                    Model.TextLine currentLine = lines.TakeWhile(l => l.Index < absIndex).LastOrDefault();
+                    if (currentLine == null)
+                    {
+                        CurrentLineNumber = 1;
+                        CurrentColNumber = absIndex + 1;
+                    }
+                    else
+                    {
+                        CurrentLineNumber = currentLine.LineNumber;
+                        CurrentColNumber = (absIndex - currentLine.Index) + 1;
+                    }
+                });
+            });
+        }
+
+        private void SsmlTextBox_TextChanged(object sender, TextChangedEventArgs e) { _textLines.Text = SsmlTextBox.Text; }
+
+        private IEnumerable<Tuple<int, double>> GetLineOffsets()
+        {
+            for (int lineIndex = SsmlTextBox.GetFirstVisibleLineIndex(); lineIndex <= SsmlTextBox.GetLastVisibleLineIndex(); lineIndex++)
+                yield return new Tuple<int, double>(lineIndex + 1, SsmlTextBox.GetRectFromCharacterIndex(SsmlTextBox.GetCharacterIndexFromLineIndex(lineIndex)).Top);
         }
 
         private void SsmlTextBox_LayoutUpdated(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            _textLines.Text = SsmlTextBox.Text;
+            _textLines.GetTextLines(new object[] { SsmlTextBox.Text, GetLineOffsets().ToArray() }, (o, s, t) =>
+            {
+                object[] args = o as object[];
+                string text = args[0] as string;
+
+                if (text != s)
+                    return;
+
+                Tuple<int, double>[] lineOffsets = args[1] as Tuple<int, double>[];
+                Model.TextLine[] lines = t.Result;
+                Dispatcher.Invoke(() =>
+                {
+                    int absIndex = SsmlTextBox.SelectionStart;
+                    Model.TextLine currentLine = lines.TakeWhile(l => l.Index < absIndex).LastOrDefault();
+                    if (currentLine == null)
+                    {
+                        CurrentLineNumber = 1;
+                        CurrentColNumber = absIndex + 1;
+                    }
+                    else
+                    {
+                        CurrentLineNumber = currentLine.LineNumber;
+                        CurrentColNumber = (absIndex - currentLine.Index) + 1;
+                    }
+                    int end = (lineOffsets.Length > LineNumbers.Count) ? LineNumbers.Count : lineOffsets.Length;
+                    for (int i = 0; i < end; i++)
+                    {
+                        LineNumbers[i].Margin = new Thickness(0.0, lineOffsets[i].Item2, 0.0, 0.0);
+                        LineNumbers[i].Number = lineOffsets[i].Item1;
+                    }
+                    if (lineOffsets.Length > LineNumbers.Count)
+                    {
+                        for (int i = LineNumbers.Count; i < lineOffsets.Length; i++)
+                            LineNumbers.Add(new LineNumberVM(lineOffsets[i].Item1, lineOffsets[i].Item2));
+                    }
+                    else
+                    {
+                        while (LineNumbers.Count > lineOffsets.Length)
+                            LineNumbers.RemoveAt(lineOffsets.Length);
+                    }
+                });
+            });
         }
     }
 }
