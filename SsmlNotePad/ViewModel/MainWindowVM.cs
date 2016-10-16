@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Xml.Schema;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 {
@@ -22,6 +23,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         private object _syncRoot = new object();
         private Model.TextLineBackgroundParser _textLines = new Model.TextLineBackgroundParser();
         private Model.TaskHelper _setLineNumbers = new Model.TaskHelper();
+        private Model.XmlValidator _xmlValidator = new Model.XmlValidator();
 
         public MainWindowVM()
         {
@@ -53,7 +55,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_newDocumentCommand == null)
-                    _newDocumentCommand = new Command.RelayCommand(OnNewDocument);
+                    _newDocumentCommand = new Command.RelayCommand(OnNewDocument, false, true);
 
                 return _newDocumentCommand;
             }
@@ -75,7 +77,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_openDocumentCommand == null)
-                    _openDocumentCommand = new Command.RelayCommand(OnOpenDocument);
+                    _openDocumentCommand = new Command.RelayCommand(OnOpenDocument, false, true);
 
                 return _openDocumentCommand;
             }
@@ -119,7 +121,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_saveAsCommand == null)
-                    _saveAsCommand = new Command.RelayCommand(OnSaveAs);
+                    _saveAsCommand = new Command.RelayCommand(OnSaveAs, false, true);
 
                 return _saveAsCommand;
             }
@@ -145,7 +147,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_pasteEncodedCommand == null)
-                    _pasteEncodedCommand = new Command.RelayCommand(OnPasteEncoded);
+                    _pasteEncodedCommand = new Command.RelayCommand(OnPasteEncoded, false, true);
 
                 return _pasteEncodedCommand;
             }
@@ -167,7 +169,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_reformatDocumentCommand == null)
-                    _reformatDocumentCommand = new Command.RelayCommand(OnReformatDocument);
+                    _reformatDocumentCommand = new Command.RelayCommand(OnReformatDocument, false, true);
 
                 return _reformatDocumentCommand;
             }
@@ -189,7 +191,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_cleanUpLineEndingsCommand == null)
-                    _cleanUpLineEndingsCommand = new Command.RelayCommand(OnCleanUpLineEndings);
+                    _cleanUpLineEndingsCommand = new Command.RelayCommand(OnCleanUpLineEndings, false, true);
 
                 return _cleanUpLineEndingsCommand;
             }
@@ -211,7 +213,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_removeOuterWhitespaceCommand == null)
-                    _removeOuterWhitespaceCommand = new Command.RelayCommand(OnRemoveOuterWhitespace);
+                    _removeOuterWhitespaceCommand = new Command.RelayCommand(OnRemoveOuterWhitespace, false, true);
 
                 return _removeOuterWhitespaceCommand;
             }
@@ -233,7 +235,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_joinLinesCommand == null)
-                    _joinLinesCommand = new Command.RelayCommand(OnJoinLines);
+                    _joinLinesCommand = new Command.RelayCommand(OnJoinLines, false, true);
 
                 return _joinLinesCommand;
             }
@@ -255,7 +257,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_removeEmptyLinesCommand == null)
-                    _removeEmptyLinesCommand = new Command.RelayCommand(OnRemoveEmptyLines);
+                    _removeEmptyLinesCommand = new Command.RelayCommand(OnRemoveEmptyLines, false, true);
 
                 return _removeEmptyLinesCommand;
             }
@@ -277,7 +279,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_removeConsecutiveEmptyLinesCommand == null)
-                    _removeConsecutiveEmptyLinesCommand = new Command.RelayCommand(OnRemoveConsecutiveEmptyLines);
+                    _removeConsecutiveEmptyLinesCommand = new Command.RelayCommand(OnRemoveConsecutiveEmptyLines, false, true);
 
                 return _removeConsecutiveEmptyLinesCommand;
             }
@@ -299,7 +301,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_selectCurrentTagCommand == null)
-                    _selectCurrentTagCommand = new Command.RelayCommand(OnSelectCurrentTag);
+                    _selectCurrentTagCommand = new Command.RelayCommand(OnSelectCurrentTag, false, true);
 
                 return _selectCurrentTagCommand;
             }
@@ -321,7 +323,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_selectTagContentsCommand == null)
-                    _selectTagContentsCommand = new Command.RelayCommand(OnSelectTagContents);
+                    _selectTagContentsCommand = new Command.RelayCommand(OnSelectTagContents, false, true);
 
                 return _selectTagContentsCommand;
             }
@@ -343,7 +345,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_goToLineCommand == null)
-                    _goToLineCommand = new Command.RelayCommand(OnGoToLine);
+                    _goToLineCommand = new Command.RelayCommand(OnGoToLine, false, true);
 
                 return _goToLineCommand;
             }
@@ -365,7 +367,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_findTextCommand == null)
-                    _findTextCommand = new Command.RelayCommand(OnFindText);
+                    _findTextCommand = new Command.RelayCommand(OnFindText, false, true);
 
                 return _findTextCommand;
             }
@@ -387,7 +389,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_findNextCommand == null)
-                    _findNextCommand = new Command.RelayCommand(OnFindNext);
+                    _findNextCommand = new Command.RelayCommand(OnFindNext, false, true);
 
                 return _findNextCommand;
             }
@@ -409,7 +411,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_replaceTextCommand == null)
-                    _replaceTextCommand = new Command.RelayCommand(OnReplaceText);
+                    _replaceTextCommand = new Command.RelayCommand(OnReplaceText, false, true);
 
                 return _replaceTextCommand;
             }
@@ -435,7 +437,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_insertFemaleVoiceCommand == null)
-                    _insertFemaleVoiceCommand = new Command.RelayCommand(OnInsertFemaleVoice);
+                    _insertFemaleVoiceCommand = new Command.RelayCommand(OnInsertFemaleVoice, false, true);
 
                 return _insertFemaleVoiceCommand;
             }
@@ -457,7 +459,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_insertMaleVoiceCommand == null)
-                    _insertMaleVoiceCommand = new Command.RelayCommand(OnInsertMaleVoice);
+                    _insertMaleVoiceCommand = new Command.RelayCommand(OnInsertMaleVoice, false, true);
 
                 return _insertMaleVoiceCommand;
             }
@@ -479,7 +481,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_insertGenderNeutralVoiceCommand == null)
-                    _insertGenderNeutralVoiceCommand = new Command.RelayCommand(OnInsertGenderNeutralVoice);
+                    _insertGenderNeutralVoiceCommand = new Command.RelayCommand(OnInsertGenderNeutralVoice, false, true);
 
                 return _insertGenderNeutralVoiceCommand;
             }
@@ -501,7 +503,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_insertParagraphCommand == null)
-                    _insertParagraphCommand = new Command.RelayCommand(OnInsertParagraph);
+                    _insertParagraphCommand = new Command.RelayCommand(OnInsertParagraph, false, true);
 
                 return _insertParagraphCommand;
             }
@@ -523,7 +525,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_insertSentenceCommand == null)
-                    _insertSentenceCommand = new Command.RelayCommand(OnInsertSentence);
+                    _insertSentenceCommand = new Command.RelayCommand(OnInsertSentence, false, true);
 
                 return _insertSentenceCommand;
             }
@@ -545,7 +547,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_substitutionCommand == null)
-                    _substitutionCommand = new Command.RelayCommand(OnSubstitution);
+                    _substitutionCommand = new Command.RelayCommand(OnSubstitution, false, true);
 
                 return _substitutionCommand;
             }
@@ -567,7 +569,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_spellOutCommand == null)
-                    _spellOutCommand = new Command.RelayCommand(OnSpellOut);
+                    _spellOutCommand = new Command.RelayCommand(OnSpellOut, false, true);
 
                 return _spellOutCommand;
             }
@@ -589,7 +591,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_sayAsCommand == null)
-                    _sayAsCommand = new Command.RelayCommand(OnSayAs);
+                    _sayAsCommand = new Command.RelayCommand(OnSayAs, false, true);
 
                 return _sayAsCommand;
             }
@@ -611,7 +613,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_autoReplaceCommand == null)
-                    _autoReplaceCommand = new Command.RelayCommand(OnAutoReplace);
+                    _autoReplaceCommand = new Command.RelayCommand(OnAutoReplace, false, true);
 
                 return _autoReplaceCommand;
             }
@@ -633,7 +635,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_insertBookmarkCommand == null)
-                    _insertBookmarkCommand = new Command.RelayCommand(OnInsertBookmark);
+                    _insertBookmarkCommand = new Command.RelayCommand(OnInsertBookmark, false, true);
 
                 return _insertBookmarkCommand;
             }
@@ -655,7 +657,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_insertAudioFileCommand == null)
-                    _insertAudioFileCommand = new Command.RelayCommand(OnInsertAudioFile);
+                    _insertAudioFileCommand = new Command.RelayCommand(OnInsertAudioFile, false, true);
 
                 return _insertAudioFileCommand;
             }
@@ -677,7 +679,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_dictateCommand == null)
-                    _dictateCommand = new Command.RelayCommand(OnDictate);
+                    _dictateCommand = new Command.RelayCommand(OnDictate, false, true);
 
                 return _dictateCommand;
             }
@@ -703,7 +705,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_speakAllTextCommand == null)
-                    _speakAllTextCommand = new Command.RelayCommand(OnSpeakAllText);
+                    _speakAllTextCommand = new Command.RelayCommand(OnSpeakAllText, false, true);
 
                 return _speakAllTextCommand;
             }
@@ -749,7 +751,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_defaultSynthSettingsCommand == null)
-                    _defaultSynthSettingsCommand = new Command.RelayCommand(OnDefaultSynthSettings);
+                    _defaultSynthSettingsCommand = new Command.RelayCommand(OnDefaultSynthSettings, false, true);
 
                 return _defaultSynthSettingsCommand;
             }
@@ -771,7 +773,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_aboutSsmlNotePadCommand == null)
-                    _aboutSsmlNotePadCommand = new Command.RelayCommand(OnAboutSsmlNotePad);
+                    _aboutSsmlNotePadCommand = new Command.RelayCommand(OnAboutSsmlNotePad, false, true);
 
                 return _aboutSsmlNotePadCommand;
             }
@@ -793,7 +795,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_showValidationMessagesCommand == null)
-                    _showValidationMessagesCommand = new Command.RelayCommand(OnShowValidationMessages);
+                    _showValidationMessagesCommand = new Command.RelayCommand(OnShowValidationMessages, false, true);
 
                 return _showValidationMessagesCommand;
             }
@@ -815,7 +817,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_showFileSaveMessagesCommand == null)
-                    _showFileSaveMessagesCommand = new Command.RelayCommand(OnShowFileSaveMessages);
+                    _showFileSaveMessagesCommand = new Command.RelayCommand(OnShowFileSaveMessages, false, true);
 
                 return _showFileSaveMessagesCommand;
             }
@@ -1260,7 +1262,27 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             });
         }
 
-        private void SsmlTextBox_TextChanged(object sender, TextChangedEventArgs e) { _textLines.Text = SsmlTextBox.Text; }
+        private void SsmlTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _textLines.Text = SsmlTextBox.Text;
+            _xmlValidator.SetText(SsmlTextBox.Text, this, _textLines);
+            _xmlValidator.GetStatus(null, (o, s, t) =>
+            {
+                Model.XmlValidationResult result = t.Result;
+                Dispatcher.Invoke(() =>
+                {
+                    ValidationStatus = result.Status;
+                    ValidationToolTip = result.Message;
+                });
+            });
+        }
+
+        internal void ClearValidationErrors() { _innerValidationMessages.Clear(); }
+
+        internal void AddValidationError(int lineNumber, int linePosition, string message, Exception exception, Model.XmlValidationStatus xmlValidationStatus)
+        {
+            _innerValidationMessages.Add(new ViewModelValidationMessageVM(PropertyName_ValidationMessages, message, exception, lineNumber, linePosition, xmlValidationStatus));
+        }
 
         private IEnumerable<Tuple<int, double>> GetLineOffsets()
         {

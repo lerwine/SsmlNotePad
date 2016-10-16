@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
+using Erwine.Leonard.T.SsmlNotePad.Model;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 {
@@ -88,6 +90,11 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// </summary>
         public static readonly DependencyProperty DetailsProperty = DependencyProperty.Register(DependencyPropertyName_Details, typeof(string), typeof(ViewModelValidationMessageVM),
                 new PropertyMetadata("", null, (DependencyObject d, object baseValue) => (baseValue as string) ?? ""));
+        private string propertyName_ValidationMessages;
+        private Exception exception;
+        private int lineNumber;
+        private int linePosition;
+        private XmlValidationStatus xmlValidationStatus;
 
         /// <summary>
         /// Validation message details.
@@ -115,5 +122,14 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         public ViewModelValidationMessageVM() { }
 
+        public ViewModelValidationMessageVM(string propertyName_ValidationMessages, string message, Exception exception, int lineNumber, int linePosition, XmlValidationStatus xmlValidationStatus)
+        {
+            this.propertyName_ValidationMessages = propertyName_ValidationMessages;
+            Message = message;
+            this.exception = exception;
+            this.lineNumber = lineNumber;
+            this.linePosition = linePosition;
+            this.xmlValidationStatus = xmlValidationStatus;
+        }
     }
 }

@@ -104,7 +104,14 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
         public XmlValidationResult ValidateXml()
         {
             if (String.IsNullOrWhiteSpace(_linesParser.Text))
+            {
+                _mainWindowVM.Dispatcher.Invoke(() =>
+                {
+                    _mainWindowVM.ClearValidationErrors();
+                    _mainWindowVM.AddValidationError(1, 1, "XML text is empty", null, XmlValidationStatus.Warning);
+                });
                 return new XmlValidationResult(XmlValidationStatus.Warning, "XML text is empty", null);
+            }
 
             XmlDocument xmlDocument = new XmlDocument();
 
@@ -117,33 +124,38 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
                     Schemas = new XmlSchemaSet(),
                     ValidationType = ValidationType.Schema
                 };
-
+                settings.Schemas.Add(Markup.SsmlSchemaNamespaceURI, App.AppSettingsViewModel.SsmlSchemaCoreFileName);
+                settings.Schemas.Add(Markup.SsmlSchemaNamespaceURI, App.AppSettingsViewModel.SsmlSchemaFileName);
+                settings.Schemas.ValidationEventHandler += Settings_ValidationEventHandler;
                 settings.ValidationEventHandler += Settings_ValidationEventHandler;
                 using (StringReader stringReader = new StringReader(_linesParser.Text))
                 {
                     using (XmlReader xmlreader = XmlReader.Create(stringReader, settings))
                         xmlDocument.Load(xmlreader);
                 }
-                
-                throw new NotImplementedException();
+
+                return new XmlValidationResult(XmlValidationStatus.None, "Validation completed.", xmlDocument);
             }
             catch (XmlSchemaException exception)
             {
+                _mainWindowVM.Dispatcher.Invoke(() => _mainWindowVM.AddValidationError(exception.LineNumber, exception.LinePosition, exception.Message, exception, XmlValidationStatus.Critical));
                 return new XmlValidationResult(XmlValidationStatus.Critical, String.Format("Line {0}, Column {1} - A fatal error has occurred: {2}", exception.LineNumber, exception.LinePosition, exception.Message), xmlDocument);
             }
             catch (XmlException exception)
             {
+                _mainWindowVM.Dispatcher.Invoke(() => _mainWindowVM.AddValidationError(exception.LineNumber, exception.LinePosition, exception.Message, exception, XmlValidationStatus.Critical));
                 return new XmlValidationResult(XmlValidationStatus.Critical, String.Format("Line {0}, Column {1} - A fatal error has occurred: {2}", exception.LineNumber, exception.LinePosition, exception.Message), xmlDocument);
             }
             catch (Exception exception)
             {
-                throw new NotImplementedException();
+                _mainWindowVM.Dispatcher.Invoke(() => _mainWindowVM.AddValidationError(0, 0, exception.Message, exception, XmlValidationStatus.Critical));
+                return new XmlValidationResult(XmlValidationStatus.Critical, String.Format("An unexpected fatal error has occurred: {0}", exception.Message), xmlDocument);
             }
         }
 
         private void Settings_ValidationEventHandler(object sender, ValidationEventArgs e)
         {
-            throw new NotImplementedException();
+            _mainWindowVM.Dispatcher.Invoke(() => _mainWindowVM.AddValidationError(e.Exception.LineNumber, e.Exception.LinePosition, e.Message, e.Exception, (e.Severity == XmlSeverityType.Warning) ? XmlValidationStatus.Warning : XmlValidationStatus.Error));
         }
     }
 
