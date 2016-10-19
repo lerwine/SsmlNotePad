@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter;
 
 namespace UnitTestProject1
 {
     /// <summary>
-    /// Summary description for StringToVisibilityConverter
+    /// Summary description for BooleanToStringConverter
     /// </summary>
     [TestClass]
-    public class StringToVisibilityConverter
+    public class BooleanToStringConverterTest
     {
-        public StringToVisibilityConverter() { }
+        public BooleanToStringConverterTest() { }
 
         private TestContext _testContextInstance;
 
@@ -52,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void ViewModelValidationMessageConstructorTestMethod()
         {
-            StringToVisibilityConverter target = new StringToVisibilityConverter();
+            BooleanToStringConverter target = new BooleanToStringConverter();
         }
     }
 }

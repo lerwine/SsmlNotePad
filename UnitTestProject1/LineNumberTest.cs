@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using System.Windows;
 
 namespace UnitTestProject1
 {
@@ -14,7 +15,7 @@ namespace UnitTestProject1
     {
         public LineNumberTest() { }
 
-        private TestContext testContextInstance;
+        private TestContext _testContextInstance;
 
         /// <summary>
         ///Gets or sets the test context which provides
@@ -22,14 +23,8 @@ namespace UnitTestProject1
         ///</summary>
         public TestContext TestContext
         {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
+            get { return _testContextInstance; }
+            set { _testContextInstance = value; }
         }
 
         #region Additional test attributes
@@ -58,6 +53,36 @@ namespace UnitTestProject1
         public void LineNumberConstructorTestMethod()
         {
             LineNumberVM target = new LineNumberVM();
+            int expectedNumber = 1;
+            Assert.AreEqual(0.0, target.Margin.Left);
+            Assert.AreEqual(0.0, target.Margin.Top);
+            Assert.AreEqual(0.0, target.Margin.Right);
+            Assert.AreEqual(0.0, target.Margin.Bottom);
+            Assert.AreEqual(expectedNumber, target.Number);
+
+            double expectedMarginTop = -0.12;
+            target.Margin = new Thickness(0.0, expectedMarginTop, 0.0, 0.0);
+            Assert.AreEqual(0.0, target.Margin.Left);
+            Assert.AreEqual(expectedMarginTop, target.Margin.Top);
+            Assert.AreEqual(0.0, target.Margin.Right);
+            Assert.AreEqual(0.0, target.Margin.Bottom);
+            Assert.AreEqual(expectedNumber, target.Number);
+
+            expectedNumber = 7;
+            target.Number = expectedNumber;
+            Assert.AreEqual(0.0, target.Margin.Left);
+            Assert.AreEqual(expectedMarginTop, target.Margin.Top);
+            Assert.AreEqual(0.0, target.Margin.Right);
+            Assert.AreEqual(0.0, target.Margin.Bottom);
+            Assert.AreEqual(expectedNumber, target.Number);
+
+            expectedMarginTop = 5.5;
+            target.Margin = new Thickness(0.0, expectedMarginTop, 0.0, 0.0);
+            Assert.AreEqual(0.0, target.Margin.Left);
+            Assert.AreEqual(expectedMarginTop, target.Margin.Top);
+            Assert.AreEqual(0.0, target.Margin.Right);
+            Assert.AreEqual(0.0, target.Margin.Bottom);
+            Assert.AreEqual(expectedNumber, target.Number);
         }
     }
 }

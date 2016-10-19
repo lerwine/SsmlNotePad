@@ -21,15 +21,25 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
     public class MainWindowVM : DependencyObject
     {
         private object _syncRoot = new object();
-        private Model.TextLineBackgroundParser _textLines = new Model.TextLineBackgroundParser();
-        private Model.TaskHelper _setLineNumbers = new Model.TaskHelper();
-        private Model.XmlValidator _xmlValidator = new Model.XmlValidator();
-
+        private Common.SupercessiveTaskState<string, Model.TextLine[]> _textLines = new Common.SupercessiveTaskState<string, Model.TextLine[]>("", new Model.TextLine[] { new Model.TextLine(1, 0, "", "") });
+        private Common.SupercessiveTaskState<Tuple<Model.IndexAndOffset[], Model.TextLine[]>, Model.IndexAndOffset[]> _lineNumbers;
+        private Common.SupercessiveTaskState<Model.TextLine[], Common.XmlValidationResult> _xmlValidation;
+        
         public MainWindowVM()
         {
             _innerValidationMessages.CollectionChanged += ValidationMessages_CollectionChanged;
             ValidationMessages = new ReadOnlyObservableCollection<ViewModelValidationMessageVM>(_innerValidationMessages);
-            LineNumbers = new ObservableCollection<LineNumberVM>();
+            AddValidationError(1, 1, ViewModelValidationMessageVM.ValidationMessage_NoXmlData, null, Model.XmlValidationStatus.Warning);
+            _lineNumbers = new Common.SupercessiveTaskState<Tuple<Model.IndexAndOffset[], Model.TextLine[]>, 
+                Model.IndexAndOffset[]>(new Tuple<Model.IndexAndOffset[], Model.TextLine[]>(new Model.IndexAndOffset[]
+                {
+                    new Model.IndexAndOffset(1, 0.0)
+                }, _textLines.CurrentResult), new Model.IndexAndOffset[] { new Model.IndexAndOffset(1, 0.0) });
+            _lineNumbers.OnStateChanged += LineNumbers_OnStateChanged;
+            _xmlValidation = new Common.SupercessiveTaskState<Model.TextLine[], Common.XmlValidationResult>(_textLines.CurrentResult, new Common.XmlValidationResult(Model.XmlValidationStatus.Warning, "No XML data provided"));
+            _xmlValidation.OnStateChanged += XmlValidation_OnStateChanged;
+            _textLines.OnStateChanged += TextLines_OnStateChanged;
+            LineNumbers = new ObservableCollection<LineNumberVM>(_lineNumbers.CurrentResult.Select(t => new LineNumberVM(t.Index, t.Top)));
             SsmlTextBox = new TextBox
             {
                 AcceptsReturn = true,
@@ -99,7 +109,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_saveDocumentCommand == null)
-                    _saveDocumentCommand = new Command.RelayCommand(OnSaveDocument);
+                    _saveDocumentCommand = new Command.RelayCommand(OnSaveDocument, false, true);
 
                 return _saveDocumentCommand;
             }
@@ -727,7 +737,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_exportAsWavCommand == null)
-                    _exportAsWavCommand = new Command.RelayCommand(OnExportAsWav);
+                    _exportAsWavCommand = new Command.RelayCommand(OnExportAsWav, false, true);
 
                 return _exportAsWavCommand;
             }
@@ -831,41 +841,36 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         #endregion
 
         #endregion
-        
-        #region SelectAfterInsert Property Members
 
+        #region SelectAfterInsert Property Members
+        
+        /// <summary>
+        /// Defines the name for the <see cref="SelectAfterInsert"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_SelectAfterInsert = "SelectAfterInsert";
 
         /// <summary>
         /// Identifies the <see cref="SelectAfterInsert"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SelectAfterInsertProperty = DependencyProperty.Register(DependencyPropertyName_SelectAfterInsert, typeof(bool), typeof(MainWindowVM),
-                new PropertyMetadata(false));
+                new PropertyMetadata(true));
 
         /// <summary>
-        /// Whether to select text after it is auto-inserted.
+        /// Indicates whether the content should be selected after it is inserted.
         /// </summary>
         public bool SelectAfterInsert
         {
-            get
-            {
-                if (CheckAccess())
-                    return (bool)(GetValue(SelectAfterInsertProperty));
-                return Dispatcher.Invoke(() => SelectAfterInsert);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(SelectAfterInsertProperty, value);
-                else
-                    Dispatcher.Invoke(() => SelectAfterInsert = value);
-            }
+            get { return (bool)(GetValue(SelectAfterInsertProperty)); }
+            set { SetValue(SelectAfterInsertProperty, value); }
         }
         
         #endregion
 
         #region LineWrapEnabled Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="LineWrapEnabled"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_LineWrapEnabled = "LineWrapEnabled";
 
         /// <summary>
@@ -873,39 +878,22 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// </summary>
         public static readonly DependencyProperty LineWrapEnabledProperty = DependencyProperty.Register(DependencyPropertyName_LineWrapEnabled, typeof(bool), typeof(MainWindowVM),
                 new PropertyMetadata(true,
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as MainWindowVM).LineWrapEnabled_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as MainWindowVM).LineWrapEnabled_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue)));
-                }));
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as MainWindowVM).LineWrapEnabled_PropertyChanged((bool)(e.OldValue), (bool)(e.NewValue))));
 
         /// <summary>
-        /// Boolean value indicating whether line wrapping is enabled.
+        /// Indicates whether line wrapping is enabled in <see cref="SsmlTextBox"/>.
         /// </summary>
         public bool LineWrapEnabled
         {
-            get
-            {
-                if (CheckAccess())
-                    return (bool)(GetValue(LineWrapEnabledProperty));
-                return Dispatcher.Invoke(() => LineWrapEnabled);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(LineWrapEnabledProperty, value);
-                else
-                    Dispatcher.Invoke(() => LineWrapEnabled = value);
-            }
+            get { return (bool)(GetValue(LineWrapEnabledProperty)); }
+            set { SetValue(LineWrapEnabledProperty, value); }
         }
 
         /// <summary>
         /// This gets called after the value associated with the <see cref="LineWrapEnabled"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="bool"/> value before the <see cref="LineWrapEnabled"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="bool"/> value after the <see cref="LineWrapEnabled"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="bool"/> value before the <seealso cref="LineWrapEnabled"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="bool"/> value after the <seealso cref="LineWrapEnabled"/> property was changed.</param>
         protected virtual void LineWrapEnabled_PropertyChanged(bool oldValue, bool newValue) { SetLineWrap(); }
 
         private void SetLineWrap()
@@ -926,6 +914,9 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #region LineNumbers Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="LineNumbers"/> dependency property.
+        /// </summary>
         public const string PropertyName_LineNumbers = "LineNumbers";
 
         private static readonly DependencyPropertyKey LineNumbersPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_LineNumbers, typeof(ObservableCollection<LineNumberVM>), typeof(MainWindowVM),
@@ -937,33 +928,25 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public static readonly DependencyProperty LineNumbersProperty = LineNumbersPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Contains line numbers to be displayed which are associated with the displayed text from <see cref="SsmlTextBox"/>.
         /// </summary>
         public ObservableCollection<LineNumberVM> LineNumbers
         {
-            get
-            {
-                if (CheckAccess())
-                    return (ObservableCollection<LineNumberVM>)(GetValue(LineNumbersProperty));
-                return Dispatcher.Invoke(() => LineNumbers);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(LineNumbersPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => LineNumbers = value);
-            }
+            get { return (ObservableCollection<LineNumberVM>)(GetValue(LineNumbersProperty)); }
+            private set { SetValue(LineNumbersPropertyKey, value); }
         }
 
         #endregion
 
         #region FileSaveStatus Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="FileSaveStatus"/> dependency property.
+        /// </summary>
         public const string PropertyName_FileSaveStatus = "FileSaveStatus";
 
         private static readonly DependencyPropertyKey FileSaveStatusPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_FileSaveStatus, typeof(Model.FileSaveStatus), typeof(MainWindowVM),
-                new PropertyMetadata(Model.FileSaveStatus.New));
+            new PropertyMetadata(Model.FileSaveStatus.New));
 
         /// <summary>
         /// Identifies the <see cref="FileSaveStatus"/> dependency property.
@@ -971,33 +954,30 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public static readonly DependencyProperty FileSaveStatusProperty = FileSaveStatusPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Status of last file operation.
         /// </summary>
         public Model.FileSaveStatus FileSaveStatus
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Model.FileSaveStatus)(GetValue(FileSaveStatusProperty));
-                return Dispatcher.Invoke(() => FileSaveStatus);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(FileSaveStatusPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => FileSaveStatus = value);
-            }
+            get { return (Model.FileSaveStatus)(GetValue(FileSaveStatusProperty)); }
+            private set { SetValue(FileSaveStatusPropertyKey, value); }
         }
-
+        
         #endregion
 
         #region FileSaveToolBarMessage Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="FileSaveToolBarMessage"/> dependency property.
+        /// </summary>
         public const string PropertyName_FileSaveToolBarMessage = "FileSaveToolBarMessage";
 
+        /// <summary>
+        /// Defines the value for the <see cref="FileSaveToolBarMessage"/> dependency property when the associate file is new.
+        /// </summary>
+        public const string FileSaveMessage_NewFile = "File not saved.";
+
         private static readonly DependencyPropertyKey FileSaveToolBarMessagePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_FileSaveToolBarMessage, typeof(string), typeof(MainWindowVM),
-                new PropertyMetadata(""));
+            new PropertyMetadata(FileSaveMessage_NewFile));
 
         /// <summary>
         /// Identifies the <see cref="FileSaveToolBarMessage"/> dependency property.
@@ -1005,33 +985,25 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public static readonly DependencyProperty FileSaveToolBarMessageProperty = FileSaveToolBarMessagePropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Status message for last file operation.
         /// </summary>
         public string FileSaveToolBarMessage
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(FileSaveToolBarMessageProperty));
-                return Dispatcher.Invoke(() => FileSaveToolBarMessage);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(FileSaveToolBarMessagePropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => FileSaveToolBarMessage = value);
-            }
+            get { return GetValue(FileSaveToolBarMessageProperty) as string; }
+            private set { SetValue(FileSaveToolBarMessagePropertyKey, value); }
         }
-
+        
         #endregion
 
         #region ValidationStatus Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="ValidationStatus"/> dependency property.
+        /// </summary>
         public const string PropertyName_ValidationStatus = "ValidationStatus";
 
         private static readonly DependencyPropertyKey ValidationStatusPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ValidationStatus, typeof(Model.XmlValidationStatus), typeof(MainWindowVM),
-                new PropertyMetadata(Model.XmlValidationStatus.None));
+            new PropertyMetadata(Model.XmlValidationStatus.Warning));
 
         /// <summary>
         /// Identifies the <see cref="ValidationStatus"/> dependency property.
@@ -1039,33 +1011,25 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public static readonly DependencyProperty ValidationStatusProperty = ValidationStatusPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Current validation status.
         /// </summary>
         public Model.XmlValidationStatus ValidationStatus
         {
-            get
-            {
-                if (CheckAccess())
-                    return (Model.XmlValidationStatus)(GetValue(ValidationStatusProperty));
-                return Dispatcher.Invoke(() => ValidationStatus);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(ValidationStatusPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => ValidationStatus = value);
-            }
+            get { return (Model.XmlValidationStatus)(GetValue(ValidationStatusProperty)); }
+            private set { SetValue(ValidationStatusPropertyKey, value); }
         }
-
+        
         #endregion
 
         #region ValidationToolTip Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="ValidationToolTip"/> dependency property.
+        /// </summary>
         public const string PropertyName_ValidationToolTip = "ValidationToolTip";
 
         private static readonly DependencyPropertyKey ValidationToolTipPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ValidationToolTip, typeof(string), typeof(MainWindowVM),
-                new PropertyMetadata(""));
+            new PropertyMetadata(ViewModelValidationMessageVM.ValidationMessage_NoXmlData));
 
         /// <summary>
         /// Identifies the <see cref="ValidationToolTip"/> dependency property.
@@ -1073,33 +1037,26 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public static readonly DependencyProperty ValidationToolTipProperty = ValidationToolTipPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Tooltip to display for XML validation.
         /// </summary>
         public string ValidationToolTip
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(ValidationToolTipProperty));
-                return Dispatcher.Invoke(() => ValidationToolTip);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(ValidationToolTipPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => ValidationToolTip = value);
-            }
+            get { return GetValue(ValidationToolTipProperty) as string; }
+            private set { SetValue(ValidationToolTipPropertyKey, value); }
         }
-
+        
         #endregion
 
         #region CurrentLineNumber Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="CurrentLineNumber"/> dependency property.
+        /// </summary>
         public const string PropertyName_CurrentLineNumber = "CurrentLineNumber";
 
         private static readonly DependencyPropertyKey CurrentLineNumberPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CurrentLineNumber, typeof(int), typeof(MainWindowVM),
-                new PropertyMetadata(1));
+            new PropertyMetadata(1/*, (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+                (d as MainWindowVM).CurrentLineNumber_PropertyChanged((int)(e.OldValue), (int)(e.NewValue))*/));
 
         /// <summary>
         /// Identifies the <see cref="CurrentLineNumber"/> dependency property.
@@ -1107,33 +1064,25 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public static readonly DependencyProperty CurrentLineNumberProperty = CurrentLineNumberPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Current line number at start of selection or caret.
         /// </summary>
         public int CurrentLineNumber
         {
-            get
-            {
-                if (CheckAccess())
-                    return (int)(GetValue(CurrentLineNumberProperty));
-                return Dispatcher.Invoke(() => CurrentLineNumber);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(CurrentLineNumberPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => CurrentLineNumber = value);
-            }
+            get { return (int)(GetValue(CurrentLineNumberProperty)); }
+            private set { SetValue(CurrentLineNumberPropertyKey, value); }
         }
-
+        
         #endregion
 
         #region CurrentColNumber Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="CurrentColNumber"/> dependency property.
+        /// </summary>
         public const string PropertyName_CurrentColNumber = "CurrentColNumber";
 
         private static readonly DependencyPropertyKey CurrentColNumberPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CurrentColNumber, typeof(int), typeof(MainWindowVM),
-                new PropertyMetadata(0));
+            new PropertyMetadata(1));
 
         /// <summary>
         /// Identifies the <see cref="CurrentColNumber"/> dependency property.
@@ -1141,33 +1090,25 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public static readonly DependencyProperty CurrentColNumberProperty = CurrentColNumberPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Current column number at start of selection or caret.
         /// </summary>
         public int CurrentColNumber
         {
-            get
-            {
-                if (CheckAccess())
-                    return (int)(GetValue(CurrentColNumberProperty));
-                return Dispatcher.Invoke(() => CurrentColNumber);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(CurrentColNumberPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => CurrentColNumber = value);
-            }
+            get { return (int)(GetValue(CurrentColNumberProperty)); }
+            private set { SetValue(CurrentColNumberPropertyKey, value); }
         }
 
         #endregion
 
         #region SsmlTextBox Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="SsmlTextBox"/> dependency property.
+        /// </summary>
         public const string PropertyName_SsmlTextBox = "SsmlTextBox";
 
         private static readonly DependencyPropertyKey SsmlTextBoxPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SsmlTextBox, typeof(TextBox), typeof(MainWindowVM),
-                new PropertyMetadata(null));
+            new PropertyMetadata(null));
 
         /// <summary>
         /// Identifies the <see cref="SsmlTextBox"/> dependency property.
@@ -1175,29 +1116,18 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public static readonly DependencyProperty SsmlTextBoxProperty = SsmlTextBoxPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Markup editor textbox
         /// </summary>
         public TextBox SsmlTextBox
         {
-            get
-            {
-                if (CheckAccess())
-                    return (TextBox)(GetValue(SsmlTextBoxProperty));
-                return Dispatcher.Invoke(() => SsmlTextBox);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(SsmlTextBoxPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => SsmlTextBox = value);
-            }
+            get { return (TextBox)(GetValue(SsmlTextBoxProperty)); }
+            private set { SetValue(SsmlTextBoxPropertyKey, value); }
         }
-
+        
         #endregion
 
         #region ValidationMessages Property Members
-        
+
         /// <summary>
         /// Defines the name for the <see cref="ValidationMessages"/> dependency property.
         /// </summary>
@@ -1239,102 +1169,135 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
 
+        private IEnumerable<Model.IndexAndOffset> GetLineOffsets()
+        {
+            for (int lineIndex = SsmlTextBox.GetFirstVisibleLineIndex(); lineIndex <= SsmlTextBox.GetLastVisibleLineIndex(); lineIndex++)
+                yield return new Model.IndexAndOffset(lineIndex + 1, SsmlTextBox.GetRectFromCharacterIndex(SsmlTextBox.GetCharacterIndexFromLineIndex(lineIndex)).Top);
+        }
+
+        private Model.IndexAndOffset[] GenerateLineNumberValues(Tuple<Model.IndexAndOffset[], Model.TextLine[]> offsetsAndLines, CancellationToken cancellationToken)
+        {
+            return GenerateLineNumberValues(offsetsAndLines.Item1, offsetsAndLines.Item2, cancellationToken);
+        }
+
+        private Model.IndexAndOffset[] GenerateLineNumberValues(Model.IndexAndOffset[] visiblineLineIndexesAndOffsets, Model.TextLine[] sourceLines,
+            CancellationToken cancellationToken)
+        {
+            if (visiblineLineIndexesAndOffsets.Length == 0 || sourceLines.Length == 0)
+                return new Model.IndexAndOffset[] { new Model.IndexAndOffset(1, 0.0) };
+            int currentLineIndex = visiblineLineIndexesAndOffsets[0].Index;
+            int lastLineIndex = visiblineLineIndexesAndOffsets[visiblineLineIndexesAndOffsets.Length - 1].Index;
+            return sourceLines.SkipWhile(s => s.Index < currentLineIndex).TakeWhile(s => !cancellationToken.IsCancellationRequested && s.Index <= lastLineIndex)
+                .Select(s =>
+                {
+                    while (s.Index > visiblineLineIndexesAndOffsets[currentLineIndex].Index)
+                        currentLineIndex++;
+                    return new Model.IndexAndOffset(s.LineNumber, visiblineLineIndexesAndOffsets[currentLineIndex].Top);
+                }).DefaultIfEmpty(new Model.IndexAndOffset(1, 0.0)).ToArray();
+        }
+
         private void SsmlTextBox_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            _textLines.GetTextLines(null, (o, s, t) => 
+            using (Common.SynchronizedStateChange<Common.SupercedableTaskState<string, Model.TextLine[]>> stateChange = _textLines.ChangeState())
             {
-                Model.TextLine[] lines = t.Result;
-                Dispatcher.Invoke(() =>
-                {
-                    int absIndex = SsmlTextBox.SelectionStart;
-                    Model.TextLine currentLine = lines.TakeWhile(l => l.Index < absIndex).LastOrDefault();
-                    if (currentLine == null)
-                    {
-                        CurrentLineNumber = 1;
-                        CurrentColNumber = absIndex + 1;
-                    }
-                    else
-                    {
-                        CurrentLineNumber = currentLine.LineNumber;
-                        CurrentColNumber = (absIndex - currentLine.Index) + 1;
-                    }
-                });
-            });
+                Model.TextLine[] lines;
+                try { lines = stateChange.CurrentState.Result; } catch { lines = _textLines.CurrentResult; }
+                if (Dispatcher.CheckAccess())
+                    UpdateStatusBarLineAndCol(lines);
+                else
+                    Dispatcher.Invoke(() => UpdateStatusBarLineAndCol(lines));
+            }
         }
 
         private void SsmlTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            _textLines.Text = SsmlTextBox.Text;
-            _xmlValidator.SetText(SsmlTextBox.Text, this, _textLines);
-            _xmlValidator.GetStatus(null, (o, s, t) =>
+            _textLines.StartNew(SsmlTextBox.Text, (text, cancellationToken) =>
             {
-                Model.XmlValidationResult result = t.Result;
-                Dispatcher.Invoke(() =>
-                {
-                    ValidationStatus = result.Status;
-                    ValidationToolTip = result.Message;
-                });
+                return Model.TextLine.Split(text, cancellationToken).ToArray();
             });
+        }
+
+        private void SsmlTextBox_LayoutUpdated(object sender, EventArgs e)
+        {
+            _textLines.StartNew(SsmlTextBox.Text, (text, cancellationToken) =>
+            {
+                return Model.TextLine.Split(text, cancellationToken).ToArray();
+            });
+            Model.IndexAndOffset[] lineOffsets = (CheckAccess()) ? GetLineOffsets().ToArray() : Dispatcher.Invoke<Model.IndexAndOffset[]>(() => GetLineOffsets().ToArray());
+            using (Common.SynchronizedStateChange<Common.SupercedableTaskState<string, Model.TextLine[]>> changeState = _textLines.ChangeState())
+            {
+                Model.TextLine[] lines;
+                try { lines = changeState.CurrentState.Result; } catch { lines = _textLines.CurrentResult; }
+                _lineNumbers.StartNew(new Tuple<Model.IndexAndOffset[], Model.TextLine[]>(lineOffsets, lines), GenerateLineNumberValues);
+            }
+        }
+
+        private void TextLines_OnStateChanged(object sender, Common.SynchronizedStateEventArgs<Common.SupercedableTaskState<string, Model.TextLine[]>> e)
+        {
+            Model.TextLine[] lines;
+            try { lines = e.CurrentState.Result; } catch { lines = _textLines.CurrentResult; }
+            _xmlValidation.StartNew(lines, (l, c) => Common.XmlValidationResult.Create(this, c, l));
+        }
+
+        private void LineNumbers_OnStateChanged(object sender, Common.SynchronizedStateEventArgs<Common.SupercedableTaskState<Tuple<Model.IndexAndOffset[], Model.TextLine[]>, Model.IndexAndOffset[]>> e)
+        {
+            Model.IndexAndOffset[] lineOffsets;
+            try { lineOffsets = e.CurrentState.Result; } catch { lineOffsets = _lineNumbers.CurrentResult; }
+            Model.TextLine[] lines = _textLines.CurrentResult;
+            Dispatcher.Invoke(() =>
+            {
+                UpdateStatusBarLineAndCol(lines);
+                int end = (lineOffsets.Length > LineNumbers.Count) ? LineNumbers.Count : lineOffsets.Length;
+                for (int i = 0; i < end; i++)
+                {
+                    LineNumbers[i].Margin = new Thickness(0.0, lineOffsets[i].Top, 0.0, 0.0);
+                    LineNumbers[i].Number = lineOffsets[i].Index;
+                }
+                if (lineOffsets.Length > LineNumbers.Count)
+                {
+                    for (int i = LineNumbers.Count; i < lineOffsets.Length; i++)
+                        LineNumbers.Add(new LineNumberVM(lineOffsets[i].Index, lineOffsets[i].Top));
+                }
+                else
+                {
+                    while (LineNumbers.Count > lineOffsets.Length)
+                        LineNumbers.RemoveAt(lineOffsets.Length);
+                }
+            });
+        }
+
+        private void XmlValidation_OnStateChanged(object sender, Common.SynchronizedStateEventArgs<Common.SupercedableTaskState<Model.TextLine[], Common.XmlValidationResult>> e)
+        {
+            Common.XmlValidationResult result;
+            try { result = e.CurrentState.Result; } catch { result = _xmlValidation.CurrentResult; }
+            Dispatcher.Invoke(() =>
+            {
+                ValidationToolTip = result.Message;
+                ValidationStatus = result.Status;
+            });
+        }
+        
+        private void UpdateStatusBarLineAndCol(Model.TextLine[] lines)
+        {
+            int absIndex = SsmlTextBox.SelectionStart;
+            Model.TextLine currentLine = lines.TakeWhile(l => l.Index < absIndex).LastOrDefault();
+            if (currentLine == null)
+            {
+                CurrentLineNumber = 1;
+                CurrentColNumber = absIndex + 1;
+            }
+            else
+            {
+                CurrentLineNumber = currentLine.LineNumber;
+                CurrentColNumber = (absIndex - currentLine.Index) + 1;
+            }
         }
 
         internal void ClearValidationErrors() { _innerValidationMessages.Clear(); }
 
         internal void AddValidationError(int lineNumber, int linePosition, string message, Exception exception, Model.XmlValidationStatus xmlValidationStatus)
         {
-            _innerValidationMessages.Add(new ViewModelValidationMessageVM(PropertyName_ValidationMessages, message, exception, lineNumber, linePosition, xmlValidationStatus));
-        }
-
-        private IEnumerable<Tuple<int, double>> GetLineOffsets()
-        {
-            for (int lineIndex = SsmlTextBox.GetFirstVisibleLineIndex(); lineIndex <= SsmlTextBox.GetLastVisibleLineIndex(); lineIndex++)
-                yield return new Tuple<int, double>(lineIndex + 1, SsmlTextBox.GetRectFromCharacterIndex(SsmlTextBox.GetCharacterIndexFromLineIndex(lineIndex)).Top);
-        }
-
-        private void SsmlTextBox_LayoutUpdated(object sender, EventArgs e)
-        {
-            _textLines.Text = SsmlTextBox.Text;
-            _textLines.GetTextLines(new object[] { SsmlTextBox.Text, GetLineOffsets().ToArray() }, (o, s, t) =>
-            {
-                object[] args = o as object[];
-                string text = args[0] as string;
-
-                if (text != s)
-                    return;
-
-                Tuple<int, double>[] lineOffsets = args[1] as Tuple<int, double>[];
-                Model.TextLine[] lines = t.Result;
-                Dispatcher.Invoke(() =>
-                {
-                    int absIndex = SsmlTextBox.SelectionStart;
-                    Model.TextLine currentLine = lines.TakeWhile(l => l.Index < absIndex).LastOrDefault();
-                    if (currentLine == null)
-                    {
-                        CurrentLineNumber = 1;
-                        CurrentColNumber = absIndex + 1;
-                    }
-                    else
-                    {
-                        CurrentLineNumber = currentLine.LineNumber;
-                        CurrentColNumber = (absIndex - currentLine.Index) + 1;
-                    }
-                    int end = (lineOffsets.Length > LineNumbers.Count) ? LineNumbers.Count : lineOffsets.Length;
-                    for (int i = 0; i < end; i++)
-                    {
-                        LineNumbers[i].Margin = new Thickness(0.0, lineOffsets[i].Item2, 0.0, 0.0);
-                        LineNumbers[i].Number = lineOffsets[i].Item1;
-                    }
-                    if (lineOffsets.Length > LineNumbers.Count)
-                    {
-                        for (int i = LineNumbers.Count; i < lineOffsets.Length; i++)
-                            LineNumbers.Add(new LineNumberVM(lineOffsets[i].Item1, lineOffsets[i].Item2));
-                    }
-                    else
-                    {
-                        while (LineNumbers.Count > lineOffsets.Length)
-                            LineNumbers.RemoveAt(lineOffsets.Length);
-                    }
-                });
-            });
+            _innerValidationMessages.Add(new ViewModelValidationMessageVM(PropertyName_ValidationMessages, message, exception, lineNumber, linePosition, (xmlValidationStatus < Model.XmlValidationStatus.Error)));
         }
     }
 }

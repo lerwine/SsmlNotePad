@@ -19,27 +19,54 @@ using System.Windows.Shapes;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 {
+    /// <summary>
+    /// View model representing application settings.
+    /// </summary>
     public class AppSettingsVM : ValidatingViewModel
     {
+        #region Default property settings values
+
+        /// <summary>
+        /// Defines the default value for the <see cref="Properties.Settings.RelativeXmlBaseURI"/> app setting.
+        /// </summary>
+        public const string DefaultValue_RelativeXmlBaseURI = "Resources";
+
+        /// <summary>
+        /// Defines the default value for the <see cref="Properties.Settings.BlankSsmlFileName"/> app setting.
+        /// </summary>
+        public const string DefaultValue_BlankSsmlFileName = "BlankSsmlDocument.xml";
+
+        /// <summary>
+        /// Defines the default value for the <see cref="Properties.Settings.SsmlSchemaFileName"/> app setting.
+        /// </summary>
+        public const string DefaultValue_SsmlSchemaFileName = "WindowsPhoneSynthesis.xsd";
+
+        /// <summary>
+        /// Defines the default value for the <see cref="Properties.Settings.SsmlSchemaCoreFileName"/> app setting.
+        /// </summary>
+        public const string DefaultValue_SsmlSchemaCoreFileName = "WindowsPhoneSynthesis-core.xsd";
+
+        #endregion
+
         public AppSettingsVM()
         {
             try { BaseUriPath = Model.FileUtility.ResolveFileUri(Properties.Settings.Default.RelativeXmlBaseURI); }
-            catch { BaseUriPath = Model.FileUtility.ResolveFileUri(DefaultValue_BaseUriPath); }
+            catch { BaseUriPath = Model.FileUtility.ResolveFileUri(DefaultValue_RelativeXmlBaseURI); }
 
-            try { BlankSsmlFileName = Model.FileUtility.ResolveFileUri(Properties.Settings.Default.BlankSsmlFileName, BaseUriPath); }
-            catch { BlankSsmlFileName = Model.FileUtility.ResolveFileUri(DefaultValue_BlankSsmlFileName, BaseUriPath); }
+            try { BlankSsmlFilePath = Model.FileUtility.ResolveFileUri(Properties.Settings.Default.BlankSsmlFileName, BaseUriPath); }
+            catch { BlankSsmlFilePath = Model.FileUtility.ResolveFileUri(DefaultValue_BlankSsmlFileName, BaseUriPath); }
 
-            try { SsmlSchemaFileName = Model.FileUtility.ResolveFileUri(Properties.Settings.Default.SsmlSchemaFileName, BaseUriPath); }
-            catch { SsmlSchemaFileName = Model.FileUtility.ResolveFileUri(DefaultValue_SsmlSchemaFileName, BaseUriPath); }
+            try { SsmlSchemaFilePath = Model.FileUtility.ResolveFileUri(Properties.Settings.Default.SsmlSchemaFileName, BaseUriPath); }
+            catch { SsmlSchemaFilePath = Model.FileUtility.ResolveFileUri(DefaultValue_SsmlSchemaFileName, BaseUriPath); }
 
-            try { SsmlSchemaCoreFileName = Model.FileUtility.ResolveFileUri(Properties.Settings.Default.SsmlSchemaCoreFileName, BaseUriPath); }
-            catch { SsmlSchemaCoreFileName = Model.FileUtility.ResolveFileUri(DefaultValue_SsmlSchemaCoreFileName, BaseUriPath); }
+            try { SsmlSchemaCoreFilePath = Model.FileUtility.ResolveFileUri(Properties.Settings.Default.SsmlSchemaCoreFileName, BaseUriPath); }
+            catch { SsmlSchemaCoreFilePath = Model.FileUtility.ResolveFileUri(DefaultValue_SsmlSchemaCoreFileName, BaseUriPath); }
 
             if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.SsmlFileExtension))
                 SsmlFileExtension = Model.FileUtility.EnsureValidExtension(Properties.Settings.Default.SsmlFileExtension);
 
             if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.PlsFileExtension))
-                PlsFileExtension = Model.FileUtility.EnsureValidExtension(Properties.Settings.Default.SsmlFileExtension);
+                PlsFileExtension = Model.FileUtility.EnsureValidExtension(Properties.Settings.Default.PlsFileExtension);
 
             if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.SsmlFileTypeDescriptionLong))
                 SsmlFileTypeDescriptionLong = Properties.Settings.Default.SsmlFileTypeDescriptionLong.Trim();
@@ -80,400 +107,327 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             if (!String.IsNullOrWhiteSpace(Properties.Settings.Default.DefaultVoiceName))
                 DefaultVoiceName = Properties.Settings.Default.DefaultVoiceName.Trim();
         }
-
+        
         #region BaseUriPath Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="BaseUriPath"/> dependency property.
+        /// </summary>
         public const string PropertyName_BaseUriPath = "BaseUriPath";
-        public const string DefaultValue_BaseUriPath = "Resources";
 
-        private static readonly DependencyPropertyKey BaseUriPathPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_BaseUriPath, typeof(string), typeof(AppSettingsVM),
-                new PropertyMetadata(""));
+        private static readonly DependencyPropertyKey BaseUriPathPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_BaseUriPath, typeof(string),
+            typeof(AppSettingsVM), new PropertyMetadata());
 
         /// <summary>
-        /// Identifies the <seealso cref="BaseUriPath"/> dependency property.
+        /// Identifies the <see cref="BaseUriPath"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty BaseUriPathProperty = BaseUriPathPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Path to folder which contains filesystem resources
         /// </summary>
         public string BaseUriPath
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(BaseUriPathProperty));
-                return Dispatcher.Invoke(() => BaseUriPath);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(BaseUriPathPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => BaseUriPath = value);
-            }
+            get { return GetValue(BaseUriPathProperty) as string; }
+            private set { SetValue(BaseUriPathPropertyKey, value); }
         }
 
         #endregion
 
-        #region BlankSsmlFileName Property Members
+        #region BlankSsmlFilePath Property Members
+        
+        /// <summary>
+        /// Defines the name for the <see cref="BlankSsmlFilePath"/> dependency property.
+        /// </summary>
+        public const string PropertyName_BlankSsmlFilePath = "BlankSsmlFilePath";
 
-        public const string PropertyName_BlankSsmlFileName = "BlankSsmlFileName";
-        public const string DefaultValue_BlankSsmlFileName = "BlankSsmlDocument.xml";
-
-        private static readonly DependencyPropertyKey BlankSsmlFileNamePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_BlankSsmlFileName, typeof(string), typeof(AppSettingsVM),
-                new PropertyMetadata(DefaultValue_BlankSsmlFileName));
+        private static readonly DependencyPropertyKey BlankSsmlFilePathPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_BlankSsmlFilePath, typeof(string), typeof(AppSettingsVM),
+            new PropertyMetadata(""));
 
         /// <summary>
-        /// Identifies the <seealso cref="BlankSsmlFileName"/> dependency property.
+        /// Identifies the <see cref="BlankSsmlFilePath"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty BlankSsmlFileNameProperty = BlankSsmlFileNamePropertyKey.DependencyProperty;
+        public static readonly DependencyProperty BlankSsmlFilePathProperty = BlankSsmlFilePathPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Path to the file which represents a blank (new) Speech Synthesis Markup document.
         /// </summary>
-        public string BlankSsmlFileName
+        public string BlankSsmlFilePath
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(BlankSsmlFileNameProperty));
-                return Dispatcher.Invoke(() => BlankSsmlFileName);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(BlankSsmlFileNamePropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => BlankSsmlFileName = value);
-            }
+            get { return GetValue(BlankSsmlFilePathProperty) as string; }
+            private set { SetValue(BlankSsmlFilePathPropertyKey, value); }
         }
 
         #endregion
 
-        #region SsmlSchemaFileName Property Members
+        #region SsmlSchemaFilePath Property Members
+        
+        /// <summary>
+        /// Defines the name for the <see cref="SsmlSchemaFilePath"/> dependency property.
+        /// </summary>
+        public const string PropertyName_SsmlSchemaFilePath = "SsmlSchemaFilePath";
 
-        public const string PropertyName_SsmlSchemaFileName = "SsmlSchemaFileName";
-        public const string DefaultValue_SsmlSchemaFileName = "WindowsPhoneSynthesis.xsd";
-
-        private static readonly DependencyPropertyKey SsmlSchemaFileNamePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SsmlSchemaFileName, typeof(string), typeof(AppSettingsVM),
-                new PropertyMetadata(DefaultValue_SsmlSchemaFileName));
+        private static readonly DependencyPropertyKey SsmlSchemaFilePathPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SsmlSchemaFilePath, typeof(string), typeof(AppSettingsVM),
+            new PropertyMetadata(""));
 
         /// <summary>
-        /// Identifies the <seealso cref="SsmlSchemaFileName"/> dependency property.
+        /// Identifies the <see cref="SsmlSchemaFilePath"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty SsmlSchemaFileNameProperty = SsmlSchemaFileNamePropertyKey.DependencyProperty;
+        public static readonly DependencyProperty SsmlSchemaFilePathProperty = SsmlSchemaFilePathPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Path to the XML Schema file for validating Speech Synthesis Markup markup.
         /// </summary>
-        public string SsmlSchemaFileName
+        /// <remarks>If this is a relative path, then it will be relative to path defined by <see cref="BaseUriPath"/>.</remarks>
+        public string SsmlSchemaFilePath
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(SsmlSchemaFileNameProperty));
-                return Dispatcher.Invoke(() => SsmlSchemaFileName);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(SsmlSchemaFileNamePropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => SsmlSchemaFileName = value);
-            }
+            get { return GetValue(SsmlSchemaFilePathProperty) as string; }
+            private set { SetValue(SsmlSchemaFilePathPropertyKey, value); }
         }
 
         #endregion
 
-        #region SsmlSchemaCoreFileName Property Members
+        #region SsmlSchemaCoreFilePath Property Members
+        
+        /// <summary>
+        /// Defines the name for the <see cref="SsmlSchemaCoreFilePath"/> dependency property.
+        /// </summary>
+        public const string PropertyName_SsmlSchemaCoreFilePath = "SsmlSchemaCoreFilePath";
 
-        public const string PropertyName_SsmlSchemaCoreFileName = "SsmlSchemaCoreFileName";
-        public const string DefaultValue_SsmlSchemaCoreFileName = "WindowsPhoneSynthesis-core.xsd";
-
-        private static readonly DependencyPropertyKey SsmlSchemaCoreFileNamePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SsmlSchemaCoreFileName, typeof(string), typeof(AppSettingsVM),
-                new PropertyMetadata(DefaultValue_SsmlSchemaCoreFileName));
+        private static readonly DependencyPropertyKey SsmlSchemaCoreFilePathPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SsmlSchemaCoreFilePath, typeof(string), typeof(AppSettingsVM),
+            new PropertyMetadata(""));
 
         /// <summary>
-        /// Identifies the <seealso cref="SsmlSchemaCoreFileName"/> dependency property.
+        /// Identifies the <see cref="SsmlSchemaCoreFilePath"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty SsmlSchemaCoreFileNameProperty = SsmlSchemaCoreFileNamePropertyKey.DependencyProperty;
+        public static readonly DependencyProperty SsmlSchemaCoreFilePathProperty = SsmlSchemaCoreFilePathPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Path to SSML schema core file.
         /// </summary>
-        public string SsmlSchemaCoreFileName
+        public string SsmlSchemaCoreFilePath
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(SsmlSchemaCoreFileNameProperty));
-                return Dispatcher.Invoke(() => SsmlSchemaCoreFileName);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(SsmlSchemaCoreFileNamePropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => SsmlSchemaCoreFileName = value);
-            }
+            get { return GetValue(SsmlSchemaCoreFilePathProperty) as string; }
+            private set { SetValue(SsmlSchemaCoreFilePathPropertyKey, value); }
         }
 
         #endregion
 
         #region SsmlFileExtension Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="SsmlFileExtension"/> dependency property.
+        /// </summary>
         public const string PropertyName_SsmlFileExtension = "SsmlFileExtension";
+
+        /// <summary>
+        /// Defines the default value for the <see cref="SsmlFileExtension"/> dependency property.
+        /// </summary>
         public const string DefaultValue_SsmlFileExtension = ".ssml";
 
         private static readonly DependencyPropertyKey SsmlFileExtensionPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SsmlFileExtension, typeof(string), typeof(AppSettingsVM),
-                new PropertyMetadata(DefaultValue_SsmlFileExtension));
+            new PropertyMetadata(DefaultValue_SsmlFileExtension));
 
         /// <summary>
-        /// Identifies the <seealso cref="SsmlFileExtension"/> dependency property.
+        /// Identifies the <see cref="SsmlFileExtension"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SsmlFileExtensionProperty = SsmlFileExtensionPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// File extension for Speech Synthesis Markup document files.
         /// </summary>
         public string SsmlFileExtension
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(SsmlFileExtensionProperty));
-                return Dispatcher.Invoke(() => SsmlFileExtension);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(SsmlFileExtensionPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => SsmlFileExtension = value);
-            }
+            get { return GetValue(SsmlFileExtensionProperty) as string; }
+            private set { SetValue(SsmlFileExtensionPropertyKey, value); }
         }
 
         #endregion
 
         #region PlsFileExtension Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="PlsFileExtension"/> dependency property.
+        /// </summary>
         public const string PropertyName_PlsFileExtension = "PlsFileExtension";
+
+        /// <summary>
+        /// Defines the default value for the <see cref="PlsFileExtension"/> dependency property.
+        /// </summary>
         public const string DefaultValue_PlsFileExtension = ".pls";
 
         private static readonly DependencyPropertyKey PlsFileExtensionPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_PlsFileExtension, typeof(string), typeof(AppSettingsVM),
-                new PropertyMetadata(DefaultValue_PlsFileExtension));
+            new PropertyMetadata(DefaultValue_PlsFileExtension));
 
         /// <summary>
-        /// Identifies the <seealso cref="PlsFileExtension"/> dependency property.
+        /// Identifies the <see cref="PlsFileExtension"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty PlsFileExtensionProperty = PlsFileExtensionPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Extension for Pronunciation Lexicon Specification files.
         /// </summary>
         public string PlsFileExtension
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(PlsFileExtensionProperty));
-                return Dispatcher.Invoke(() => PlsFileExtension);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(PlsFileExtensionPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => PlsFileExtension = value);
-            }
+            get { return GetValue(PlsFileExtensionProperty) as string; }
+            private set { SetValue(PlsFileExtensionPropertyKey, value); }
         }
 
         #endregion
 
         #region SsmlFileTypeDescriptionLong Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="SsmlFileTypeDescriptionLong"/> dependency property.
+        /// </summary>
         public const string PropertyName_SsmlFileTypeDescriptionLong = "SsmlFileTypeDescriptionLong";
+
+        /// <summary>
+        /// Defines the default value for the <see cref="SsmlFileTypeDescriptionLong"/> dependency property.
+        /// </summary>
         public const string DefaultValue_SsmlFileTypeDescriptionLong = "Speech Synthesis Markup Language Source";
 
         private static readonly DependencyPropertyKey SsmlFileTypeDescriptionLongPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SsmlFileTypeDescriptionLong, typeof(string), typeof(AppSettingsVM),
-                new PropertyMetadata(DefaultValue_SsmlFileTypeDescriptionLong));
+            new PropertyMetadata(DefaultValue_SsmlFileTypeDescriptionLong));
 
         /// <summary>
-        /// Identifies the <seealso cref="SsmlFileTypeDescriptionLong"/> dependency property.
+        /// Identifies the <see cref="SsmlFileTypeDescriptionLong"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SsmlFileTypeDescriptionLongProperty = SsmlFileTypeDescriptionLongPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Long description text for Speech Synthesis Markup files.
         /// </summary>
         public string SsmlFileTypeDescriptionLong
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(SsmlFileTypeDescriptionLongProperty));
-                return Dispatcher.Invoke(() => SsmlFileTypeDescriptionLong);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(SsmlFileTypeDescriptionLongPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => SsmlFileTypeDescriptionLong = value);
-            }
+            get { return GetValue(SsmlFileTypeDescriptionLongProperty) as string; }
+            private set { SetValue(SsmlFileTypeDescriptionLongPropertyKey, value); }
         }
 
         #endregion
 
         #region PlsFileTypeDescriptionLong Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="PlsFileTypeDescriptionLong"/> dependency property.
+        /// </summary>
         public const string PropertyName_PlsFileTypeDescriptionLong = "PlsFileTypeDescriptionLong";
-        public const string DefaultValue_PlsFileTypeDescriptionLong = "Pronunciation Lexicon Source";
-
-        private static readonly DependencyPropertyKey PlsFileTypeDescriptionLongPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_PlsFileTypeDescriptionLong, typeof(string), typeof(AppSettingsVM),
-                new PropertyMetadata(DefaultValue_PlsFileTypeDescriptionLong));
 
         /// <summary>
-        /// Identifies the <seealso cref="PlsFileTypeDescriptionLong"/> dependency property.
+        /// Defines the default value for the <see cref="PlsFileTypeDescriptionLong"/> dependency property.
+        /// </summary>
+        public const string DefaultValue_PlsFileTypeDescriptionLong = "Pronunciation Lexicon Specification File";
+
+        private static readonly DependencyPropertyKey PlsFileTypeDescriptionLongPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_PlsFileTypeDescriptionLong, typeof(string), typeof(AppSettingsVM),
+            new PropertyMetadata(DefaultValue_PlsFileTypeDescriptionLong));
+
+        /// <summary>
+        /// Identifies the <see cref="PlsFileTypeDescriptionLong"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty PlsFileTypeDescriptionLongProperty = PlsFileTypeDescriptionLongPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Long description for Pronunciation Lexicon Specification files.
         /// </summary>
         public string PlsFileTypeDescriptionLong
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(PlsFileTypeDescriptionLongProperty));
-                return Dispatcher.Invoke(() => PlsFileTypeDescriptionLong);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(PlsFileTypeDescriptionLongPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => PlsFileTypeDescriptionLong = value);
-            }
+            get { return GetValue(PlsFileTypeDescriptionLongProperty) as string; }
+            private set { SetValue(PlsFileTypeDescriptionLongPropertyKey, value); }
         }
 
         #endregion
 
         #region SsmlFileTypeDescriptionShort Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="SsmlFileTypeDescriptionShort"/> dependency property.
+        /// </summary>
         public const string PropertyName_SsmlFileTypeDescriptionShort = "SsmlFileTypeDescriptionShort";
+
+        /// <summary>
+        /// Defines the default value for the <see cref="SsmlFileTypeDescriptionShort"/> dependency property.
+        /// </summary>
         public const string DefaultValue_SsmlFileTypeDescriptionShort = "Speech Synthesis Markup";
 
         private static readonly DependencyPropertyKey SsmlFileTypeDescriptionShortPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SsmlFileTypeDescriptionShort, typeof(string), typeof(AppSettingsVM),
-                new PropertyMetadata(DefaultValue_SsmlFileTypeDescriptionShort));
+            new PropertyMetadata(DefaultValue_SsmlFileTypeDescriptionShort));
 
         /// <summary>
-        /// Identifies the <seealso cref="SsmlFileTypeDescriptionShort"/> dependency property.
+        /// Identifies the <see cref="SsmlFileTypeDescriptionShort"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SsmlFileTypeDescriptionShortProperty = SsmlFileTypeDescriptionShortPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Short description for Speech Synthesis Markup files.
         /// </summary>
         public string SsmlFileTypeDescriptionShort
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(SsmlFileTypeDescriptionShortProperty));
-                return Dispatcher.Invoke(() => SsmlFileTypeDescriptionShort);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(SsmlFileTypeDescriptionShortPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => SsmlFileTypeDescriptionShort = value);
-            }
+            get { return GetValue(SsmlFileTypeDescriptionShortProperty) as string; }
+            private set { SetValue(SsmlFileTypeDescriptionShortPropertyKey, value); }
         }
 
         #endregion
 
         #region PlsFileTypeDescriptionShort Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="PlsFileTypeDescriptionShort"/> dependency property.
+        /// </summary>
         public const string PropertyName_PlsFileTypeDescriptionShort = "PlsFileTypeDescriptionShort";
-        public const string DefaultValue_PlsFileTypeDescriptionShort = "Pronunciation Lexicon";
-
-        private static readonly DependencyPropertyKey PlsFileTypeDescriptionShortPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_PlsFileTypeDescriptionShort, typeof(string), typeof(AppSettingsVM),
-                new PropertyMetadata(DefaultValue_PlsFileTypeDescriptionShort));
 
         /// <summary>
-        /// Identifies the <seealso cref="PlsFileTypeDescriptionShort"/> dependency property.
+        /// Defines the name for the <see cref="PlsFileTypeDescriptionShort"/> dependency property.
+        /// </summary>
+        public const string DefaultValue_PlsFileTypeDescriptionShort = "Pronunciation Lexicon Specification";
+
+        private static readonly DependencyPropertyKey PlsFileTypeDescriptionShortPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_PlsFileTypeDescriptionShort, typeof(string), typeof(AppSettingsVM),
+            new PropertyMetadata(DefaultValue_PlsFileTypeDescriptionShort));
+
+        /// <summary>
+        /// Identifies the <see cref="PlsFileTypeDescriptionShort"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty PlsFileTypeDescriptionShortProperty = PlsFileTypeDescriptionShortPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// 
+        /// Short description for Pronunciation Lexicon Specification files.
         /// </summary>
         public string PlsFileTypeDescriptionShort
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(PlsFileTypeDescriptionShortProperty));
-                return Dispatcher.Invoke(() => PlsFileTypeDescriptionShort);
-            }
-            private set
-            {
-                if (CheckAccess())
-                    SetValue(PlsFileTypeDescriptionShortPropertyKey, value);
-                else
-                    Dispatcher.Invoke(() => PlsFileTypeDescriptionShort = value);
-            }
+            get { return GetValue(PlsFileTypeDescriptionShortProperty) as string; }
+            private set { SetValue(PlsFileTypeDescriptionShortPropertyKey, value); }
         }
 
         #endregion
 
         #region LastSsmlFilePath Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="LastSsmlFilePath"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_LastSsmlFilePath = "LastSsmlFilePath";
 
         /// <summary>
-        /// Identifies the <seealso cref="LastSsmlFilePath"/> dependency property.
+        /// Identifies the <see cref="LastSsmlFilePath"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty LastSsmlFilePathProperty = DependencyProperty.Register(DependencyPropertyName_LastSsmlFilePath, typeof(string), typeof(AppSettingsVM),
                 new PropertyMetadata("",
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as AppSettingsVM).LastSsmlFilePath_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as AppSettingsVM).LastSsmlFilePath_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as AppSettingsVM).LastSsmlFilePath_CoerceValue(baseValue)));
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).LastSsmlFilePath_PropertyChanged(e.OldValue as string, e.NewValue as string),
+                    (DependencyObject d, object baseValue) => (d as AppSettingsVM).LastSsmlFilePath_CoerceValue(baseValue)));
 
         /// <summary>
-        /// 
+        /// Path to last saved or loaded Speech Synthesis Markup file
         /// </summary>
         public string LastSsmlFilePath
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(LastSsmlFilePathProperty));
-                return Dispatcher.Invoke(() => LastSsmlFilePath);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(LastSsmlFilePathProperty, value);
-                else
-                    Dispatcher.Invoke(() => LastSsmlFilePath = value);
-            }
+            get { return GetValue(LastSsmlFilePathProperty) as string; }
+            set { SetValue(LastSsmlFilePathProperty, value); }
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="LastSsmlFilePath"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="LastSsmlFilePath"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="LastSsmlFilePath"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="LastSsmlFilePath"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <see cref="LastSsmlFilePath"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <see cref="LastSsmlFilePath"/> property was changed.</param>
         protected virtual void LastSsmlFilePath_PropertyChanged(string oldValue, string newValue)
         {
             Properties.Settings.Default.LastSsmlFilePath = newValue;
@@ -482,7 +436,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         }
 
         /// <summary>
-        /// This gets called whenever <seealso cref="LastSsmlFilePath"/> is being re-evaluated, or coercion is specifically requested.
+        /// This gets called whenever <see cref="LastSsmlFilePath"/> is being re-evaluated, or coercion is specifically requested.
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>
@@ -499,48 +453,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         #endregion
 
         #region LastSavedWavPath Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="LastSavedWavPath"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_LastSavedWavPath = "LastSavedWavPath";
 
         /// <summary>
-        /// Identifies the <seealso cref="LastSavedWavPath"/> dependency property.
+        /// Identifies the <see cref="LastSavedWavPath"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty LastSavedWavPathProperty = DependencyProperty.Register(DependencyPropertyName_LastSavedWavPath, typeof(string), typeof(AppSettingsVM),
                 new PropertyMetadata("",
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as AppSettingsVM).LastSavedWavPath_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as AppSettingsVM).LastSavedWavPath_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as AppSettingsVM).LastSavedWavPath_CoerceValue(baseValue)));
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).LastSavedWavPath_PropertyChanged(e.OldValue as string, e.NewValue as string),
+                    (DependencyObject d, object baseValue) => (d as AppSettingsVM).LastSavedWavPath_CoerceValue(baseValue)));
 
         /// <summary>
-        /// 
+        /// Path to last saved WAV file path.
         /// </summary>
         public string LastSavedWavPath
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(LastSavedWavPathProperty));
-                return Dispatcher.Invoke(() => LastSavedWavPath);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(LastSavedWavPathProperty, value);
-                else
-                    Dispatcher.Invoke(() => LastSavedWavPath = value);
-            }
+            get { return GetValue(LastSavedWavPathProperty) as string; }
+            set { SetValue(LastSavedWavPathProperty, value); }
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="LastSavedWavPath"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="LastSavedWavPath"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="LastSavedWavPath"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="LastSavedWavPath"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <see cref="LastSavedWavPath"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <see cref="LastSavedWavPath"/> property was changed.</param>
         protected virtual void LastSavedWavPath_PropertyChanged(string oldValue, string newValue)
         {
             Properties.Settings.Default.LastSavedWavPath = newValue;
@@ -549,7 +489,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         }
 
         /// <summary>
-        /// This gets called whenever <seealso cref="LastSavedWavPath"/> is being re-evaluated, or coercion is specifically requested.
+        /// This gets called whenever <see cref="LastSavedWavPath"/> is being re-evaluated, or coercion is specifically requested.
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>
@@ -566,48 +506,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         #endregion
 
         #region LastAudioPath Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="LastAudioPath"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_LastAudioPath = "LastAudioPath";
 
         /// <summary>
-        /// Identifies the <seealso cref="LastAudioPath"/> dependency property.
+        /// Identifies the <see cref="LastAudioPath"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty LastAudioPathProperty = DependencyProperty.Register(DependencyPropertyName_LastAudioPath, typeof(string), typeof(AppSettingsVM),
                 new PropertyMetadata("",
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as AppSettingsVM).LastAudioPath_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as AppSettingsVM).LastAudioPath_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as AppSettingsVM).LastAudioPath_CoerceValue(baseValue)));
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).LastAudioPath_PropertyChanged(e.OldValue as string, e.NewValue as string),
+                    (DependencyObject d, object baseValue) => (d as AppSettingsVM).LastAudioPath_CoerceValue(baseValue)));
 
         /// <summary>
-        /// 
+        /// Path to last file imported as audio into SSML.
         /// </summary>
         public string LastAudioPath
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(LastAudioPathProperty));
-                return Dispatcher.Invoke(() => LastAudioPath);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(LastAudioPathProperty, value);
-                else
-                    Dispatcher.Invoke(() => LastAudioPath = value);
-            }
+            get { return GetValue(LastAudioPathProperty) as string; }
+            set { SetValue(LastAudioPathProperty, value); }
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="LastAudioPath"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="LastAudioPath"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="LastAudioPath"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="LastAudioPath"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <see cref="LastAudioPath"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <see cref="LastAudioPath"/> property was changed.</param>
         protected virtual void LastAudioPath_PropertyChanged(string oldValue, string newValue)
         {
             Properties.Settings.Default.LastAudioPath = newValue;
@@ -616,7 +542,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         }
 
         /// <summary>
-        /// This gets called whenever <seealso cref="LastAudioPath"/> is being re-evaluated, or coercion is specifically requested.
+        /// This gets called whenever <see cref="LastAudioPath"/> is being re-evaluated, or coercion is specifically requested.
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>
@@ -633,48 +559,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         #endregion
 
         #region LastPlsFilePath Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="LastPlsFilePath"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_LastPlsFilePath = "LastPlsFilePath";
 
         /// <summary>
-        /// Identifies the <seealso cref="LastPlsFilePath"/> dependency property.
+        /// Identifies the <see cref="LastPlsFilePath"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty LastPlsFilePathProperty = DependencyProperty.Register(DependencyPropertyName_LastPlsFilePath, typeof(string), typeof(AppSettingsVM),
                 new PropertyMetadata("",
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as AppSettingsVM).LastPlsFilePath_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as AppSettingsVM).LastPlsFilePath_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as AppSettingsVM).LastPlsFilePath_CoerceValue(baseValue)));
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).LastPlsFilePath_PropertyChanged(e.OldValue as string, e.NewValue as string),
+                    (DependencyObject d, object baseValue) => (d as AppSettingsVM).LastPlsFilePath_CoerceValue(baseValue)));
 
         /// <summary>
-        /// 
+        /// Path to last loaded or saved Pronunciation Lexicon Specification file.
         /// </summary>
         public string LastPlsFilePath
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(LastPlsFilePathProperty));
-                return Dispatcher.Invoke(() => LastPlsFilePath);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(LastPlsFilePathProperty, value);
-                else
-                    Dispatcher.Invoke(() => LastPlsFilePath = value);
-            }
+            get { return GetValue(LastPlsFilePathProperty) as string; }
+            set { SetValue(LastPlsFilePathProperty, value); }
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="LastPlsFilePath"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="LastPlsFilePath"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="LastPlsFilePath"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="LastPlsFilePath"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <see cref="LastPlsFilePath"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <see cref="LastPlsFilePath"/> property was changed.</param>
         protected virtual void LastPlsFilePath_PropertyChanged(string oldValue, string newValue)
         {
             Properties.Settings.Default.LastPlsFilePath = newValue;
@@ -683,7 +595,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         }
 
         /// <summary>
-        /// This gets called whenever <seealso cref="LastPlsFilePath"/> is being re-evaluated, or coercion is specifically requested.
+        /// This gets called whenever <see cref="LastPlsFilePath"/> is being re-evaluated, or coercion is specifically requested.
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>
@@ -700,48 +612,34 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         #endregion
 
         #region LastBrowsedSubdirectory Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="LastBrowsedSubdirectory"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_LastBrowsedSubdirectory = "LastBrowsedSubdirectory";
 
         /// <summary>
-        /// Identifies the <seealso cref="LastBrowsedSubdirectory"/> dependency property.
+        /// Identifies the <see cref="LastBrowsedSubdirectory"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty LastBrowsedSubdirectoryProperty = DependencyProperty.Register(DependencyPropertyName_LastBrowsedSubdirectory, typeof(string), typeof(AppSettingsVM),
                 new PropertyMetadata("",
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as AppSettingsVM).LastBrowsedSubdirectory_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as AppSettingsVM).LastBrowsedSubdirectory_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as AppSettingsVM).LastBrowsedSubdirectory_CoerceValue(baseValue)));
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).LastBrowsedSubdirectory_PropertyChanged(e.OldValue as string, e.NewValue as string),
+                    (DependencyObject d, object baseValue) => (d as AppSettingsVM).LastBrowsedSubdirectory_CoerceValue(baseValue)));
 
         /// <summary>
-        /// 
+        /// Path to last folder when browsing to save, load or import a file.
         /// </summary>
         public string LastBrowsedSubdirectory
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(LastBrowsedSubdirectoryProperty));
-                return Dispatcher.Invoke(() => LastBrowsedSubdirectory);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(LastBrowsedSubdirectoryProperty, value);
-                else
-                    Dispatcher.Invoke(() => LastBrowsedSubdirectory = value);
-            }
+            get { return GetValue(LastBrowsedSubdirectoryProperty) as string; }
+            set { SetValue(LastBrowsedSubdirectoryProperty, value); }
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="LastBrowsedSubdirectory"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="LastBrowsedSubdirectory"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="LastBrowsedSubdirectory"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="LastBrowsedSubdirectory"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <see cref="LastBrowsedSubdirectory"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <see cref="LastBrowsedSubdirectory"/> property was changed.</param>
         protected virtual void LastBrowsedSubdirectory_PropertyChanged(string oldValue, string newValue)
         {
             Properties.Settings.Default.LastBrowsedSubdirectory = newValue;
@@ -749,7 +647,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         }
 
         /// <summary>
-        /// This gets called whenever <seealso cref="LastBrowsedSubdirectory"/> is being re-evaluated, or coercion is specifically requested.
+        /// This gets called whenever <see cref="LastBrowsedSubdirectory"/> is being re-evaluated, or coercion is specifically requested.
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>
@@ -767,172 +665,147 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         #endregion
 
         #region DefaultSpeechRate Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="DefaultSpeechRate"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_DefaultSpeechRate = "DefaultSpeechRate";
 
         /// <summary>
-        /// Identifies the <seealso cref="DefaultSpeechRate"/> dependency property.
+        /// Minimum acceptable value for speech rate.
         /// </summary>
-        public static readonly DependencyProperty DefaultSpeechRateProperty = DependencyProperty.Register(DependencyPropertyName_DefaultSpeechRate, typeof(int), typeof(AppSettingsVM),
-                new PropertyMetadata(0,
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as AppSettingsVM).DefaultSpeechRate_PropertyChanged((int)(e.OldValue), (int)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as AppSettingsVM).DefaultSpeechRate_PropertyChanged((int)(e.OldValue), (int)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as AppSettingsVM).DefaultSpeechRate_CoerceValue(baseValue)));
+        public const int SpeechRate_MinValue = -10;
 
         /// <summary>
-        /// 
+        /// Maximum acceptable value for speech rate.
         /// </summary>
+        public const int SpeechRate_MaxValue = 10;
+
+        /// <summary>
+        /// Defines the default value for the <see cref="DefaultSpeechRate"/> dependency property.
+        /// </summary>
+        public const int DefaultValue_DefaultSpeechRate = 0;
+
+        /// <summary>
+        /// Identifies the <see cref="DefaultSpeechRate"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty DefaultSpeechRateProperty = DependencyProperty.Register(DependencyPropertyName_DefaultSpeechRate, typeof(int), typeof(AppSettingsVM),
+                new PropertyMetadata(DefaultValue_DefaultSpeechRate,
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).DefaultSpeechRate_PropertyChanged((int)(e.OldValue), (int)(e.NewValue))));
+
+        /// <summary>
+        /// Default speech rate for speech generation.
+        /// </summary>
+        /// <remarks>Values range from -10 to 10 (inclusive).</remarks>
         public int DefaultSpeechRate
         {
-            get
-            {
-                if (CheckAccess())
-                    return (int)(GetValue(DefaultSpeechRateProperty));
-                return Dispatcher.Invoke(() => DefaultSpeechRate);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(DefaultSpeechRateProperty, value);
-                else
-                    Dispatcher.Invoke(() => DefaultSpeechRate = value);
-            }
+            get { return (int)(GetValue(DefaultSpeechRateProperty)); }
+            set { SetValue(DefaultSpeechRateProperty, value); }
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="DefaultSpeechRate"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="DefaultSpeechRate"/> dependency property has changed.
         /// </summary>
         /// <param name="oldValue">The <seealso cref="int"/> value before the <seealso cref="DefaultSpeechRate"/> property was changed.</param>
         /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="DefaultSpeechRate"/> property was changed.</param>
         protected virtual void DefaultSpeechRate_PropertyChanged(int oldValue, int newValue)
         {
-            Properties.Settings.Default.DefaultSpeechRate = newValue;
-            SavePropertiesAsync();
+            if (newValue < SpeechRate_MinValue || newValue > SpeechRate_MaxValue)
+                SetValidation(DependencyPropertyName_DefaultSpeechRate, "Value cannot be less than -10 or greater than 10.");
+            else
+            {
+                SetValidation(DependencyPropertyName_DefaultSpeechRate, null);
+                Properties.Settings.Default.DefaultSpeechRate = newValue;
+                SavePropertiesAsync();
+            }
         }
-
-        /// <summary>
-        /// This gets called whenever <seealso cref="DefaultSpeechRate"/> is being re-evaluated, or coercion is specifically requested.
-        /// </summary>
-        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
-        /// <returns>The coerced value.</returns>
-        public virtual int DefaultSpeechRate_CoerceValue(object baseValue)
-        {
-            int i = (int)baseValue;
-            return (i < -10) ? -10 : ((i > 10) ? 10 : i);
-        }
-
+        
         #endregion
 
         #region DefaultSpeechVolume Property Members
 
+        /// <summary>
+        /// Defines the name for the <see cref="DefaultSpeechVolume"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_DefaultSpeechVolume = "DefaultSpeechVolume";
 
         /// <summary>
-        /// Identifies the <seealso cref="DefaultSpeechVolume"/> dependency property.
+        /// Minimum acceptable value for speech rate.
         /// </summary>
-        public static readonly DependencyProperty DefaultSpeechVolumeProperty = DependencyProperty.Register(DependencyPropertyName_DefaultSpeechVolume, typeof(int), typeof(AppSettingsVM),
-                new PropertyMetadata(100,
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as AppSettingsVM).DefaultSpeechVolume_PropertyChanged((int)(e.OldValue), (int)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as AppSettingsVM).DefaultSpeechVolume_PropertyChanged((int)(e.OldValue), (int)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as AppSettingsVM).DefaultSpeechVolume_CoerceValue(baseValue)));
+        public const int SpeechVolume_MinValue = 0;
 
         /// <summary>
-        /// 
+        /// Maximum acceptable value for speech rate.
         /// </summary>
+        public const int SpeechVolume_MaxValue = 100;
+
+        public const int DefaultValue_DefaultSpeechVolume = 100;
+
+        /// <summary>
+        /// Identifies the <see cref="DefaultSpeechVolume"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty DefaultSpeechVolumeProperty = DependencyProperty.Register(DependencyPropertyName_DefaultSpeechVolume, typeof(int), typeof(AppSettingsVM),
+                new PropertyMetadata(DefaultValue_DefaultSpeechVolume,
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).DefaultSpeechVolume_PropertyChanged((int)(e.OldValue), (int)(e.NewValue))));
+
+        /// <summary>
+        /// Default volume for speech generation
+        /// </summary>
+        /// <remarks>Values range from 0 to 100, inclusive.</remarks>
         public int DefaultSpeechVolume
         {
-            get
-            {
-                if (CheckAccess())
-                    return (int)(GetValue(DefaultSpeechVolumeProperty));
-                return Dispatcher.Invoke(() => DefaultSpeechVolume);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(DefaultSpeechVolumeProperty, value);
-                else
-                    Dispatcher.Invoke(() => DefaultSpeechVolume = value);
-            }
+            get { return (int)(GetValue(DefaultSpeechVolumeProperty)); }
+            set { SetValue(DefaultSpeechVolumeProperty, value); }
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="DefaultSpeechVolume"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="DefaultSpeechVolume"/> dependency property has changed.
         /// </summary>
         /// <param name="oldValue">The <seealso cref="int"/> value before the <seealso cref="DefaultSpeechVolume"/> property was changed.</param>
         /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="DefaultSpeechVolume"/> property was changed.</param>
         protected virtual void DefaultSpeechVolume_PropertyChanged(int oldValue, int newValue)
         {
-            Properties.Settings.Default.DefaultSpeechVolume = newValue;
-            SavePropertiesAsync();
+            if (newValue < SpeechVolume_MinValue || newValue > SpeechVolume_MaxValue)
+                SetValidation(DependencyPropertyName_DefaultSpeechVolume, "Value cannot be less than 0 or greater than 100.");
+            else
+            {
+                SetValidation(DependencyPropertyName_DefaultSpeechVolume, null);
+                Properties.Settings.Default.DefaultSpeechVolume = newValue;
+                SavePropertiesAsync();
+            }
         }
-
-        /// <summary>
-        /// This gets called whenever <seealso cref="DefaultSpeechVolume"/> is being re-evaluated, or coercion is specifically requested.
-        /// </summary>
-        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
-        /// <returns>The coerced value.</returns>
-        public virtual int DefaultSpeechVolume_CoerceValue(object baseValue)
-        {
-            int i = (int)baseValue;
-            return (i < 0) ? 0 : ((i > 100) ? 100 : i);
-        }
-
+        
         #endregion
 
         #region DefaultVoiceName Property Members
-
+        
+        /// <summary>
+        /// Defines the name for the <see cref="DefaultVoiceName"/> dependency property.
+        /// </summary>
         public const string DependencyPropertyName_DefaultVoiceName = "DefaultVoiceName";
 
         /// <summary>
-        /// Identifies the <seealso cref="DefaultVoiceName"/> dependency property.
+        /// Identifies the <see cref="DefaultVoiceName"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty DefaultVoiceNameProperty = DependencyProperty.Register(DependencyPropertyName_DefaultVoiceName, typeof(string), typeof(AppSettingsVM),
                 new PropertyMetadata("",
-                (DependencyObject d, DependencyPropertyChangedEventArgs e) =>
-                {
-                    if (d.CheckAccess())
-                        (d as AppSettingsVM).DefaultVoiceName_PropertyChanged((string)(e.OldValue), (string)(e.NewValue));
-                    else
-                        d.Dispatcher.Invoke(() => (d as AppSettingsVM).DefaultVoiceName_PropertyChanged((string)(e.OldValue), (string)(e.NewValue)));
-                },
-                (DependencyObject d, object baseValue) => (d as AppSettingsVM).DefaultVoiceName_CoerceValue(baseValue)));
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).DefaultVoiceName_PropertyChanged(e.OldValue as string, e.NewValue as string),
+                    (DependencyObject d, object baseValue) => (d as AppSettingsVM).DefaultVoiceName_CoerceValue(baseValue)));
 
         /// <summary>
-        /// 
+        /// Default voice name for speech generation
         /// </summary>
         public string DefaultVoiceName
         {
-            get
-            {
-                if (CheckAccess())
-                    return (string)(GetValue(DefaultVoiceNameProperty));
-                return Dispatcher.Invoke(() => DefaultVoiceName);
-            }
-            set
-            {
-                if (CheckAccess())
-                    SetValue(DefaultVoiceNameProperty, value);
-                else
-                    Dispatcher.Invoke(() => DefaultVoiceName = value);
-            }
+            get { return GetValue(DefaultVoiceNameProperty) as string; }
+            set { SetValue(DefaultVoiceNameProperty, value); }
         }
 
         /// <summary>
-        /// This gets called after the value associated with the <seealso cref="DefaultVoiceName"/> dependency property has changed.
+        /// This gets called after the value associated with the <see cref="DefaultVoiceName"/> dependency property has changed.
         /// </summary>
-        /// <param name="oldValue">The <seealso cref="string"/> value before the <seealso cref="DefaultVoiceName"/> property was changed.</param>
-        /// <param name="newValue">The <seealso cref="string"/> value after the <seealso cref="DefaultVoiceName"/> property was changed.</param>
+        /// <param name="oldValue">The <seealso cref="string"/> value before the <see cref="DefaultVoiceName"/> property was changed.</param>
+        /// <param name="newValue">The <seealso cref="string"/> value after the <see cref="DefaultVoiceName"/> property was changed.</param>
         protected virtual void DefaultVoiceName_PropertyChanged(string oldValue, string newValue)
         {
             Properties.Settings.Default.DefaultVoiceName = newValue;
@@ -940,14 +813,14 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         }
 
         /// <summary>
-        /// This gets called whenever <seealso cref="DefaultVoiceName"/> is being re-evaluated, or coercion is specifically requested.
+        /// This gets called whenever <see cref="DefaultVoiceName"/> is being re-evaluated, or coercion is specifically requested.
         /// </summary>
         /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
         /// <returns>The coerced value.</returns>
         public virtual string DefaultVoiceName_CoerceValue(object baseValue) { return (baseValue as string) ?? ""; }
 
         #endregion
-
+        
         private void UpdateLastBrowedDirectory(string filePath)
         {
             if (String.IsNullOrWhiteSpace(filePath))
@@ -1017,6 +890,5 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
                 Properties.Settings.Default.Save();
             }
         }
-
     }
 }

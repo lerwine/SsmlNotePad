@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter;
 
 namespace UnitTestProject1
 {
     /// <summary>
-    /// Summary description for XmlNodeTypeToStringConverter
+    /// Summary description for VoiceAgeToStringConverter
     /// </summary>
     [TestClass]
-    public class XmlNodeTypeToStringConverter
+    public class VoiceAgeToStringConverterTest
     {
-        public XmlNodeTypeToStringConverter() { }
+        public VoiceAgeToStringConverterTest() { }
 
         private TestContext _testContextInstance;
 
@@ -52,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void ViewModelValidationMessageConstructorTestMethod()
         {
-            XmlNodeTypeToStringConverter target = new XmlNodeTypeToStringConverter();
+            VoiceAgeToStringConverter target = new VoiceAgeToStringConverter();
         }
     }
 }

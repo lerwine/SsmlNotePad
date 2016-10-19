@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter;
 
 namespace UnitTestProject1
 {
     /// <summary>
-    /// Summary description for VoiceAgeToStringConverter
+    /// Summary description for SpeechProgressToStyleConverter
     /// </summary>
     [TestClass]
-    public class VoiceAgeToStringConverter
+    public class SpeechProgressToStyleConverterTest
     {
-        public VoiceAgeToStringConverter() { }
+        public SpeechProgressToStyleConverterTest() { }
 
         private TestContext _testContextInstance;
 
@@ -52,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void ViewModelValidationMessageConstructorTestMethod()
         {
-            VoiceAgeToStringConverter target = new VoiceAgeToStringConverter();
+            SpeechProgressToStyleConverter target = new SpeechProgressToStyleConverter();
         }
     }
 }

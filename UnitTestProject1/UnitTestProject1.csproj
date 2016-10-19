@@ -14,7 +14,7 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
-    <IsCodedUITest>False</IsCodedUITest>
+    <IsCodedUITest>True</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -38,6 +38,9 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
@@ -58,14 +61,14 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AppSettingsViewModelTest.cs" />
-    <Compile Include="BooleanToScrollBarVisibilityConverter.cs" />
-    <Compile Include="BooleanToStringConverter.cs" />
-    <Compile Include="BooleanToTextWrappingConverter.cs" />
-    <Compile Include="BooleanToVisibilityConverter.cs" />
-    <Compile Include="ExceptionToStringConverter.cs" />
-    <Compile Include="FileSaveStatusToStyleConverter.cs" />
-    <Compile Include="FindReplaceModeToVisibilityConverter.cs" />
-    <Compile Include="InverseBooleanConverter.cs" />
+    <Compile Include="BooleanToScrollBarVisibilityConverterTest.cs" />
+    <Compile Include="BooleanToStringConverterTest.cs" />
+    <Compile Include="BooleanToTextWrappingConverterTest.cs" />
+    <Compile Include="BooleanToVisibilityConverterTest.cs" />
+    <Compile Include="ExceptionToStringConverterTest.cs" />
+    <Compile Include="FileSaveStatusToStyleConverterTest.cs" />
+    <Compile Include="FindReplaceModeToVisibilityConverterTest.cs" />
+    <Compile Include="InverseBooleanConverterTest.cs" />
     <Compile Include="LineNumberTest.cs" />
     <Compile Include="Markup.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -73,21 +76,21 @@
       <DependentUpon>Markup.resx</DependentUpon>
     </Compile>
     <Compile Include="MainViewModelUnitTest.cs" />
-    <Compile Include="ObjectToVisibilityConverter.cs" />
+    <Compile Include="ObjectToVisibilityConverterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SayAsToStringConverter.cs" />
+    <Compile Include="SayAsToStringConverterTest.cs" />
     <Compile Include="SpeechGenerationProgressViewModelTest.cs" />
-    <Compile Include="SpeechProgressToIntConverter.cs" />
-    <Compile Include="SpeechProgressToStringConverter.cs" />
-    <Compile Include="SpeechProgressToStyleConverter.cs" />
-    <Compile Include="StatusTypeToStyleConverter.cs" />
-    <Compile Include="StringToVisibilityConverter.cs" />
+    <Compile Include="SpeechProgressToIntConverterTest.cs" />
+    <Compile Include="SpeechProgressToStringConverterTest.cs" />
+    <Compile Include="SpeechProgressToStyleConverterTest.cs" />
+    <Compile Include="StatusTypeToStyleConverterTest.cs" />
+    <Compile Include="StringToVisibilityConverterTest.cs" />
+    <Compile Include="SynchronizedStateTest.cs" />
     <Compile Include="ViewModelValidationMessageViewModelTest.cs" />
-    <Compile Include="VoiceAgeToStringConverter.cs" />
-    <Compile Include="VoiceGenderToStringConverter.cs" />
-    <Compile Include="XmlNodeTypeConverter.cs" />
-    <Compile Include="XmlNodeTypeToStringConverter.cs" />
-    <Compile Include="XmlNodeTypeToVisibilityConverter.cs" />
+    <Compile Include="VoiceAgeToStringConverterTest.cs" />
+    <Compile Include="VoiceGenderToStringConverterTest.cs" />
+    <Compile Include="XmlNodeTypeToStringConverterTest.cs" />
+    <Compile Include="XmlNodeTypeToVisibilityConverterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SsmlNotePad\SsmlNotePad.csproj">
@@ -110,6 +113,9 @@
     <Content Include="Resources\DocTypeTest.xml" />
     <Content Include="Resources\XmlText.xml" />
     <Content Include="Resources\XmlDocTypeTest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Example\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

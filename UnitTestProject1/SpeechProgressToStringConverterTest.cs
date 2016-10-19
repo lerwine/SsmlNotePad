@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter;
 
 namespace UnitTestProject1
 {
     /// <summary>
-    /// Summary description for ExceptionToStringConverter
+    /// Summary description for SpeechProgressToStringConverter
     /// </summary>
     [TestClass]
-    public class ExceptionToStringConverter
+    public class SpeechProgressToStringConverterTest
     {
-        public ExceptionToStringConverter() { }
+        public SpeechProgressToStringConverterTest() { }
 
         private TestContext _testContextInstance;
 
@@ -52,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void ViewModelValidationMessageConstructorTestMethod()
         {
-            ExceptionToStringConverter target = new ExceptionToStringConverter();
+            SpeechProgressToStringConverter target = new SpeechProgressToStringConverter();
         }
     }
 }

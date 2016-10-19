@@ -42,7 +42,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// Identifies the <see cref="Number"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty NumberProperty = DependencyProperty.Register(DependencyPropertyName_Number, typeof(int), typeof(LineNumberVM),
-                new PropertyMetadata(0));
+                new PropertyMetadata(1));
 
         /// <summary>
         /// Line number

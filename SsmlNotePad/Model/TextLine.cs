@@ -32,6 +32,35 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
         {
             return Task<TextLine[]>.Factory.StartNew(o => Split(o as string).ToArray(), text, token);
         }
+
+        internal static IEnumerable<TextLine> Split(string text, CancellationToken cancellationToken)
+        {
+            if (text == null)
+                yield break;
+
+            if (text.Length == 0)
+            {
+                yield return new TextLine(1, 0, "", "");
+                yield break;
+            }
+
+            int lineNumber = 1;
+            foreach (Match m in LineRegex.Matches(text))
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+                yield return new TextLine(lineNumber, m.Index, m.Groups["l"].Value, m.Groups["e"].Value);
+                lineNumber++;
+            }
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                int charIndex = text.Length - 1;
+                while (charIndex > -1 && text[charIndex] != '\r' && text[charIndex] != '\n')
+                    charIndex--;
+                yield return new TextLine(lineNumber, charIndex + 1, (charIndex == text.Length) ? "" : text.Substring(charIndex), "");
+            }
+        }
+
         public static IEnumerable<TextLine> Split(string text)
         {
             if (text == null)

@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter;
 
 namespace UnitTestProject1
 {
     /// <summary>
-    /// Summary description for StatusTypeToStyleConverter
+    /// Summary description for VoiceGenderToStringConverter
     /// </summary>
     [TestClass]
-    public class StatusTypeToStyleConverter
+    public class VoiceGenderToStringConverterTest
     {
-        public StatusTypeToStyleConverter() { }
+        public VoiceGenderToStringConverterTest() { }
 
         private TestContext _testContextInstance;
 
@@ -52,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void ViewModelValidationMessageConstructorTestMethod()
         {
-            StatusTypeToStyleConverter target = new StatusTypeToStyleConverter();
+            VoiceGenderToStringConverter target = new VoiceGenderToStringConverter();
         }
     }
 }

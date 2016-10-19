@@ -10,65 +10,87 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
     public class TaskHelper : IDisposable
     {
         private object _syncRoot = new object();
-        private List<Action<Task>> _continueWith = new List<Action<Task>>();
+        private ManualResetEvent _taskInactiveEvent = new ManualResetEvent(true);
+        public ManualResetEvent TaskInactiveEvent { get { return _taskInactiveEvent; } }
+        public bool _taskActive = false;
+        private ManualResetEvent _taskSwitchEvent = new ManualResetEvent(true);
+        private Task _currentTask = null;
+        private CancellationTokenSource _tokenSource = null;
+        private List<Tuple<Action<Task, object>, object>> _continueWith = new List<Tuple<Action<Task, object>, object>>();
 
-        public event EventHandler<TaskHelperCompletedEventArgs> TaskCompleted;
+        public bool TaskActive { get { return _taskActive; } }
 
-        public Task Task { get; private set; }
+        public void WaitOne(int millisecondsTimeout) { _taskInactiveEvent.WaitOne(millisecondsTimeout); }
 
-        public CancellationTokenSource TokenSource { get; private set; }
-
-        public void StartNew(Action<object> action, object state)
+        public void WaitOne() { _taskInactiveEvent.WaitOne(); }
+        
+        public void ContinueWith(Action<Task, object> continuation, object state)
         {
-            CancellationTokenSource tokenSource;
-            Task task;
+            ManualResetEvent taskSwitchEvent;
             lock (_syncRoot)
             {
-                tokenSource = TokenSource;
-                task = Task;
-                TokenSource = new CancellationTokenSource();
-                Task = Task.Factory.StartNew(action, state, TokenSource.Token);
+                taskSwitchEvent = _taskSwitchEvent;
+                _taskSwitchEvent = new ManualResetEvent(false);
             }
-
-            if (TokenSource == null)
-                return;
-
             try
             {
-                if (!task.IsCompleted && !tokenSource.IsCancellationRequested)
-                    tokenSource.Cancel();
+                taskSwitchEvent.WaitOne();
+                // if (task completed) { start task to execute continuation } else { add to queue }
             }
-            finally { tokenSource.Dispose(); }
+            catch { throw; }
+            finally { _taskSwitchEvent.Set(); }
         }
 
-        public void ContinueWith(Action<Task> action)
+        protected void StartNew(Action<object> action, object state)
         {
+            ManualResetEvent taskSwitchEvent;
             lock (_syncRoot)
             {
-                if (action != null)
+                taskSwitchEvent = _taskSwitchEvent;
+                _taskSwitchEvent = new ManualResetEvent(false);
+            }
+            try
+            {
+                taskSwitchEvent.WaitOne();
+                if (_tokenSource != null)
                 {
-                    if (Task.IsCompleted)
-                        Task.ContinueWith(action, TokenSource.Token);
-                    else
-                        _continueWith.Add(action);
+                    if (!(_currentTask.IsCompleted || _tokenSource.IsCancellationRequested))
+                        _tokenSource.Cancel();
+                    _tokenSource.Dispose();
+                }
+                else
+                {
+                    _taskActive = true;
+                    _taskInactiveEvent.Reset();
+                }
+                _tokenSource = new CancellationTokenSource();
+                _currentTask = new Task(action, state, _tokenSource.Token);
+            }
+            catch { throw; }
+            finally { _taskSwitchEvent.Set(); }
+        }
+
+        private void TaskCompleted(Task task)
+        {
+            ManualResetEvent taskSwitchEvent;
+            lock (_syncRoot)
+            {
+                taskSwitchEvent = _taskSwitchEvent;
+                _taskSwitchEvent = new ManualResetEvent(false);
+            }
+            try
+            {
+                taskSwitchEvent.WaitOne();
+                if (_currentTask.Id == task.Id)
+                {
+                    _tokenSource.Dispose();
+                    _tokenSource = null;
+                    _taskActive = false;
+                    _taskInactiveEvent.Set();
                 }
             }
-        }
-
-        private void OnTaskCompleted(Task task)
-        {
-            if (task.IsCanceled)
-                return;
-
-            lock (_syncRoot)
-            {
-                foreach (Action<Task> action in _continueWith)
-                    task.ContinueWith(action, TokenSource.Token);
-
-                _continueWith.Clear();
-            }
-
-            TaskCompleted?.Invoke(this, new TaskHelperCompletedEventArgs(task));
+            catch { throw; }
+            finally { _taskSwitchEvent.Set(); }
         }
 
         #region IDisposable Support
@@ -78,115 +100,21 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
             if (!disposing)
                 return;
 
-            CancellationTokenSource tokenSource;
+            //CancellationTokenSource tokenSource;
 
-            lock (_syncRoot)
-            {
-                if (TokenSource == null)
-                    return;
+            //lock (_syncRoot)
+            //{
+            //    if (TokenSource == null)
+            //        return;
 
-                tokenSource = TokenSource;
-                TokenSource = null;
-            }
+            //    tokenSource = TokenSource;
+            //    TokenSource = null;
+            //}
 
-            if (!tokenSource.IsCancellationRequested)
-                tokenSource.Cancel();
+            //if (!tokenSource.IsCancellationRequested)
+            //    tokenSource.Cancel();
 
-            tokenSource.Dispose();
-        }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose() { Dispose(true); }
-
-        #endregion
-    }
-
-    public class TaskHelper<TResult> : IDisposable
-    {
-        private object _syncRoot = new object();
-        private List<Action<Task<TResult>>> _continueWith = new List<Action<Task<TResult>>>();
-
-        public event EventHandler<TaskHelperCompletedEventArgs<TResult>> TaskCompleted;
-
-        public Task<TResult> Task { get; private set; }
-
-        public CancellationTokenSource TokenSource { get; private set; }
-
-        public void StartNew(Func<object, TResult> function, object state)
-        {
-            CancellationTokenSource tokenSource;
-            Task<TResult> task;
-            lock (_syncRoot)
-            {
-                tokenSource = TokenSource;
-                task = Task;
-                TokenSource = new CancellationTokenSource();
-                Task = Task<TResult>.Factory.StartNew(function, state, TokenSource.Token);
-            }
-
-            if (tokenSource == null)
-                return;
-
-            try
-            {
-                if (!task.IsCompleted && !tokenSource.IsCancellationRequested)
-                    tokenSource.Cancel();
-            }
-            finally { tokenSource.Dispose(); }
-        }
-
-        public void ContinueWith(Action<Task<TResult>> action)
-        {
-            lock (_syncRoot)
-            {
-                if (action != null)
-                {
-                    if (Task.IsCompleted)
-                        Task.ContinueWith(action, TokenSource.Token);
-                    else
-                        _continueWith.Add(action);
-                }
-            }
-        }
-
-        private void OnTaskCompleted(Task<TResult> task)
-        {
-            if (task.IsCanceled)
-                return;
-
-            lock (_syncRoot)
-            {
-                foreach (Action<Task<TResult>> action in _continueWith)
-                    task.ContinueWith(action, TokenSource.Token);
-
-                _continueWith.Clear();
-            }
-
-            TaskCompleted?.Invoke(this, new TaskHelperCompletedEventArgs<TResult>(task));
-        }
-
-        #region IDisposable Support
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposing)
-                return;
-
-            CancellationTokenSource tokenSource;
-
-            lock (_syncRoot)
-            {
-                if (TokenSource == null)
-                    return;
-
-                tokenSource = TokenSource;
-                TokenSource = null;
-            }
-
-            if (!tokenSource.IsCancellationRequested)
-                tokenSource.Cancel();
-
-            tokenSource.Dispose();
+            //tokenSource.Dispose();
         }
 
         // This code added to correctly implement the disposable pattern.

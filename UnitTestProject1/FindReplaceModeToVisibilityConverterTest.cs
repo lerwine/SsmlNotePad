@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter;
 
 namespace UnitTestProject1
 {
     /// <summary>
-    /// Summary description for SayAsToStringConverter
+    /// Summary description for FindReplaceModeToVisibilityConverter
     /// </summary>
     [TestClass]
-    public class SayAsToStringConverter
+    public class FindReplaceModeToVisibilityConverterTest
     {
-        public SayAsToStringConverter() { }
+        public FindReplaceModeToVisibilityConverterTest() { }
 
         private TestContext _testContextInstance;
 
@@ -52,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void ViewModelValidationMessageConstructorTestMethod()
         {
-            SayAsToStringConverter target = new SayAsToStringConverter();
+            FindReplaceModeToVisibilityConverter target = new FindReplaceModeToVisibilityConverter();
         }
     }
 }

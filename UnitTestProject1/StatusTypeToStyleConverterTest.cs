@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter;
 
 namespace UnitTestProject1
 {
     /// <summary>
-    /// Summary description for BooleanToStringConverter
+    /// Summary description for StatusTypeToStyleConverter
     /// </summary>
     [TestClass]
-    public class BooleanToStringConverter
+    public class StatusTypeToStyleConverterTest
     {
-        public BooleanToStringConverter() { }
+        public StatusTypeToStyleConverterTest() { }
 
         private TestContext _testContextInstance;
 
@@ -52,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void ViewModelValidationMessageConstructorTestMethod()
         {
-            BooleanToStringConverter target = new BooleanToStringConverter();
+            StatusTypeToStyleConverter target = new StatusTypeToStyleConverter();
         }
     }
 }

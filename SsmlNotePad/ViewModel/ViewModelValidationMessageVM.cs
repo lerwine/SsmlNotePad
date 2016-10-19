@@ -6,8 +6,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 {
     public class ViewModelValidationMessageVM : DependencyObject
     {
+        public const string ValidationMessage_NoXmlData = "No SSML markup defined.";
+
         #region IsWarning Property Members
-        
+
         /// <summary>
         /// Defines the name for the <see cref="IsWarning"/> dependency property.
         /// </summary>
@@ -27,7 +29,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get { return (bool)(GetValue(IsWarningProperty)); }
             set { SetValue(IsWarningProperty, value); }
         }
-        
+
         #endregion
 
         #region PropertyName Property Members
@@ -41,17 +43,25 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// Identifies the <see cref="PropertyName"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty PropertyNameProperty = DependencyProperty.Register(DependencyPropertyName_PropertyName, typeof(string), typeof(ViewModelValidationMessageVM),
-                new PropertyMetadata(""));
+                new PropertyMetadata("", null,
+                    (DependencyObject d, object baseValue) => (d as ViewModelValidationMessageVM).PropertyName_CoerceValue(baseValue)));
 
         /// <summary>
-        /// Name of property being validated.
+        /// 
         /// </summary>
         public string PropertyName
         {
             get { return GetValue(PropertyNameProperty) as string; }
             set { SetValue(PropertyNameProperty, value); }
         }
-        
+
+        /// <summary>
+        /// This gets called whenever <see cref="PropertyName"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string PropertyName_CoerceValue(object baseValue) { return (baseValue as string) ?? ""; }
+
         #endregion
 
         #region Message Property Members
@@ -65,17 +75,25 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// Identifies the <see cref="Message"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty MessageProperty = DependencyProperty.Register(DependencyPropertyName_Message, typeof(string), typeof(ViewModelValidationMessageVM),
-                new PropertyMetadata("", null, (DependencyObject d, object baseValue) => (baseValue as string) ?? ""));
+                new PropertyMetadata("", null,
+                    (DependencyObject d, object baseValue) => (d as ViewModelValidationMessageVM).Message_CoerceValue(baseValue)));
 
         /// <summary>
-        /// Validation message
+        /// 
         /// </summary>
         public string Message
         {
             get { return GetValue(MessageProperty) as string; }
             set { SetValue(MessageProperty, value); }
         }
-        
+
+        /// <summary>
+        /// This gets called whenever <see cref="Message"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string Message_CoerceValue(object baseValue) { return (baseValue as string) ?? ""; }
+
         #endregion
 
         #region Details Property Members
@@ -89,22 +107,25 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// Identifies the <see cref="Details"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty DetailsProperty = DependencyProperty.Register(DependencyPropertyName_Details, typeof(string), typeof(ViewModelValidationMessageVM),
-                new PropertyMetadata("", null, (DependencyObject d, object baseValue) => (baseValue as string) ?? ""));
-        private string propertyName_ValidationMessages;
-        private Exception exception;
-        private int lineNumber;
-        private int linePosition;
-        private XmlValidationStatus xmlValidationStatus;
+                new PropertyMetadata("", null,
+                    (DependencyObject d, object baseValue) => (d as ViewModelValidationMessageVM).Details_CoerceValue(baseValue)));
 
         /// <summary>
-        /// Validation message details.
+        /// 
         /// </summary>
         public string Details
         {
             get { return GetValue(DetailsProperty) as string; }
             set { SetValue(DetailsProperty, value); }
         }
-        
+
+        /// <summary>
+        /// This gets called whenever <see cref="Details"/> is being re-evaluated, or coercion is specifically requested.
+        /// </summary>
+        /// <param name="baseValue">The new value of the property, prior to any coercion attempt.</param>
+        /// <returns>The coerced value.</returns>
+        public virtual string Details_CoerceValue(object baseValue) { return (baseValue as string) ?? ""; }
+
         #endregion
 
         public ViewModelValidationMessageVM(string propertyName, string message, string details, bool isWarning)
@@ -115,21 +136,24 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         public ViewModelValidationMessageVM(string propertyName, string message, bool isWarning)
         {
-            PropertyName = propertyName;
+            PropertyName = propertyName ?? "";
             Message = message;
             IsWarning = IsWarning;
         }
 
         public ViewModelValidationMessageVM() { }
 
-        public ViewModelValidationMessageVM(string propertyName_ValidationMessages, string message, Exception exception, int lineNumber, int linePosition, XmlValidationStatus xmlValidationStatus)
+        public ViewModelValidationMessageVM(string propertyName, string message, Exception exception, int lineNumber, int linePosition, bool isWarning)
         {
-            this.propertyName_ValidationMessages = propertyName_ValidationMessages;
-            Message = message;
-            this.exception = exception;
-            this.lineNumber = lineNumber;
-            this.linePosition = linePosition;
-            this.xmlValidationStatus = xmlValidationStatus;
+            PropertyName = propertyName;
+            if (lineNumber < 1)
+                Message = message;
+            else if (linePosition < 1)
+                Message = String.Format("Line {0}: {1}", lineNumber, message);
+            else
+                Message = String.Format("Line {0}, Column {1}: {2}", lineNumber, linePosition, message);
+            Details = (exception == null) ? "" : exception.ToString();
+            IsWarning = isWarning;
         }
     }
 }

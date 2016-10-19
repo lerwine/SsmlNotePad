@@ -151,7 +151,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Speech Synthesis Markup Language Source")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Speech Synthesis Markup File")]
         public string SsmlFileTypeDescriptionLong {
             get {
                 return ((string)(this["SsmlFileTypeDescriptionLong"]));
@@ -217,7 +217,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-11")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int DefaultSpeechRate {
             get {
                 return ((int)(this["DefaultSpeechRate"]));
@@ -229,7 +229,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
         public int DefaultSpeechVolume {
             get {
                 return ((int)(this["DefaultSpeechVolume"]));
@@ -289,7 +289,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Pronunciation Lexicon")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Pronunciation Lexicon Specification")]
         public string PlsFileTypeDescriptionShort {
             get {
                 return ((string)(this["PlsFileTypeDescriptionShort"]));
@@ -298,7 +298,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Pronunciation Lexicon Source")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Pronunciation Lexicon Specification File")]
         public string PlsFileTypeDescriptionLong {
             get {
                 return ((string)(this["PlsFileTypeDescriptionLong"]));

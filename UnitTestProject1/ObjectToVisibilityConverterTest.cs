@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter;
 
 namespace UnitTestProject1
 {
     /// <summary>
-    /// Summary description for XmlNodeTypeToVisibilityConverter
+    /// Summary description for ObjectToVisibilityConverter
     /// </summary>
     [TestClass]
-    public class XmlNodeTypeToVisibilityConverter
+    public class ObjectToVisibilityConverterTest
     {
-        public XmlNodeTypeToVisibilityConverter() { }
+        public ObjectToVisibilityConverterTest() { }
 
         private TestContext _testContextInstance;
 
@@ -52,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void ViewModelValidationMessageConstructorTestMethod()
         {
-            XmlNodeTypeToVisibilityConverter target = new XmlNodeTypeToVisibilityConverter();
+            ObjectToVisibilityConverter target = new ObjectToVisibilityConverter();
         }
     }
 }

@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter;
 
 namespace UnitTestProject1
 {
     /// <summary>
-    /// Summary description for FileSaveStatusToStyleConverter
+    /// Summary description for StringToVisibilityConverter
     /// </summary>
     [TestClass]
-    public class FileSaveStatusToStyleConverter
+    public class StringToVisibilityConverterTest
     {
-        public FileSaveStatusToStyleConverter() { }
+        public StringToVisibilityConverterTest() { }
 
         private TestContext _testContextInstance;
 
@@ -52,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void ViewModelValidationMessageConstructorTestMethod()
         {
-            FileSaveStatusToStyleConverter target = new FileSaveStatusToStyleConverter();
+            StringToVisibilityConverter target = new StringToVisibilityConverter();
         }
     }
 }

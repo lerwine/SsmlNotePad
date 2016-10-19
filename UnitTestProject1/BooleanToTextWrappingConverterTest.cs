@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Erwine.Leonard.T.SsmlNotePad.ViewModel;
+using Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter;
 
 namespace UnitTestProject1
 {
     /// <summary>
-    /// Summary description for SpeechProgressToStringConverter
+    /// Summary description for BooleanToTextWrappingConverter
     /// </summary>
     [TestClass]
-    public class SpeechProgressToStringConverter
+    public class BooleanToTextWrappingConverterTest
     {
-        public SpeechProgressToStringConverter() { }
+        public BooleanToTextWrappingConverterTest() { }
 
         private TestContext _testContextInstance;
 
@@ -52,7 +53,7 @@ namespace UnitTestProject1
         [TestMethod]
         public void ViewModelValidationMessageConstructorTestMethod()
         {
-            SpeechProgressToStringConverter target = new SpeechProgressToStringConverter();
+            BooleanToTextWrappingConverter target = new BooleanToTextWrappingConverter();
         }
     }
 }

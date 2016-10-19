@@ -8,17 +8,12 @@
         /// <summary>
         /// Not validated.
         /// </summary>
-        None,
+        None = 0,
 
         /// <summary>
-        /// Critcal validation error.
+        /// Validation information message.
         /// </summary>
-        Critical,
-
-        /// <summary>
-        /// Validation error.
-        /// </summary>
-        Error,
+        Information,
 
         /// <summary>
         /// Validation warning.
@@ -26,8 +21,13 @@
         Warning,
 
         /// <summary>
-        /// Validation information message.
+        /// Validation error.
         /// </summary>
-        Information
+        Error,
+
+        /// <summary>
+        /// Critcal validation error.
+        /// </summary>
+        Critical
     }
 }

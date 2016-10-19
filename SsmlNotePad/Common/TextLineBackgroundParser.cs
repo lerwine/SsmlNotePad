@@ -5,19 +5,19 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Erwine.Leonard.T.SsmlNotePad.Model
+namespace Erwine.Leonard.T.SsmlNotePad.Common
 {
     public class TextLineBackgroundParser
     {
         private object _syncRoot = new object();
         private string _text = "";
-        private Task<TextLine[]> _getTextLineInfo;
+        private Task<Model.TextLine[]> _getTextLineInfo;
         private CancellationTokenSource _tokenSource = new CancellationTokenSource();
         private List<Tuple<object, GetTextLinesHandler>> _onGetLineInfoComplete = new List<Tuple<object, GetTextLinesHandler>>();
 
         public TextLineBackgroundParser()
         {
-            _getTextLineInfo = Task<TextLine[]>.FromResult<TextLine[]>(new TextLine[] { new TextLine(1, 0, "", "") });
+            _getTextLineInfo = Task<Model.TextLine[]>.FromResult<Model.TextLine[]>(new Model.TextLine[] { new Model.TextLine(1, 0, "", "") });
         }
 
         public void GetTextLines(object state, GetTextLinesHandler onGetLineInfoComplete)
@@ -29,14 +29,14 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
                     {
                         object[] args = o as object[];
                         GetTextLinesHandler h = args[0] as GetTextLinesHandler;
-                        h(args[1], args[2] as string, args[3] as Task<TextLine[]>);
+                        h(args[1], args[2] as string, args[3] as Task<Model.TextLine[]>);
                     }, new object[] { onGetLineInfoComplete, state, _text, _getTextLineInfo });
                 else
                     _onGetLineInfoComplete.Add(new Tuple<object, GetTextLinesHandler>(state, onGetLineInfoComplete));
             }
         }
 
-        private void GetTextLineInfoCompleted(Task<TextLine[]> task)
+        private void GetTextLineInfoCompleted(Task<Model.TextLine[]> task)
         {
             lock (_syncRoot)
             {
@@ -84,7 +84,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
                             CancellationTokenSource cts = args[0] as CancellationTokenSource;
                             if (!cts.IsCancellationRequested)
                                 cts.Cancel();
-                            Task<TextLine[]> t = args[1] as Task<TextLine[]>;
+                            Task<Model.TextLine[]> t = args[1] as Task<Model.TextLine[]>;
                             try
                             {
                                 if (!t.IsCompleted)
@@ -95,12 +95,12 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
                     }
 
                     _tokenSource = new CancellationTokenSource();
-                    _getTextLineInfo = TextLine.SplitAsync(_text, _tokenSource.Token);
+                    _getTextLineInfo = Model.TextLine.SplitAsync(_text, _tokenSource.Token);
                     _getTextLineInfo.ContinueWith(GetTextLineInfoCompleted);
                 }
             }
         }
     }
 
-    public delegate void GetTextLinesHandler(object state, string text, Task<TextLine[]> task);
+    public delegate void GetTextLinesHandler(object state, string text, Task<Model.TextLine[]> task);
 }
