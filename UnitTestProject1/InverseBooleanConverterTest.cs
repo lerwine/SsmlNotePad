@@ -52,7 +52,7 @@ namespace UnitTestProject1
         #endregion
 
         [TestMethod]
-        public void ViewModelValidationMessageConstructorTestMethod()
+        public void InverseBooleanConverterConstructorTestMethod()
         {
             InverseBooleanConverter target = new InverseBooleanConverter();
             object value = null;

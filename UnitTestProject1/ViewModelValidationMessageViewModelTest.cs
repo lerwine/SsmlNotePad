@@ -50,7 +50,7 @@ namespace UnitTestProject1
         #endregion
 
         [TestMethod]
-        public void ViewModelValidationMessageConstructorTestMethod()
+        public void ViewModelValidationMessageVMConstructorTestMethod()
         {
             ViewModelValidationMessageVM target = new ViewModelValidationMessageVM();
         }

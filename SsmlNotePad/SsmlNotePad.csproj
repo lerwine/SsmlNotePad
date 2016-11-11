@@ -77,8 +77,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Markup.resx</DependentUpon>
     </Compile>
+    <Compile Include="Model\EnumExtensionMethods.cs" />
     <Compile Include="Model\FileUtility.cs" />
-    <Compile Include="Model\IndexAndOffset.cs" />
+    <Compile Include="Model\MessageLevel.cs" />
+    <Compile Include="Model\AlertLevel.cs" />
     <Compile Include="Model\SpeechProcessStateFlags.cs" />
     <Compile Include="Model\SpeechProgressState.cs" />
     <Compile Include="Model\SpeechProgressExtensionMethods.cs" />
@@ -103,6 +105,8 @@
     <Compile Include="ViewModel\Converter\VoiceGenderToStringConverter.cs" />
     <Compile Include="Model\FileSaveStatus.cs" />
     <Compile Include="ViewModel\FindReplaceDisplayMode.cs" />
+    <Compile Include="ViewModel\INotifyPropertyChange.cs" />
+    <Compile Include="ViewModel\LineMessageVM.cs" />
     <Compile Include="ViewModel\LineNumberVM.cs" />
     <Compile Include="ViewModel\MainWindowVM.cs" />
     <Compile Include="ViewModel\MessageSeverity.cs" />
@@ -121,6 +125,14 @@
     <Compile Include="ViewModel\Converter\XmlNodeTypeConverter.cs" />
     <Compile Include="ViewModel\Converter\XmlNodeTypeToStringConverter.cs" />
     <Compile Include="ViewModel\Converter\XmlNodeTypeToVisibilityConverter.cs" />
+    <Compile Include="ViewModel\KeyValuePairVM.cs" />
+    <Compile Include="ViewModel\NotificationMessageCollection.cs" />
+    <Compile Include="ViewModel\NotificationMessageVM.cs" />
+    <Compile Include="ViewModel\ProcessMessageCollection.cs" />
+    <Compile Include="ViewModel\ProcessMessageVM.cs" />
+    <Compile Include="ViewModel\PropertyValueVM.cs" />
+    <Compile Include="ViewModel\PropertyMessageVM.cs" />
+    <Compile Include="ViewModel\PropertyValidationProcessMessageVM.cs" />
     <Compile Include="ViewModel\SpeechGenerationProgressVM.cs" />
     <Compile Include="ViewModel\ThemeGallery\ThemeGalleryItemVM.cs" />
     <Compile Include="ViewModel\ThemeGallery\ThemeGalleryVM.cs" />
@@ -128,6 +140,7 @@
     <Compile Include="ViewModel\ViewModelValidateState.cs" />
     <Compile Include="ViewModel\ViewModelValidationMessageVM.cs" />
     <Compile Include="Model\XmlValidationStatus.cs" />
+    <Compile Include="ViewModel\XmlValidationMessage.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -196,6 +209,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="Model\ClassDiagram1.cd" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -264,6 +278,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Reserved\" />
     <Folder Include="View\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -252,10 +252,11 @@ namespace Erwine.Leonard.T.SsmlNotePad.Common
         /// </summary>
         /// <param name="userState">User state object to associate with this state change.</param>
         /// <returns>A <seealso cref="SynchronizedStateChange{TState}"/> object which is can change the <see cref="CurrentState"/> value.</returns>
-        /// <remarks>Warning! Do not invoke this concurrently on teh same thread, or it will cause a perpetual lock condition.</remarks>
+        /// <remarks>Warning! Do not invoke this concurrently on the same thread, or it will cause a perpetual lock condition.</remarks>
         public SynchronizedStateChange<TState> ChangeState(object userState)
         {
-            // TODO: Detect if the current thread is attempting to make a concurrent call.
+            if (_dispatcher.CheckAccess())
+                throw new InvalidOperationException("State change is already in progress on the same thread.");
 
             ManualResetEvent prevStateNotChangingEvent, currentStateNotChangingEvent;
             bool startStateChange;

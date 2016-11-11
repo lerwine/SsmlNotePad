@@ -6,297 +6,179 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 {
     public class ValidatingViewModel : DependencyObject, INotifyDataErrorInfo, IDataErrorInfo
     {
-        #region ViewModelValidateState Property Members
-
-        public const string PropertyName_ViewModelValidateState = "ViewModelValidateState";
-
-        private static readonly DependencyPropertyKey ViewModelValidateStatePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ViewModelValidateState, typeof(ViewModelValidateState), typeof(ValidatingViewModel),
-                new PropertyMetadata(ViewModelValidateState.Valid));
-
-        /// <summary>
-        /// Identifies the <see cref="ViewModelValidateState"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty ViewModelValidateStateProperty = ViewModelValidateStatePropertyKey.DependencyProperty;
-
-        /// <summary>
-        /// Validation state for viewmodel object
-        /// </summary>
-        public ViewModelValidateState ViewModelValidateState
-        {
-            get { return (ViewModelValidateState)(GetValue(ViewModelValidateStateProperty)); }
-            private set { SetValue(ViewModelValidateStatePropertyKey, value); }
-        }
-
-        bool INotifyDataErrorInfo.HasErrors { get { return ViewModelValidateState == ViewModelValidateState.Error; } }
-
-        #endregion
-
-        #region ViewModelValidationMessages Property Members
-
-        /// <summary>
-        /// Occurs when an item on <see cref="ViewModelValidationMessages"/> is added, removed, changed, moved, or the entire list is refreshed.
-        /// </summary>
-        public event NotifyCollectionChangedEventHandler ViewModelValidationMessagesPropertyCollectionChanged;
-
-        /// <summary>
-        /// Defines the name for the <see cref="ViewModelValidationMessages"/> dependency property.
-        /// </summary>
-        public const string PropertyName_ViewModelValidationMessages = "ViewModelValidationMessages";
-        
-        private static readonly DependencyPropertyKey ViewModelValidationMessagesPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ViewModelValidationMessages,
-            typeof(ReadOnlyObservableCollection<ViewModelValidationMessageVM>), typeof(ValidatingViewModel), new PropertyMetadata(null));
-
-        /// <summary>
-        /// Identifies the <see cref="ViewModelValidationMessages"/> read-only dependency property.
-        /// </summary>
-        public static readonly DependencyProperty ViewModelValidationMessagesProperty = ViewModelValidationMessagesPropertyKey.DependencyProperty;
-
-        private ObservableCollection<ViewModelValidationMessageVM> _innerViewModelValidationMessages = new ObservableCollection<ViewModelValidationMessageVM>();
-        private ViewModelValidationMessageVM[] _lastMessages = new ViewModelValidationMessageVM[0];
-        
-        /// <summary>
-        /// Contains validation messages.
-        /// </summary>
-        public ReadOnlyObservableCollection<ViewModelValidationMessageVM> ViewModelValidationMessages
-        {
-            get { return (ReadOnlyObservableCollection<ViewModelValidationMessageVM>)(GetValue(ViewModelValidationMessagesProperty)); }
-            private set { SetValue(ViewModelValidationMessagesPropertyKey, value); }
-        }
-
-        /// <summary>
-        /// This gets called when an item in <see cref="ViewModelValidationMessages"/> is added, removed, changed, moved, or the entire collection is refreshed.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="e">Information about the event.</param>
-        protected virtual void ViewModelValidationMessages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            try
-            {
-                ViewModelValidationMessagesPropertyCollectionChanged?.Invoke(sender, e);
-            }
-            finally
-            {
-                OnViewModelValidationMessagesChanged(e.Action, e.OldStartingIndex,
-                    e.OldItems == null ? new ViewModelValidationMessageVM[0] : e.OldItems.OfType<ViewModelValidationMessageVM>(),
-                    e.NewStartingIndex, e.NewItems == null ? new ViewModelValidationMessageVM[0] : e.NewItems.OfType<ViewModelValidationMessageVM>());
-            }
-        }
-
-        #endregion
-
         /// <summary>
         /// Occurs when the validation errors have changed for a property or for the entire view model.
         /// </summary>
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+        
+        #region Messages Property Members
 
         /// <summary>
-        /// This gets invoked when the validation errors have changed for a property or for the entire view model.
+        /// Defines the name for the <see cref="Messages"/> dependency property.
         /// </summary>
-        /// <param name="args">Contains data for the <see cref="ValidatingViewModel.ErrorsChanged"/> event</param>
-        protected virtual void OnErrorsChanged(DataErrorsChangedEventArgs args)
-        {
-            if (args != null)
-                ErrorsChanged?.Invoke(this, args);
-        }
+        public const string PropertyName_Messages = "Messages";
+
+        private static readonly DependencyPropertyKey MessagesPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_Messages, typeof(NotificationMessageCollection), typeof(ValidatingViewModel),
+            new PropertyMetadata(null));
 
         /// <summary>
-        /// Gets the validation errors for a specified property or for the entire view model.
+        /// Identifies the <see cref="Messages"/> dependency property.
         /// </summary>
-        /// <param name="propertyName">The name of the property to retrieve validation errors for; or null or <see cref="System.String.Empty"/> 
-        /// to retrieve entity-level errors.</param>
-        /// <returns>The validation errors for the property or view model.</returns>
-        public IEnumerable<ViewModelValidationMessageVM> GetErrorItems(string propertyName)
-        {
-            return (String.IsNullOrEmpty(propertyName)) ? ViewModelValidationMessages.Where(i => !i.IsWarning) :
-                ViewModelValidationMessages.Where(i => !i.IsWarning && i.PropertyName == propertyName);
-        }
-
+        public static readonly DependencyProperty MessagesProperty = MessagesPropertyKey.DependencyProperty;
 
         /// <summary>
-        /// Gets the validation errors for a specified property or for the entire view model.
+        /// Error and validation messages.
         /// </summary>
-        /// <param name="propertyName">The name of the property to retrieve validation errors for; or null or <see cref="System.String.Empty"/> 
-        /// to retrieve entity-level errors.</param>
-        /// <returns>The validation errors for the property or view model.</returns>
-        public IEnumerable<string> GetErrors(string propertyName)
+        public NotificationMessageCollection Messages
         {
-            return ((String.IsNullOrEmpty(propertyName)) ? ViewModelValidationMessages.Where(i => i != null && !i.IsWarning) :
-                ViewModelValidationMessages.Where(i => i != null && !i.IsWarning && i.PropertyName == propertyName)).Select(m => m.Message);
+            get { return (NotificationMessageCollection)(GetValue(MessagesProperty)); }
+            private set { SetValue(MessagesPropertyKey, value); }
         }
 
-        IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName) { return GetErrors(propertyName); }
+        NotificationMessageCollection Model.INotificationMessageHost<NotificationMessageCollection, NotificationMessageVM>.Messages { get { return Messages; } }
 
-        string IDataErrorInfo.Error
+        Reserved.INotificationMessageViewModelCollection<Reserved.INotificationMessageViewModel> Reserved.INotificationMessageHostViewModel.Messages { get { return Messages; } }
+
+        Model.INotificationMessageCollection<Model.INotificationMessage> Model.INotificationMessageHost.Messages { get { return Messages; } }
+
+        #endregion
+
+        #region AlertLevel Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="AlertLevel"/> dependency property.
+        /// </summary>
+        public const string PropertyName_AlertLevel = "AlertLevel";
+
+        private static readonly DependencyPropertyKey AlertLevelPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_AlertLevel, typeof(Model.AlertLevel), typeof(ValidatingViewModel),
+            new PropertyMetadata(Model.AlertLevel.None));
+
+        /// <summary>
+        /// Identifies the <see cref="AlertLevel"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty AlertLevelProperty = AlertLevelPropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// Alert level for messages.
+        /// </summary>
+        public Model.AlertLevel AlertLevel
         {
-            get
-            {
-                Func<string> getErrors = () =>
-                {
-                    if (ViewModelValidateState != ViewModelValidateState.Error)
-                        return "";
-                    string[] messages = GetErrorItems(null).Select(e => (e.PropertyName.Length == 0) ? e.Message : String.Format("{0}: {1}", e.PropertyName, e.Message)).ToArray();
-                    return (messages.Length == 0) ? "" : ((messages.Length == 1) ? messages[0] : String.Join(Environment.NewLine, messages));
-                };
-
-                if (CheckAccess())
-                    return getErrors();
-                
-                return Dispatcher.Invoke(getErrors);
-            }
+            get { return (Model.AlertLevel)(GetValue(AlertLevelProperty)); }
+            private set { SetValue(AlertLevelPropertyKey, value); }
         }
 
-        string IDataErrorInfo.this[string columnName]
+        #endregion
+
+        #region TooltipMessage Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="TooltipMessage"/> dependency property.
+        /// </summary>
+        public const string PropertyName_TooltipMessage = "TooltipMessage";
+
+        private static readonly DependencyPropertyKey TooltipMessagePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_TooltipMessage, typeof(string), typeof(ValidatingViewModel),
+            new PropertyMetadata(""));
+
+        /// <summary>
+        /// Identifies the <see cref="TooltipMessage"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty TooltipMessageProperty = TooltipMessagePropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// Tooltip message relating to alert level.
+        /// </summary>
+        public string TooltipMessage
         {
-            get
-            {
-                Func<string> getErrors = () =>
-                {
-                    if (ViewModelValidateState != ViewModelValidateState.Error)
-                        return "";
-                    string[] messages = ((String.IsNullOrEmpty(columnName)) ? ViewModelValidationMessages.Where(i => !i.IsWarning && i.PropertyName.Length == 0) :
-                        GetErrorItems(columnName)).Select(m => m.Message).Where(m => !String.IsNullOrWhiteSpace(m)).ToArray();
-                    return (messages.Length == 0) ? "" : ((messages.Length == 1) ? messages[0] : String.Join(Environment.NewLine, messages));
-                };
-
-                if (CheckAccess())
-                    return getErrors();
-
-                return Dispatcher.Invoke(getErrors);
-            }
+            get { return GetValue(TooltipMessageProperty) as string; }
+            private set { SetValue(TooltipMessagePropertyKey, value); }
         }
+
+        #endregion
+
+        string IDataErrorInfo.Error { get { return GetErrors(null).FirstOrDefault(); } }
+
+        bool INotifyDataErrorInfo.HasErrors { get { return AlertLevel == Model.AlertLevel.Error || AlertLevel == Model.AlertLevel.Critical; } }
+
+        string IDataErrorInfo.this[string columnName] { get { return GetErrors(columnName).FirstOrDefault(); } }
 
         public ValidatingViewModel()
         {
-            _innerViewModelValidationMessages.CollectionChanged += ViewModelValidationMessages_CollectionChanged;
-            ViewModelValidationMessages = new ReadOnlyObservableCollection<ViewModelValidationMessageVM>(_innerViewModelValidationMessages);
+            Messages = new NotificationMessageCollection();
+            Messages.CollectionChanged += Messages_CollectionChanged;
         }
 
-        protected void SetValidation(string propertyName, string message, bool isWarning = false)
+        private void Messages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (propertyName == null)
-                throw new ArgumentNullException("propertyName");
-
-            if (!CheckAccess())
+            Action action = () =>
             {
-                Dispatcher.Invoke(() => SetValidation(propertyName, message, isWarning));
-                return;
-            }
-
-            IEnumerable<ViewModelValidationMessageVM> current = _innerViewModelValidationMessages.Where(m => m != null && m.PropertyName == propertyName).ToArray();
-            if (!String.IsNullOrWhiteSpace(message))
-            {
-                ViewModelValidationMessageVM keep = current.FirstOrDefault(m => m.Message == message && m.Details.Length == 0 && m.IsWarning == isWarning);
-                if (keep == null)
+                if (Messages.Count == 0)
                 {
-                    keep = new ViewModelValidationMessageVM(propertyName, message, isWarning);
-                    _innerViewModelValidationMessages.Add(keep);
+                    TooltipMessage = "";
+                    AlertLevel = Model.AlertLevel.None;
+                    return;
                 }
-                current = current.Where(c => !ReferenceEquals(c, keep));
-            }
 
-            foreach (ViewModelValidationMessageVM vm in current.ToArray())
-                _innerViewModelValidationMessages.Remove(vm);
-        }
-
-        protected void AddValidation(string propertyName, string message, bool isWarning = false)
-        {
-            if (propertyName == null)
-                throw new ArgumentNullException("propertyName");
-
-            if (message == null)
-                throw new ArgumentNullException("message");
-
-            if (message.Trim().Length == 0)
-                throw new ArgumentException("Message cannot be empty.");
-
-            if (!CheckAccess())
-                Dispatcher.Invoke(() => AddValidation(propertyName, message, isWarning));
-            else if (!_innerViewModelValidationMessages.Any(m => m != null && m.PropertyName == propertyName && m.Message == message && m.Details.Length == 0 && m.IsWarning == isWarning))
-                _innerViewModelValidationMessages.Add(new ViewModelValidationMessageVM(propertyName, message, isWarning));
-        }
-
-        protected void SetValidation(string propertyName, string message, string details, bool isWarning = false)
-        {
-            if (propertyName == null)
-                throw new ArgumentNullException("propertyName");
-
-            if (message == null)
-                throw new ArgumentNullException("message");
-
-            if (message.Trim().Length == 0)
-                throw new ArgumentException("Message cannot be empty.");
-
-            if (details == null)
-                details = "";
-
-            if (!CheckAccess())
-            {
-                Dispatcher.Invoke(() => SetValidation(propertyName, message, details, isWarning));
-                return;
-            }
-
-            IEnumerable<ViewModelValidationMessageVM> current = _innerViewModelValidationMessages.Where(m => m != null && m.PropertyName == propertyName).ToArray();
-            if (!String.IsNullOrWhiteSpace(message))
-            {
-                ViewModelValidationMessageVM keep = current.FirstOrDefault(m => m.Message == message && m.Details == details && m.IsWarning == isWarning);
-                if (keep == null)
+                var r = Messages.Cast<NotificationMessageVM>().Select(m => new { Message = m.Message, Level = m.Level }).Aggregate((a, m) => (a.Level > m.Level) ? a : m);
+                TooltipMessage = r.Message;
+                switch (r.Level)
                 {
-                    keep = new ViewModelValidationMessageVM(propertyName, message, isWarning);
-                    _innerViewModelValidationMessages.Add(keep);
+                    case Model.MessageLevel.Diagnostic:
+                        AlertLevel = Model.AlertLevel.Diagnostic;
+                        break;
+                    case Model.MessageLevel.Verbose:
+                        AlertLevel = Model.AlertLevel.Verbose;
+                        break;
+                    case Model.MessageLevel.Information:
+                        AlertLevel = Model.AlertLevel.Information;
+                        break;
+                    case Model.MessageLevel.Alert:
+                        AlertLevel = Model.AlertLevel.Alert;
+                        break;
+                    case Model.MessageLevel.Warning:
+                        AlertLevel = Model.AlertLevel.Warning;
+                        break;
+                    case Model.MessageLevel.Error:
+                        AlertLevel = Model.AlertLevel.Error;
+                        break;
+                    default:
+                        AlertLevel = Model.AlertLevel.Critical;
+                        break;
                 }
-                current = current.Where(c => !ReferenceEquals(c, keep));
-            }
+            };
 
-            foreach (ViewModelValidationMessageVM vm in current.ToArray())
-                _innerViewModelValidationMessages.Remove(vm);
+            if (Dispatcher.CheckAccess())
+                action();
+            else
+                Dispatcher.Invoke(action);
         }
 
-        protected void AddValidation(string propertyName, string message, string details, bool isWarning = false)
+        protected void RaiseErrorsChanged(string propertyName)
         {
+            DataErrorsChangedEventArgs args = new DataErrorsChangedEventArgs(propertyName);
+            try { OnErrorsChanged(args); }
+            finally { ErrorsChanged?.Invoke(this, args); }
+        }
+        
+        /// <summary>
+        /// This gets invoked when the validation errors have changed for a property or for the entire view model.
+        /// </summary>
+        /// <param name="args">Contains data for the <see cref="ErrorsChanged"/> event</param>
+        protected virtual void OnErrorsChanged(DataErrorsChangedEventArgs args) { }
+
+        public IEnumerable<string> GetErrors(string propertyName)
+        {
+            IEnumerable<PropertyMessageVM> result = Messages.OfType<PropertyMessageVM>().Where(m => m.Level >= Model.MessageLevel.Error);
             if (propertyName == null)
-                throw new ArgumentNullException("propertyName");
-
-            if (message == null)
-                throw new ArgumentNullException("message");
-
-            if (message.Trim().Length == 0)
-                throw new ArgumentException("Message cannot be empty.");
-
-            if (details == null)
-                details = "";
-
-            if (!CheckAccess())
-                Dispatcher.Invoke(() => AddValidation(propertyName, message, details, isWarning));
-            else if (!_innerViewModelValidationMessages.Any(m => m != null && m.PropertyName == propertyName && m.Message == message && m.Details == details && m.IsWarning == isWarning))
-                _innerViewModelValidationMessages.Add(new ViewModelValidationMessageVM(propertyName, message, details, isWarning));
+                result = result.Where(m => m.PropertyName == propertyName);
+            return result.Select(m => m.Message);
         }
 
-        protected virtual void OnViewModelValidationMessagesChanged(NotifyCollectionChangedAction action, int oldStartingIndex,
-            IEnumerable<ViewModelValidationMessageVM> oldItems, int newStartingIndex, IEnumerable<ViewModelValidationMessageVM> newItems)
-        {
-            ViewModelValidateState state;
-            string[] errorsChanged;
-            lock (_lastMessages)
-            {
-                bool hadErrors = ViewModelValidateState == ViewModelValidateState.Error;
-                ViewModelValidationMessageVM[] currentMessages = ViewModelValidationMessages.Where(i => !i.IsWarning).ToArray();
-                state = (currentMessages.Length > 0) ? ViewModelValidateState.Error :
-                    ((ViewModelValidationMessages.Count > 0) ? ViewModelValidateState.Warning : ViewModelValidateState.Valid);
-                errorsChanged = _lastMessages.Where(n => !currentMessages.Any(i => i.Equals(n)))
-                    .Concat(currentMessages.Where(i => !_lastMessages.Any(n => n.Equals(i)))).Select(i => i.PropertyName).Distinct().ToArray();
-                if ((state == ViewModelValidateState.Error) != hadErrors && !errorsChanged.Any(i => i.Length == 0))
-                    errorsChanged = errorsChanged.Concat(new string[] { "" }).ToArray();
-                _lastMessages = currentMessages;
-            }
-
-            ViewModelValidateState = state;
-            foreach (string propertyName in errorsChanged)
-                OnErrorsChanged(new DataErrorsChangedEventArgs(propertyName));
-        }
+        IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName) { return GetErrors(propertyName); }
     }
 }

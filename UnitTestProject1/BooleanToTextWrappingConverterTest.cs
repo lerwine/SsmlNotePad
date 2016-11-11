@@ -51,7 +51,7 @@ namespace UnitTestProject1
         #endregion
 
         [TestMethod]
-        public void ViewModelValidationMessageConstructorTestMethod()
+        public void BooleanToTextWrappingConverterConstructorTestMethod()
         {
             BooleanToTextWrappingConverter target = new BooleanToTextWrappingConverter();
         }

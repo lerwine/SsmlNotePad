@@ -49,7 +49,7 @@ namespace UnitTestProject1
         #endregion
 
         [TestMethod]
-        public void SpeechGenerationProgressConstructorTestMethod()
+        public void SpeechGenerationProgressVMTestMethod()
         {
             SpeechGenerationProgressVM target = new SpeechGenerationProgressVM();
         }

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Windows;
 using Erwine.Leonard.T.SsmlNotePad.Model;
+using System.Collections.ObjectModel;
+using System.Windows.Threading;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 {
     public class ViewModelValidationMessageVM : DependencyObject
     {
         public const string ValidationMessage_NoXmlData = "No SSML markup defined.";
-
+        
         #region IsWarning Property Members
 
         /// <summary>
