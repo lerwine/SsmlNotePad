@@ -20,29 +20,29 @@
         <Converter:FileSaveStatusToStyleConverter x:Key="FileSaveStatusToPathStyleConverter" SaveError="{DynamicResource ErrorIconPath}" 
                                                   SaveSuccess="{DynamicResource StatusIconPath}" 
                                                   SaveWarning="{DynamicResource WarningIconPath}" 
-                                                  NullSource="{DynamicResource StatusIconPath}" 
                                                   New="{DynamicResource ModifiedIconPath}" 
                                                   Modified="{DynamicResource NewIconPath}"/>
+        <!--NullSource="{DynamicResource StatusIconPath}"-->
         <Converter:FileSaveStatusToStyleConverter x:Key="FileSaveStatusToButtonStyleConverter" 
                                                   SaveWarning="{DynamicResource WarningStatusButtonStyle}" 
                                                   SaveSuccess="{DynamicResource StatusButtonStyle}" 
                                                   SaveError="{DynamicResource ErrorStatusButtonStyle}" 
-                                                  NullSource="{DynamicResource StatusButtonStyle}" 
                                                   New="{DynamicResource NewStatusButtonStyle}" 
                                                   Modified="{DynamicResource ModifiedStatusButtonStyle}"/>
+        <!--NullSource="{DynamicResource StatusButtonStyle}"-->
         <Converter:StatusTypeToStyleConverter x:Key="StatusTypeToPathStyleConverter" Critical="{DynamicResource CriticalIconPath}" 
                                               Error="{DynamicResource ErrorIconPath}" 
                                               Information="{DynamicResource InformationIconPath}" 
                                               None="{DynamicResource StatusIconPath}" 
-                                              NullSource="{DynamicResource StatusIconPath}" 
                                               Warning="{DynamicResource WarningIconPath}"/>
+        <!--NullSource="{DynamicResource StatusIconPath}"-->
         <Converter:StatusTypeToStyleConverter x:Key="StatusTypeToButtonStyleConverter" 
                                               Critical="{DynamicResource CriticalStatusButtonStyle}" 
                                               Error="{DynamicResource ErrorStatusButtonStyle}" 
                                               Information="{DynamicResource InformationStatusButtonStyle}" 
                                               None="{DynamicResource StatusButtonStyle}" 
-                                              NullSource="{DynamicResource StatusButtonStyle}" 
                                               Warning="{DynamicResource WarningStatusButtonStyle}" />
+        <!--NullSource="{DynamicResource StatusButtonStyle}"-->
         <Converter:BooleanToTextWrappingConverter x:Key="BooleanToTextWrappingConverter"/>
         <Converter:BooleanToScrollBarVisibilityConverter x:Key="BooleanToHorizontalScrollBarVisibilityConverter" True="Disabled" False="Auto"/>
     </Window.Resources>
@@ -262,7 +262,7 @@
             </WrapPanel>
         </Border>
         <ItemsControl Grid.Row="2" x:Name="lineNumbersItemsControl" Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" 
-                      ItemsSource="{Binding LineNumbers}">
+                      ItemsSource="{Binding LineNumbers}" Width="25">
             <ItemsControl.Template>
                 <ControlTemplate TargetType="{x:Type ItemsControl}">
                     <Border BorderThickness="0" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
@@ -281,7 +281,25 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <ContentControl x:Name="ssmlInputContentControl" Grid.Row="2" Grid.Column="1" />
+        <ContentControl x:Name="ssmlInputContentControl" Grid.Row="2" Grid.Column="1" Content="{Binding SsmlTextBox, Mode=OneWay}" />
+        <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Grid.ColumnSpan="2" Background="{DynamicResource PopupShaded}" Visibility="{Binding DisplayErrorsPopup, Converter={StaticResource BooleanToVisibilityConverter}}" Padding="16">
+            <Border Background="{DynamicResource PopupBackgroundBrush}" BorderBrush="{DynamicResource PopupBorderBrush}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid ItemsSource="{Binding ValidationMessages}" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding LineNumber, Mode=OneWay}" ClipboardContentBinding="{x:Null}"/>
+                            <DataGridTextColumn Binding="{Binding LinePosition, Mode=OneWay}" ClipboardContentBinding="{x:Null}"/>
+                            <DataGridTextColumn Binding="{Binding Message, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Button Grid.Row="1" Width="75" Height="25" Content="Close" Command="{Binding HideValidationMessagesCommand, Mode=OneWay}" />
+                </Grid>
+            </Border>
+        </Border>
         <Border Grid.Row="4" Grid.ColumnSpan="2" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" 
                 BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="2" Padding="2">
             <Grid>

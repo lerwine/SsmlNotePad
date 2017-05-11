@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
+using System.Xml;
 using System.Xml.Schema;
 
 namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
@@ -21,37 +23,24 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
     public class MainWindowVM : DependencyObject
     {
         private object _syncRoot = new object();
-        private Common.SupercessiveTaskState<string, Model.TextLine[]> _textLines = new Common.SupercessiveTaskState<string, Model.TextLine[]>("", new Model.TextLine[] { new Model.TextLine(1, 0, "", "") });
-        private Common.SupercessiveTaskState<Tuple<Model.IndexAndOffset[], Model.TextLine[]>, Model.IndexAndOffset[]> _lineNumbers;
-        private Common.SupercessiveTaskState<Model.TextLine[], Common.XmlValidationResult> _xmlValidation;
-        
+        private Model.Workers.SsmlChangedJob _ssmlChangedJob = null;
+
         public MainWindowVM()
         {
-            _innerValidationMessages.CollectionChanged += ValidationMessages_CollectionChanged;
-            ValidationMessages = new ReadOnlyObservableCollection<ViewModelValidationMessageVM>(_innerValidationMessages);
-            AddValidationError(1, 1, ViewModelValidationMessageVM.ValidationMessage_NoXmlData, null, Model.XmlValidationStatus.Warning);
-            _lineNumbers = new Common.SupercessiveTaskState<Tuple<Model.IndexAndOffset[], Model.TextLine[]>, 
-                Model.IndexAndOffset[]>(new Tuple<Model.IndexAndOffset[], Model.TextLine[]>(new Model.IndexAndOffset[]
-                {
-                    new Model.IndexAndOffset(1, 0.0)
-                }, _textLines.CurrentResult), new Model.IndexAndOffset[] { new Model.IndexAndOffset(1, 0.0) });
-            _lineNumbers.OnStateChanged += LineNumbers_OnStateChanged;
-            _xmlValidation = new Common.SupercessiveTaskState<Model.TextLine[], Common.XmlValidationResult>(_textLines.CurrentResult, new Common.XmlValidationResult(Model.XmlValidationStatus.Warning, "No XML data provided"));
-            _xmlValidation.OnStateChanged += XmlValidation_OnStateChanged;
-            _textLines.OnStateChanged += TextLines_OnStateChanged;
-            LineNumbers = new ObservableCollection<LineNumberVM>(_lineNumbers.CurrentResult.Select(t => new LineNumberVM(t.Index, t.Top)));
+            ValidationMessages = new ObservableCollection<XmlValidationMessageVM>();
+            LineNumbers = new ObservableCollection<LineNumberVM>();
+            LineNumbers.Add(new LineNumberVM(1, 0.0));
             SsmlTextBox = new TextBox
             {
                 AcceptsReturn = true,
                 AcceptsTab = true,
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto
             };
+            _ssmlChangedJob = new Model.Workers.SsmlChangedJob(this);
             SetLineWrap();
-            SsmlTextBox.LayoutUpdated += SsmlTextBox_LayoutUpdated;
-            SsmlTextBox.TextChanged += SsmlTextBox_TextChanged;
-            SsmlTextBox.SelectionChanged += SsmlTextBox_SelectionChanged;
+            SsmlTextBox.Text = Markup.BlankSsmlDocument;
         }
-
+        
         #region Commands
 
         #region File
@@ -73,7 +62,29 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnNewDocument(object parameter)
         {
-            // TODO: Implement OnNewDocument Logic
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(new Action<object>(OnNewDocument), parameter);
+                return;
+            }
+
+            if (FileSaveStatus != Model.FileSaveStatus.New && FileSaveStatus != Model.FileSaveStatus.SaveSuccess)
+            {
+                switch (MessageBox.Show(App.Current.MainWindow, (CurrentFullPath.Length == 0) ? "New file has not been saved. Would you like to save changes?" : String.Format("{0} has not been saved. Would you like to save changes?", CurrentFullPath), "Save Changes?", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel))
+                {
+                    case MessageBoxResult.Yes:
+                        if (!SaveCurrentDocument())
+                            return;
+                        break;
+                    case MessageBoxResult.Cancel:
+                        return;
+                }
+            }
+            FileSaveStatus = Model.FileSaveStatus.New;
+            FileSaveToolBarMessage = "";
+            CurrentFileName = "";
+            CurrentFullPath = "";
+            SsmlTextBox.Text = Markup.BlankSsmlDocument;
         }
 
         #endregion
@@ -95,7 +106,51 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnOpenDocument(object parameter)
         {
-            // TODO: Implement OnOpenDocument Logic
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(new Action<object>(OnOpenDocument), parameter);
+                return;
+            }
+
+            if (FileSaveStatus != Model.FileSaveStatus.New && FileSaveStatus != Model.FileSaveStatus.SaveSuccess)
+            {
+                switch (MessageBox.Show(App.Current.MainWindow, (CurrentFullPath.Length == 0) ? "New file has not been saved. Would you like to save changes?" : String.Format("{0} has not been saved. Would you like to save changes?", CurrentFullPath), "Save Changes?", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel))
+                {
+                    case MessageBoxResult.Yes:
+                        if (!SaveCurrentDocument())
+                            return;
+                        break;
+                    case MessageBoxResult.Cancel:
+                        return;
+                }
+            }
+            string path = CurrentFullPath;
+            if (String.IsNullOrEmpty(path))
+                path = App.AppSettingsViewModel.LastSsmlFilePath;
+            if (!String.IsNullOrEmpty(path))
+                path = Path.GetDirectoryName(path);
+            if (String.IsNullOrEmpty(path) || !Directory.Exists(path))
+                path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                AddExtension = true,
+                CheckFileExists = true,
+                DefaultExt = App.AppSettingsViewModel.SsmlFileExtension,
+                Filter = String.Format("{0} (*{1})|*{1}|XML Files (*.xml)|*.*|All Files (*.*)|*.*", App.AppSettingsViewModel.SsmlFileTypeDescriptionShort, App.AppSettingsViewModel.SsmlFileExtension),
+                InitialDirectory = path,
+                RestoreDirectory = true,
+                Title = "Open SSML File"
+            };
+
+            bool? dialogResult = dialog.ShowDialog(App.Current.MainWindow);
+            if (dialogResult.HasValue && dialogResult.Value)
+            {
+                SsmlTextBox.Text = File.ReadAllText(dialog.FileName);
+                FileSaveStatus = Model.FileSaveStatus.SaveSuccess;
+                FileSaveToolBarMessage = "";
+                CurrentFileName = Path.GetFileName(dialog.FileName);
+                CurrentFullPath = Path.GetFullPath(dialog.FileName);
+            }
         }
 
         #endregion
@@ -117,7 +172,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnSaveDocument(object parameter)
         {
-            // TODO: Implement OnSaveDocument Logic
+            SaveCurrentDocument();
         }
 
         #endregion
@@ -139,7 +194,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnSaveAs(object parameter)
         {
-            // TODO: Implement OnSaveAs Logic
+            SaveCurrentDocumentAs();
         }
 
         #endregion
@@ -179,7 +234,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_reformatDocumentCommand == null)
-                    _reformatDocumentCommand = new Command.RelayCommand(OnReformatDocument, false, true);
+                    _reformatDocumentCommand = new Command.RelayCommand(OnReformatDocument, false);
 
                 return _reformatDocumentCommand;
             }
@@ -187,7 +242,24 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnReformatDocument(object parameter)
         {
-            // TODO: Implement OnReformatDocument Logic
+            XmlDocument xmlDocument = new XmlDocument();
+            try
+            {
+                xmlDocument.LoadXml(SsmlTextBox.Text.Trim());
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    XmlWriterSettings settings = new XmlWriterSettings { CheckCharacters = false, Indent = true, Encoding = Encoding.UTF8 };
+                    using (XmlWriter writer = XmlWriter.Create(memoryStream, settings))
+                    {
+                        xmlDocument.WriteTo(writer);
+                        writer.Flush();
+                        string text = settings.Encoding.GetString(memoryStream.ToArray());
+                        if (text != SsmlTextBox.Text)
+                            SsmlTextBox.Text = text;
+                    }
+
+                }
+            } catch { }
         }
 
         #endregion
@@ -201,7 +273,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_cleanUpLineEndingsCommand == null)
-                    _cleanUpLineEndingsCommand = new Command.RelayCommand(OnCleanUpLineEndings, false, true);
+                    _cleanUpLineEndingsCommand = new Command.RelayCommand(OnCleanUpLineEndings, false);
 
                 return _cleanUpLineEndingsCommand;
             }
@@ -209,7 +281,14 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnCleanUpLineEndings(object parameter)
         {
-            // TODO: Implement OnCleanUpLineEndings Logic
+            string startText, endText;
+            string text = SplitTextSelection(out startText, out endText).Trim();
+            text = SsmlTextBox.Text.Trim();
+            if (text.Length > 0)
+                text = String.Join(Environment.NewLine, Model.TextLine.Split(text).Select(l => l.LineContent.TrimEnd())).Trim();
+            text = startText + text + endText;
+            if (text != SsmlTextBox.Text)
+                SsmlTextBox.Text = text;
         }
 
         #endregion
@@ -229,12 +308,73 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             }
         }
 
+        private string SplitTextSelection(out string startText, out string endText)
+        {
+            if (CurrentSelectionLength == 0)
+            {
+                startText = "";
+                endText = "";
+                return SsmlTextBox.Text;
+            }
+            if (CurrentSelectionStart == 0)
+            {
+                startText = "";
+                if (CurrentSelectionLength == SsmlTextBox.Text.Length)
+                {
+                    endText = "";
+                    return SsmlTextBox.Text;
+                }
+                endText = SsmlTextBox.Text.Substring(CurrentSelectionLength);
+                return SsmlTextBox.Text.Substring(0, CurrentSelectionLength);
+            }
+
+            startText = SsmlTextBox.Text.Substring(0, CurrentSelectionStart);
+            if (CurrentSelectionStart + CurrentSelectionLength == SsmlTextBox.Text.Length)
+            {
+                endText = "";
+                return SsmlTextBox.Text.Substring(CurrentSelectionStart);
+            }
+
+            endText = SsmlTextBox.Text.Substring(CurrentSelectionStart + CurrentSelectionLength);
+            return SsmlTextBox.Text.Substring(CurrentSelectionStart, CurrentSelectionLength);
+        }
         protected virtual void OnRemoveOuterWhitespace(object parameter)
         {
-            // TODO: Implement OnRemoveOuterWhitespace Logic
+            string startText, endText;
+            string text = SplitTextSelection(out startText, out endText).Trim();
+            text = SsmlTextBox.Text.Trim();
+            if (text.Length > 0)
+                text = String.Join(Environment.NewLine, Model.TextLine.Split(text).Select(l => l.LineContent.Trim())).Trim();
+            text = startText + text + endText;
+            if (text != SsmlTextBox.Text)
+                SsmlTextBox.Text = text;
         }
 
         #endregion
+
+        public void DisableSelectionBasedCommands()
+        {
+            CleanUpLineEndingsCommand.IsEnabled = false;
+            RemoveOuterWhitespaceCommand.IsEnabled = false;
+            //JoinLinesCommand.IsEnabled = false;
+            RemoveEmptyLinesCommand.IsEnabled = false;
+            //RemoveConsecutiveEmptyLinesCommand.IsEnabled = false;
+            //SelectTagContentsCommand.IsEnabled = false;
+        }
+
+        public void UpdateSelection(int selectionStart, int selectionLength, int currentLineNumber, int currentColNumber)
+        {
+            CurrentSelectionStart = selectionStart;
+            CurrentSelectionLength = selectionLength;
+            CurrentLineNumber = currentLineNumber;
+            CurrentColNumber = currentColNumber;
+            CleanUpLineEndingsCommand.IsEnabled = true;
+            RemoveOuterWhitespaceCommand.IsEnabled = true;
+            //JoinLinesCommand.IsEnabled = true;
+            RemoveEmptyLinesCommand.IsEnabled = true;
+            //RemoveConsecutiveEmptyLinesCommand.IsEnabled = true;
+            //SelectTagContentsCommand.IsEnabled = true;
+        }
 
         #region JoinLines Command Property Members
 
@@ -267,7 +407,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get
             {
                 if (_removeEmptyLinesCommand == null)
-                    _removeEmptyLinesCommand = new Command.RelayCommand(OnRemoveEmptyLines, false, true);
+                    _removeEmptyLinesCommand = new Command.RelayCommand(OnRemoveEmptyLines, false);
 
                 return _removeEmptyLinesCommand;
             }
@@ -275,7 +415,14 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnRemoveEmptyLines(object parameter)
         {
-            // TODO: Implement OnRemoveEmptyLines Logic
+            string startText, endText;
+            string text = SplitTextSelection(out startText, out endText).Trim();
+            text = SsmlTextBox.Text.Trim();
+            if (text.Length > 0)
+                text = String.Join(Environment.NewLine, Model.TextLine.Split(text).Where(l => !String.IsNullOrWhiteSpace(l.LineContent)).Select(l => l.LineContent));
+            text = startText + text + endText;
+            if (text != SsmlTextBox.Text)
+                SsmlTextBox.Text = text;
         }
 
         #endregion
@@ -813,7 +960,30 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         protected virtual void OnShowValidationMessages(object parameter)
         {
-            // TODO: Implement OnShowValidationMessages Logic
+            if (ValidationMessages.Count > 0)
+                DisplayErrorsPopup = true;
+        }
+
+        #endregion
+
+        #region HideValidationMessages Command Property Members
+
+        private Command.RelayCommand _hideValidationMessagesCommand = null;
+
+        public Command.RelayCommand HideValidationMessagesCommand
+        {
+            get
+            {
+                if (_hideValidationMessagesCommand == null)
+                    _hideValidationMessagesCommand = new Command.RelayCommand(OnHideValidationMessages, false, true);
+
+                return _hideValidationMessagesCommand;
+            }
+        }
+
+        protected virtual void OnHideValidationMessages(object parameter)
+        {
+            DisplayErrorsPopup = false;
         }
 
         #endregion
@@ -863,9 +1033,33 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get { return (bool)(GetValue(SelectAfterInsertProperty)); }
             set { SetValue(SelectAfterInsertProperty, value); }
         }
-        
+
         #endregion
 
+        #region DisplayErrorsPopup Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="DisplayErrorsPopup"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_DisplayErrorsPopup = "DisplayErrorsPopup";
+
+        /// <summary>
+        /// Identifies the <see cref="DisplayErrorsPopup"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty DisplayErrorsPopupProperty = DependencyProperty.Register(DependencyPropertyName_DisplayErrorsPopup, typeof(bool), typeof(MainWindowVM),
+                new PropertyMetadata(false));
+
+        /// <summary>
+        /// Indicates whether errors grid in is shown.
+        /// </summary>
+        public bool DisplayErrorsPopup
+        {
+            get { return (bool)(GetValue(DisplayErrorsPopupProperty)); }
+            set { SetValue(DisplayErrorsPopupProperty, value); }
+        }
+        
+        #endregion
+        
         #region LineWrapEnabled Property Members
 
         /// <summary>
@@ -992,7 +1186,59 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get { return GetValue(FileSaveToolBarMessageProperty) as string; }
             private set { SetValue(FileSaveToolBarMessagePropertyKey, value); }
         }
+
+        #endregion
+
+        #region CurrentFileName Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="CurrentFileName"/> dependency property.
+        /// </summary>
+        public const string PropertyName_CurrentFileName = "CurrentFileName";
         
+        private static readonly DependencyPropertyKey CurrentFileNamePropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CurrentFileName, typeof(string), typeof(MainWindowVM),
+            new PropertyMetadata(""));
+
+        /// <summary>
+        /// Identifies the <see cref="CurrentFileName"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty CurrentFileNameProperty = CurrentFileNamePropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// Name of currently loaded file.
+        /// </summary>
+        public string CurrentFileName
+        {
+            get { return GetValue(CurrentFileNameProperty) as string; }
+            private set { SetValue(CurrentFileNamePropertyKey, value); }
+        }
+
+        #endregion
+
+        #region CurrentFullPath Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="CurrentFullPath"/> dependency property.
+        /// </summary>
+        public const string PropertyName_CurrentFullPath = "CurrentFullPath";
+
+        private static readonly DependencyPropertyKey CurrentFullPathPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CurrentFullPath, typeof(string), typeof(MainWindowVM),
+            new PropertyMetadata(""));
+
+        /// <summary>
+        /// Identifies the <see cref="CurrentFullPath"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty CurrentFullPathProperty = CurrentFullPathPropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// Full path of currently loaded file.
+        /// </summary>
+        public string CurrentFullPath
+        {
+            get { return GetValue(CurrentFullPathProperty) as string; }
+            private set { SetValue(CurrentFullPathPropertyKey, value); }
+        }
+
         #endregion
 
         #region ValidationStatus Property Members
@@ -1003,7 +1249,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public const string PropertyName_ValidationStatus = "ValidationStatus";
 
         private static readonly DependencyPropertyKey ValidationStatusPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ValidationStatus, typeof(Model.XmlValidationStatus), typeof(MainWindowVM),
-            new PropertyMetadata(Model.XmlValidationStatus.Warning));
+            new PropertyMetadata(Model.XmlValidationStatus.None));
 
         /// <summary>
         /// Identifies the <see cref="ValidationStatus"/> dependency property.
@@ -1029,7 +1275,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public const string PropertyName_ValidationToolTip = "ValidationToolTip";
 
         private static readonly DependencyPropertyKey ValidationToolTipPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ValidationToolTip, typeof(string), typeof(MainWindowVM),
-            new PropertyMetadata(ViewModelValidationMessageVM.ValidationMessage_NoXmlData));
+            new PropertyMetadata(""));
 
         /// <summary>
         /// Identifies the <see cref="ValidationToolTip"/> dependency property.
@@ -1100,8 +1346,60 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
 
         #endregion
 
+        #region CurrentSelectionStart Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="CurrentSelectionStart"/> dependency property.
+        /// </summary>
+        public const string PropertyName_CurrentSelectionStart = "CurrentSelectionStart";
+
+        private static readonly DependencyPropertyKey CurrentSelectionStartPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CurrentSelectionStart, typeof(int), typeof(MainWindowVM),
+            new PropertyMetadata(0));
+
+        /// <summary>
+        /// Identifies the <see cref="CurrentSelectionStart"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty CurrentSelectionStartProperty = CurrentSelectionStartPropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// Current start index of selection or caret.
+        /// </summary>
+        public int CurrentSelectionStart
+        {
+            get { return (int)(GetValue(CurrentSelectionStartProperty)); }
+            private set { SetValue(CurrentSelectionStartPropertyKey, value); }
+        }
+
+        #endregion
+
+        #region CurrentSelectionLength Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="CurrentSelectionLength"/> dependency property.
+        /// </summary>
+        public const string PropertyName_CurrentSelectionLength = "CurrentSelectionLength";
+
+        private static readonly DependencyPropertyKey CurrentSelectionLengthPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_CurrentSelectionLength, typeof(int), typeof(MainWindowVM),
+            new PropertyMetadata(0));
+
+        /// <summary>
+        /// Identifies the <see cref="CurrentSelectionLength"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty CurrentSelectionLengthProperty = CurrentSelectionLengthPropertyKey.DependencyProperty;
+
+        /// <summary>
+        /// Current length of selection.
+        /// </summary>
+        public int CurrentSelectionLength
+        {
+            get { return (int)(GetValue(CurrentSelectionLengthProperty)); }
+            private set { SetValue(CurrentSelectionLengthPropertyKey, value); }
+        }
+
+        #endregion
+
         #region SsmlTextBox Property Members
-        
+
         /// <summary>
         /// Defines the name for the <see cref="SsmlTextBox"/> dependency property.
         /// </summary>
@@ -1123,7 +1421,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             get { return (TextBox)(GetValue(SsmlTextBoxProperty)); }
             private set { SetValue(SsmlTextBoxPropertyKey, value); }
         }
-        
+
         #endregion
 
         #region ValidationMessages Property Members
@@ -1133,171 +1431,87 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// </summary>
         public const string PropertyName_ValidationMessages = "ValidationMessages";
 
-        private static readonly DependencyPropertyKey ValidationMessagesPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ValidationMessages,
-            typeof(ReadOnlyObservableCollection<ViewModelValidationMessageVM>), typeof(MainWindowVM), new PropertyMetadata(null));
+        private static readonly DependencyPropertyKey ValidationMessagesPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_ValidationMessages, typeof(ObservableCollection<XmlValidationMessageVM>), typeof(MainWindowVM),
+                new PropertyMetadata(null));
 
         /// <summary>
-        /// Identifies the <see cref="ValidationMessages"/> read-only dependency property.
+        /// Identifies the <see cref="ValidationMessages"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ValidationMessagesProperty = ValidationMessagesPropertyKey.DependencyProperty;
 
-        private ObservableCollection<ViewModelValidationMessageVM> _innerValidationMessages = new ObservableCollection<ViewModelValidationMessageVM>();
-
         /// <summary>
-        /// Inner collection for <see cref="ValidationMessages"/>.
+        /// Contains validation messages which are associated with the displayed text from <see cref="SsmlTextBox"/>.
         /// </summary>
-        protected ObservableCollection<ViewModelValidationMessageVM> InnerValidationMessages { get { return _innerValidationMessages; } }
-
-        /// <summary>
-        /// XML validation messages.
-        /// </summary>
-        public ReadOnlyObservableCollection<ViewModelValidationMessageVM> ValidationMessages
+        public ObservableCollection<XmlValidationMessageVM> ValidationMessages
         {
-            get { return (ReadOnlyObservableCollection<ViewModelValidationMessageVM>)(GetValue(ValidationMessagesProperty)); }
+            get { return (ObservableCollection<XmlValidationMessageVM>)(GetValue(ValidationMessagesProperty)); }
             private set { SetValue(ValidationMessagesPropertyKey, value); }
-        }
-        
-        /// <summary>
-        /// This gets called when an item in <see cref="ValidationMessages"/> is added, removed, changed, moved, or the entire collection is refreshed.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="e">Information about the event.</param>
-        protected virtual void ValidationMessages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            // TODO: Implement MainWindowVM.ValidationMessages_CollectionChanged(object, NotifyCollectionChangedEventArgs)
         }
 
         #endregion
 
-        private IEnumerable<Model.IndexAndOffset> GetLineOffsets()
+        public bool SaveCurrentDocument()
         {
-            for (int lineIndex = SsmlTextBox.GetFirstVisibleLineIndex(); lineIndex <= SsmlTextBox.GetLastVisibleLineIndex(); lineIndex++)
-                yield return new Model.IndexAndOffset(lineIndex + 1, SsmlTextBox.GetRectFromCharacterIndex(SsmlTextBox.GetCharacterIndexFromLineIndex(lineIndex)).Top);
-        }
+            if (FileSaveStatus == Model.FileSaveStatus.SaveSuccess)
+                return true;
 
-        private Model.IndexAndOffset[] GenerateLineNumberValues(Tuple<Model.IndexAndOffset[], Model.TextLine[]> offsetsAndLines, CancellationToken cancellationToken)
-        {
-            return GenerateLineNumberValues(offsetsAndLines.Item1, offsetsAndLines.Item2, cancellationToken);
-        }
+            if (FileSaveStatus == Model.FileSaveStatus.New || !File.Exists(CurrentFullPath))
+                return SaveCurrentDocumentAs();
 
-        private Model.IndexAndOffset[] GenerateLineNumberValues(Model.IndexAndOffset[] visiblineLineIndexesAndOffsets, Model.TextLine[] sourceLines,
-            CancellationToken cancellationToken)
-        {
-            if (visiblineLineIndexesAndOffsets.Length == 0 || sourceLines.Length == 0)
-                return new Model.IndexAndOffset[] { new Model.IndexAndOffset(1, 0.0) };
-            int currentLineIndex = visiblineLineIndexesAndOffsets[0].Index;
-            int lastLineIndex = visiblineLineIndexesAndOffsets[visiblineLineIndexesAndOffsets.Length - 1].Index;
-            return sourceLines.SkipWhile(s => s.Index < currentLineIndex).TakeWhile(s => !cancellationToken.IsCancellationRequested && s.Index <= lastLineIndex)
-                .Select(s =>
-                {
-                    while (s.Index > visiblineLineIndexesAndOffsets[currentLineIndex].Index)
-                        currentLineIndex++;
-                    return new Model.IndexAndOffset(s.LineNumber, visiblineLineIndexesAndOffsets[currentLineIndex].Top);
-                }).DefaultIfEmpty(new Model.IndexAndOffset(1, 0.0)).ToArray();
-        }
-
-        private void SsmlTextBox_SelectionChanged(object sender, RoutedEventArgs e)
-        {
-            using (Common.SynchronizedStateChange<Common.SupercedableTaskState<string, Model.TextLine[]>> stateChange = _textLines.ChangeState())
+            try { File.WriteAllText(CurrentFullPath, SsmlTextBox.Text); }
+            catch (Exception exception)
             {
-                Model.TextLine[] lines;
-                try { lines = stateChange.CurrentState.Result; } catch { lines = _textLines.CurrentResult; }
-                if (Dispatcher.CheckAccess())
-                    UpdateStatusBarLineAndCol(lines);
-                else
-                    Dispatcher.Invoke(() => UpdateStatusBarLineAndCol(lines));
+                FileSaveStatus = Model.FileSaveStatus.SaveError;
+                FileSaveToolBarMessage = exception.Message;
+                return false;
             }
+            FileSaveStatus = Model.FileSaveStatus.SaveSuccess;
+            FileSaveToolBarMessage = "";
+            return true;
         }
 
-        private void SsmlTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        public bool SaveCurrentDocumentAs()
         {
-            _textLines.StartNew(SsmlTextBox.Text, (text, cancellationToken) =>
+            SaveFileDialog dialog = new SaveFileDialog
             {
-                return Model.TextLine.Split(text, cancellationToken).ToArray();
-            });
-        }
-
-        private void SsmlTextBox_LayoutUpdated(object sender, EventArgs e)
-        {
-            _textLines.StartNew(SsmlTextBox.Text, (text, cancellationToken) =>
+                AddExtension = true,
+                CheckFileExists = true,
+                DefaultExt = App.AppSettingsViewModel.SsmlFileExtension,
+                Filter = String.Format("{0} (*{1})|*{1}|XML Files (*.xml)|*.*|All Files (*.*)|*.*", App.AppSettingsViewModel.SsmlFileTypeDescriptionShort, App.AppSettingsViewModel.SsmlFileExtension),
+                RestoreDirectory = true,
+                Title = "Open SSML File"
+            };
+            string path = CurrentFullPath;
+            if (String.IsNullOrEmpty(path))
             {
-                return Model.TextLine.Split(text, cancellationToken).ToArray();
-            });
-            Model.IndexAndOffset[] lineOffsets = (CheckAccess()) ? GetLineOffsets().ToArray() : Dispatcher.Invoke<Model.IndexAndOffset[]>(() => GetLineOffsets().ToArray());
-            using (Common.SynchronizedStateChange<Common.SupercedableTaskState<string, Model.TextLine[]>> changeState = _textLines.ChangeState())
-            {
-                Model.TextLine[] lines;
-                try { lines = changeState.CurrentState.Result; } catch { lines = _textLines.CurrentResult; }
-                _lineNumbers.StartNew(new Tuple<Model.IndexAndOffset[], Model.TextLine[]>(lineOffsets, lines), GenerateLineNumberValues);
-            }
-        }
-
-        private void TextLines_OnStateChanged(object sender, Common.SynchronizedStateEventArgs<Common.SupercedableTaskState<string, Model.TextLine[]>> e)
-        {
-            Model.TextLine[] lines;
-            try { lines = e.CurrentState.Result; } catch { lines = _textLines.CurrentResult; }
-            _xmlValidation.StartNew(lines, (l, c) => Common.XmlValidationResult.Create(this, c, l));
-        }
-
-        private void LineNumbers_OnStateChanged(object sender, Common.SynchronizedStateEventArgs<Common.SupercedableTaskState<Tuple<Model.IndexAndOffset[], Model.TextLine[]>, Model.IndexAndOffset[]>> e)
-        {
-            Model.IndexAndOffset[] lineOffsets;
-            try { lineOffsets = e.CurrentState.Result; } catch { lineOffsets = _lineNumbers.CurrentResult; }
-            Model.TextLine[] lines = _textLines.CurrentResult;
-            Dispatcher.Invoke(() =>
-            {
-                UpdateStatusBarLineAndCol(lines);
-                int end = (lineOffsets.Length > LineNumbers.Count) ? LineNumbers.Count : lineOffsets.Length;
-                for (int i = 0; i < end; i++)
-                {
-                    LineNumbers[i].Margin = new Thickness(0.0, lineOffsets[i].Top, 0.0, 0.0);
-                    LineNumbers[i].Number = lineOffsets[i].Index;
-                }
-                if (lineOffsets.Length > LineNumbers.Count)
-                {
-                    for (int i = LineNumbers.Count; i < lineOffsets.Length; i++)
-                        LineNumbers.Add(new LineNumberVM(lineOffsets[i].Index, lineOffsets[i].Top));
-                }
-                else
-                {
-                    while (LineNumbers.Count > lineOffsets.Length)
-                        LineNumbers.RemoveAt(lineOffsets.Length);
-                }
-            });
-        }
-
-        private void XmlValidation_OnStateChanged(object sender, Common.SynchronizedStateEventArgs<Common.SupercedableTaskState<Model.TextLine[], Common.XmlValidationResult>> e)
-        {
-            Common.XmlValidationResult result;
-            try { result = e.CurrentState.Result; } catch { result = _xmlValidation.CurrentResult; }
-            Dispatcher.Invoke(() =>
-            {
-                ValidationToolTip = result.Message;
-                ValidationStatus = result.Status;
-            });
-        }
-        
-        private void UpdateStatusBarLineAndCol(Model.TextLine[] lines)
-        {
-            int absIndex = SsmlTextBox.SelectionStart;
-            Model.TextLine currentLine = lines.TakeWhile(l => l.Index < absIndex).LastOrDefault();
-            if (currentLine == null)
-            {
-                CurrentLineNumber = 1;
-                CurrentColNumber = absIndex + 1;
+                path = App.AppSettingsViewModel.LastSsmlFilePath;
+                if (!String.IsNullOrEmpty(path))
+                    path = Path.GetDirectoryName(path);
+                dialog.InitialDirectory = (String.IsNullOrEmpty(path) || !Directory.Exists(path)) ?  Environment.GetFolderPath(Environment.SpecialFolder.Personal) : path;
             }
             else
             {
-                CurrentLineNumber = currentLine.LineNumber;
-                CurrentColNumber = (absIndex - currentLine.Index) + 1;
+                if (File.Exists(path))
+                    dialog.FileName = path;
+                path = Path.GetDirectoryName(path);
+                dialog.InitialDirectory = (Directory.Exists(path)) ? path : Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             }
-        }
+            bool? dialogResult = dialog.ShowDialog(App.Current.MainWindow);
+            if (!(dialogResult.HasValue && dialogResult.Value))
+                return false;
 
-        internal void ClearValidationErrors() { _innerValidationMessages.Clear(); }
-
-        internal void AddValidationError(int lineNumber, int linePosition, string message, Exception exception, Model.XmlValidationStatus xmlValidationStatus)
-        {
-            _innerValidationMessages.Add(new ViewModelValidationMessageVM(PropertyName_ValidationMessages, message, exception, lineNumber, linePosition, (xmlValidationStatus < Model.XmlValidationStatus.Error)));
+            try { File.WriteAllText(dialog.FileName, SsmlTextBox.Text); }
+            catch (Exception exception)
+            {
+                FileSaveStatus = Model.FileSaveStatus.SaveError;
+                FileSaveToolBarMessage = exception.Message;
+                return false;
+            }
+            FileSaveStatus = Model.FileSaveStatus.SaveSuccess;
+            FileSaveToolBarMessage = "";
+            CurrentFileName = Path.GetFileName(dialog.FileName);
+            CurrentFullPath = Path.GetFullPath(dialog.FileName);
+            return true;
         }
     }
 }

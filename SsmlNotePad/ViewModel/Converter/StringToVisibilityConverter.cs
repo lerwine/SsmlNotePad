@@ -12,6 +12,30 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
     [ValueConversion(typeof(string), typeof(Visibility))]
     public class StringToVisibilityConverter : ToValueConverterBase<string, Visibility>
     {
+        #region NullSource Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_NullSource = "NullSource";
+
+        /// <summary>
+        /// Identifies the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty NullSourceProperty = DependencyProperty.Register(DependencyPropertyName_NullSource, typeof(Visibility?),
+            typeof(StringToVisibilityConverter), new PropertyMetadata(null));
+
+        /// <summary>
+        /// <see cref="Nullable{TTarget}"/> value to represent a null source value.
+        /// </summary>
+        public override Visibility? NullSource
+        {
+            get { return (Visibility?)(GetValue(NullSourceProperty)); }
+            set { SetValue(NullSourceProperty, value); }
+        }
+
+        #endregion
+
         #region Null Property Members
 
         /// <summary>

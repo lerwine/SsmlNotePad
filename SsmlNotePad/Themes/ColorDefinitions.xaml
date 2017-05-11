@@ -45,4 +45,5 @@
     <SolidColorBrush x:Key="PopupBackgroundBrush" Color="#FFFFFFE1"/>
     <SolidColorBrush x:Key="PopupBorderBrush" Color="#FF646464"/>
     <SolidColorBrush x:Key="ErrorFieldBackgroundBrush" Color="#FFFFD2D2"/>
+    <SolidColorBrush x:Key="PopupShaded" Color="#7F646464"/>
 </ResourceDictionary>

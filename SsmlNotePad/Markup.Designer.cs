@@ -22,7 +22,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Markup {
+    public class Markup {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Erwine.Leonard.T.SsmlNotePad.Markup", typeof(Markup).Assembly);
@@ -51,7 +51,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized string similar to ipa.
         /// </summary>
-        internal static string AlphabetIpa {
+        public static string AlphabetIpa {
             get {
                 return ResourceManager.GetString("AlphabetIpa", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized string similar to x-microsoft-ups.
         /// </summary>
-        internal static string AlphabetUps {
+        public static string AlphabetUps {
             get {
                 return ResourceManager.GetString("AlphabetUps", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized string similar to x-microsoft-sapi.
         /// </summary>
-        internal static string AphabetSapi {
+        public static string AphabetSapi {
             get {
                 return ResourceManager.GetString("AphabetSapi", resourceCulture);
             }
@@ -92,7 +92,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///
         ///&lt;/speak&gt;.
         /// </summary>
-        internal static string BlankSsmlDocument {
+        public static string BlankSsmlDocument {
             get {
                 return ResourceManager.GetString("BlankSsmlDocument", resourceCulture);
             }
@@ -106,7 +106,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///      alphabet=&quot;ipa&quot; xml:lang=&quot;en-US&quot;&gt;
         ///&lt;/lexicon&gt;.
         /// </summary>
-        internal static string EmptyPls {
+        public static string EmptyPls {
             get {
                 return ResourceManager.GetString("EmptyPls", resourceCulture);
             }
@@ -121,7 +121,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///    &lt;!-- These are the entity sets for ISO Latin 1 characters for the XHTML --&gt;
         ///    &lt;xs:notation name=&quot;XHTMLLatin1&quot; id=&quot;xhtml-lat1&quot; public=&quot;-//W3C//ENTITIES Latin 1 for XHTML//EN&quot; system=&quot;http://www.w3.org/TR/xht [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string PhoneticTables {
+        public static string PhoneticTables {
             get {
                 return ResourceManager.GetString("PhoneticTables", resourceCulture);
             }
@@ -130,7 +130,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized string similar to application/pls+xml.
         /// </summary>
-        internal static string PlsMimeType {
+        public static string PlsMimeType {
             get {
                 return ResourceManager.GetString("PlsMimeType", resourceCulture);
             }
@@ -149,7 +149,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///  
         ///  Copyright &amp;#251; 2006 World Wide Web Consortium, (Massachusetts In [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string PlsSchema {
+        public static string PlsSchema {
             get {
                 return ResourceManager.GetString("PlsSchema", resourceCulture);
             }
@@ -158,7 +158,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized string similar to http://www.w3.org/2005/01/pronunciation-lexicon.
         /// </summary>
-        internal static string PlsSchemaNamespaceURI {
+        public static string PlsSchemaNamespaceURI {
             get {
                 return ResourceManager.GetString("PlsSchemaNamespaceURI", resourceCulture);
             }
@@ -178,7 +178,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///      distribute the SSML core schema and its accompanying documentation
         ///      for any purpose and [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string SsmlCore {
+        public static string SsmlCore {
             get {
                 return ResourceManager.GetString("SsmlCore", resourceCulture);
             }
@@ -187,7 +187,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized string similar to &lt;!DOCTYPE speak PUBLIC &quot;-//W3C//DTD SYNTHESIS 1.0//EN&quot;  &quot;http://www.w3.org/TR/speech-synthesis/synthesis.dtd&quot;&gt;.
         /// </summary>
-        internal static string SsmlDocTypeTag {
+        public static string SsmlDocTypeTag {
             get {
                 return ResourceManager.GetString("SsmlDocTypeTag", resourceCulture);
             }
@@ -209,7 +209,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///of the DTD for any purpose. It is provided &quot;as is&quot; without expressed 
         ///or implied warrant [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string SsmlDtd {
+        public static string SsmlDtd {
             get {
                 return ResourceManager.GetString("SsmlDtd", resourceCulture);
             }
@@ -218,7 +218,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized string similar to application/ssml+xml.
         /// </summary>
-        internal static string SsmlMimeType {
+        public static string SsmlMimeType {
             get {
                 return ResourceManager.GetString("SsmlMimeType", resourceCulture);
             }
@@ -238,7 +238,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///      All Rights Reserved. Permission to use, copy, modify and
         ///      dist [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string SsmlSchema {
+        public static string SsmlSchema {
             get {
                 return ResourceManager.GetString("SsmlSchema", resourceCulture);
             }
@@ -247,7 +247,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized string similar to http://www.w3.org/2001/10/synthesis.
         /// </summary>
-        internal static string SsmlSchemaNamespaceURI {
+        public static string SsmlSchemaNamespaceURI {
             get {
                 return ResourceManager.GetString("SsmlSchemaNamespaceURI", resourceCulture);
             }
@@ -264,7 +264,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///
         ///  &lt;!-- g [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string VsiSchema {
+        public static string VsiSchema {
             get {
                 return ResourceManager.GetString("VsiSchema", resourceCulture);
             }
@@ -273,7 +273,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] XhtmlLat1Entities {
+        public static byte[] XhtmlLat1Entities {
             get {
                 object obj = ResourceManager.GetObject("XhtmlLat1Entities", resourceCulture);
                 return ((byte[])(obj));
@@ -293,7 +293,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///    Portions © 2004-2005 Microsoft Corporation.  All rights reserved.  
         ///    This file was derived fr [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string XhtmlSchema {
+        public static string XhtmlSchema {
             get {
                 return ResourceManager.GetString("XhtmlSchema", resourceCulture);
             }
@@ -302,7 +302,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] XhtmlSpecialEntities {
+        public static byte[] XhtmlSpecialEntities {
             get {
                 object obj = ResourceManager.GetObject("XhtmlSpecialEntities", resourceCulture);
                 return ((byte[])(obj));
@@ -312,7 +312,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] XhtmlSymbolEntities {
+        public static byte[] XhtmlSymbolEntities {
             get {
                 object obj = ResourceManager.GetObject("XhtmlSymbolEntities", resourceCulture);
                 return ((byte[])(obj));
@@ -331,7 +331,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///&lt;xs:schema targetNamespace=&quot;http://www.w3.org/XML/1998/namespace&quot; xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; xml:lang=&quot;en&quot;&gt;
         ///  &lt; [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string XmlSchema {
+        public static string XmlSchema {
             get {
                 return ResourceManager.GetString("XmlSchema", resourceCulture);
             }
@@ -355,7 +355,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///    &lt;h1&gt;XML Schema instance namespace&lt;/h1&gt;
         ///    &lt;p&gt;See &lt;a href=&quot;http://www.w3.org/TR/xmlsche [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string XmlSchemaInstance {
+        public static string XmlSchemaInstance {
             get {
                 return ResourceManager.GetString("XmlSchemaInstance", resourceCulture);
             }
@@ -374,7 +374,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///Portions © 2004-2007 Microsoft Corporation.  All rights reserved.  
         ///  This file was derived from http://www.w3.org/2001/XMLSchema. [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string XsdSchema {
+        public static string XsdSchema {
             get {
                 return ResourceManager.GetString("XsdSchema", resourceCulture);
             }
@@ -393,7 +393,7 @@ namespace Erwine.Leonard.T.SsmlNotePad {
         ///    Portions © 2004-2009 Microsoft Corporation.  All rights reserved.
         ///    This file was derived from http://www.w3.or [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string XsltSchema {
+        public static string XsltSchema {
             get {
                 return ResourceManager.GetString("XsltSchema", resourceCulture);
             }

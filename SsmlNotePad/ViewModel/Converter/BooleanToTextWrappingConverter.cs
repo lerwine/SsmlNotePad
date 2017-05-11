@@ -11,8 +11,32 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
     [ValueConversion(typeof(bool), typeof(TextWrapping))]
     public class BooleanToTextWrappingConverter : ToValueConverterBase<bool, TextWrapping>
     {
+        #region NullSource Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_NullSource = "NullSource";
+
+        /// <summary>
+        /// Identifies the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty NullSourceProperty = DependencyProperty.Register(DependencyPropertyName_NullSource, typeof(TextWrapping?),
+            typeof(BooleanToTextWrappingConverter), new PropertyMetadata(null));
+
+        /// <summary>
+        /// <see cref="Nullable{TTarget}"/> value to represent a null source value.
+        /// </summary>
+        public override TextWrapping? NullSource
+        {
+            get { return (TextWrapping?)(GetValue(NullSourceProperty)); }
+            set { SetValue(NullSourceProperty, value); }
+        }
+
+        #endregion
+
         #region True Property Members
-        
+
         /// <summary>
         /// Defines the name for the <see cref="True"/> dependency property.
         /// </summary>

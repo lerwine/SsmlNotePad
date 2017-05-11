@@ -68,8 +68,7 @@ namespace UnitTestProject1
             Assert.IsFalse(target.AutoReplaceCommand.AllowSimultaneousExecute);
             // TODO: Implement AutoReplaceCommand
             Assert.IsFalse(target.AutoReplaceCommand.IsEnabled);
-
-
+            
             Assert.IsNotNull(target.CleanUpLineEndingsCommand);
             Assert.IsFalse(target.CleanUpLineEndingsCommand.AllowSimultaneousExecute);
             // TODO: Implement CleanUpLineEndingsCommand
@@ -251,7 +250,7 @@ namespace UnitTestProject1
             Assert.IsFalse(target.SpellOutCommand.IsEnabled);
 
             Assert.IsNotNull(target.SsmlTextBox);
-            Assert.AreEqual("", target.SsmlTextBox.Text);
+            Assert.AreEqual(Erwine.Leonard.T.SsmlNotePad.Markup.BlankSsmlDocument, target.SsmlTextBox.Text);
             Assert.IsTrue(target.SsmlTextBox.AcceptsReturn);
             Assert.IsTrue(target.SsmlTextBox.AcceptsTab);
             Assert.IsTrue(target.SsmlTextBox.IsEnabled);
@@ -269,17 +268,13 @@ namespace UnitTestProject1
             Assert.IsFalse(target.SubstitutionCommand.IsEnabled);
 
             Assert.IsNotNull(target.ValidationMessages);
-            Assert.AreEqual(1, target.ValidationMessages.Count);
-            Assert.IsNotNull(target.ValidationMessages[0]);
-            Assert.AreEqual("", target.ValidationMessages[0].Details);
-            Assert.IsTrue(target.ValidationMessages[0].IsWarning);
-            Assert.AreEqual("Line 1, Column 1: No SSML markup defined.", target.ValidationMessages[0].Message);
+            Assert.AreEqual(0, target.ValidationMessages.Count);
 
             Assert.IsNotNull(target.ValidationStatus);
-            Assert.AreEqual(XmlValidationStatus.Warning, target.ValidationStatus);
+            Assert.AreEqual(XmlValidationStatus.None, target.ValidationStatus);
 
             Assert.IsNotNull(target.ValidationToolTip);
-            Assert.AreEqual("No SSML markup defined.", target.ValidationToolTip);
+            Assert.AreEqual(0, target.ValidationToolTip.Length);
         }
 
         [TestMethod]

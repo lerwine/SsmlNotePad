@@ -11,6 +11,30 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
     [ValueConversion(typeof(bool), typeof(bool))]
     public class InverseBooleanConverter : ToValueConverterBase<bool, bool>
     {
+        #region NullSource Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_NullSource = "NullSource";
+
+        /// <summary>
+        /// Identifies the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty NullSourceProperty = DependencyProperty.Register(DependencyPropertyName_NullSource, typeof(bool?),
+            typeof(InverseBooleanConverter), new PropertyMetadata(null));
+
+        /// <summary>
+        /// <see cref="Nullable{TTarget}"/> value to represent a null source value.
+        /// </summary>
+        public override bool? NullSource
+        {
+            get { return (bool?)(GetValue(NullSourceProperty)); }
+            set { SetValue(NullSourceProperty, value); }
+        }
+
+        #endregion
+
         /// <summary>
         /// Converts a <seealso cref="bool"/> value to its inverse value.
         /// </summary>

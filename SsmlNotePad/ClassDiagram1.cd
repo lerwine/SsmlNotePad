@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Erwine.Leonard.T.SsmlNotePad.ViewModel.MainWindowVM">
+    <Position X="4.5" Y="0.5" Width="3.25" />
+    <Members>
+      <Field Name="_aboutSsmlNotePadCommand" Hidden="true" />
+      <Field Name="_autoReplaceCommand" Hidden="true" />
+      <Field Name="_cleanUpLineEndingsCommand" Hidden="true" />
+      <Field Name="_currentLayoutModel" Hidden="true" />
+      <Field Name="_defaultSynthSettingsCommand" Hidden="true" />
+      <Field Name="_dictateCommand" Hidden="true" />
+      <Field Name="_exportAsWavCommand" Hidden="true" />
+      <Field Name="_findNextCommand" Hidden="true" />
+      <Field Name="_findTextCommand" Hidden="true" />
+      <Field Name="_goToLineCommand" Hidden="true" />
+      <Field Name="_innerValidationMessages" Hidden="true" />
+      <Field Name="_insertAudioFileCommand" Hidden="true" />
+      <Field Name="_insertBookmarkCommand" Hidden="true" />
+      <Field Name="_insertFemaleVoiceCommand" Hidden="true" />
+      <Field Name="_insertGenderNeutralVoiceCommand" Hidden="true" />
+      <Field Name="_insertMaleVoiceCommand" Hidden="true" />
+      <Field Name="_insertParagraphCommand" Hidden="true" />
+      <Field Name="_insertSentenceCommand" Hidden="true" />
+      <Field Name="_joinLinesCommand" Hidden="true" />
+      <Field Name="_newDocumentCommand" Hidden="true" />
+      <Field Name="_openDocumentCommand" Hidden="true" />
+      <Field Name="_pasteEncodedCommand" Hidden="true" />
+      <Field Name="_reformatDocumentCommand" Hidden="true" />
+      <Field Name="_removeConsecutiveEmptyLinesCommand" Hidden="true" />
+      <Field Name="_removeEmptyLinesCommand" Hidden="true" />
+      <Field Name="_removeOuterWhitespaceCommand" Hidden="true" />
+      <Field Name="_replaceTextCommand" Hidden="true" />
+      <Field Name="_saveAsCommand" Hidden="true" />
+      <Field Name="_saveDocumentCommand" Hidden="true" />
+      <Field Name="_sayAsCommand" Hidden="true" />
+      <Field Name="_selectCurrentTagCommand" Hidden="true" />
+      <Field Name="_selectTagContentsCommand" Hidden="true" />
+      <Field Name="_showFileSaveMessagesCommand" Hidden="true" />
+      <Field Name="_showValidationMessagesCommand" Hidden="true" />
+      <Field Name="_speakAllTextCommand" Hidden="true" />
+      <Field Name="_spellOutCommand" Hidden="true" />
+      <Field Name="_substitutionCommand" Hidden="true" />
+      <Field Name="_visibleLineCount" Hidden="true" />
+      <Field Name="CurrentColNumberProperty" Hidden="true" />
+      <Field Name="CurrentColNumberPropertyKey" Hidden="true" />
+      <Field Name="CurrentLineNumberProperty" Hidden="true" />
+      <Field Name="CurrentLineNumberPropertyKey" Hidden="true" />
+      <Field Name="DependencyPropertyName_LineWrapEnabled" Hidden="true" />
+      <Field Name="DependencyPropertyName_SelectAfterInsert" Hidden="true" />
+      <Field Name="FileSaveStatusProperty" Hidden="true" />
+      <Field Name="FileSaveStatusPropertyKey" Hidden="true" />
+      <Field Name="FileSaveToolBarMessageProperty" Hidden="true" />
+      <Field Name="FileSaveToolBarMessagePropertyKey" Hidden="true" />
+      <Field Name="LineNumbersProperty" Hidden="true" />
+      <Field Name="LineNumbersPropertyKey" Hidden="true" />
+      <Field Name="LineWrapEnabledProperty" Hidden="true" />
+      <Field Name="PropertyName_CurrentColNumber" Hidden="true" />
+      <Field Name="PropertyName_CurrentLineNumber" Hidden="true" />
+      <Field Name="PropertyName_FileSaveStatus" Hidden="true" />
+      <Field Name="PropertyName_FileSaveToolBarMessage" Hidden="true" />
+      <Field Name="PropertyName_LineNumbers" Hidden="true" />
+      <Field Name="PropertyName_SsmlTextBox" Hidden="true" />
+      <Field Name="PropertyName_ValidationMessages" Hidden="true" />
+      <Field Name="PropertyName_ValidationStatus" Hidden="true" />
+      <Field Name="PropertyName_ValidationToolTip" Hidden="true" />
+      <Field Name="SelectAfterInsertProperty" Hidden="true" />
+      <Field Name="SsmlTextBoxProperty" Hidden="true" />
+      <Field Name="SsmlTextBoxPropertyKey" Hidden="true" />
+      <Field Name="ValidationMessagesProperty" Hidden="true" />
+      <Field Name="ValidationMessagesPropertyKey" Hidden="true" />
+      <Field Name="ValidationStatusProperty" Hidden="true" />
+      <Field Name="ValidationStatusPropertyKey" Hidden="true" />
+      <Field Name="ValidationToolTipProperty" Hidden="true" />
+      <Field Name="ValidationToolTipPropertyKey" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>/Nxnk45PCEVinTQUF2BN1556jHpoWLksWEIOyER4XnE=</HashCode>
+      <FileName>ViewModel\MainWindowVM.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

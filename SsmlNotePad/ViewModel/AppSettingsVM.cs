@@ -22,7 +22,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
     /// <summary>
     /// View model representing application settings.
     /// </summary>
-    public class AppSettingsVM : ValidatingViewModel
+    public class AppSettingsVM : DependencyObject
     {
         #region Default property settings values
 
@@ -226,7 +226,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public const string DefaultValue_SsmlFileExtension = ".ssml";
 
         private static readonly DependencyPropertyKey SsmlFileExtensionPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_SsmlFileExtension, typeof(string), typeof(AppSettingsVM),
-            new PropertyMetadata(DefaultValue_SsmlFileExtension));
+            new PropertyMetadata(DefaultValue_SsmlFileExtension, null, SsmlFileExtension_CoerceValue));
 
         /// <summary>
         /// Identifies the <see cref="SsmlFileExtension"/> dependency property.
@@ -242,10 +242,22 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             private set { SetValue(SsmlFileExtensionPropertyKey, value); }
         }
 
+        private static object SsmlFileExtension_CoerceValue(DependencyObject d, object baseValue)
+        {
+            string ext = baseValue as string;
+            if (String.IsNullOrWhiteSpace(ext))
+                return DefaultValue_SsmlFileExtension;
+            ext = ext.Trim();
+            if (ext.StartsWith("."))
+                return ext;
+
+            return "." + ext;
+        }
+
         #endregion
 
         #region PlsFileExtension Property Members
-        
+
         /// <summary>
         /// Defines the name for the <see cref="PlsFileExtension"/> dependency property.
         /// </summary>
@@ -257,7 +269,7 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         public const string DefaultValue_PlsFileExtension = ".pls";
 
         private static readonly DependencyPropertyKey PlsFileExtensionPropertyKey = DependencyProperty.RegisterReadOnly(PropertyName_PlsFileExtension, typeof(string), typeof(AppSettingsVM),
-            new PropertyMetadata(DefaultValue_PlsFileExtension));
+            new PropertyMetadata(DefaultValue_PlsFileExtension, null, PlsFileExtension_CoerceValue));
 
         /// <summary>
         /// Identifies the <see cref="PlsFileExtension"/> dependency property.
@@ -273,10 +285,22 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
             private set { SetValue(PlsFileExtensionPropertyKey, value); }
         }
 
+        private static object PlsFileExtension_CoerceValue(DependencyObject d, object baseValue)
+        {
+            string ext = baseValue as string;
+            if (String.IsNullOrWhiteSpace(ext))
+                return DefaultValue_PlsFileExtension;
+            ext = ext.Trim();
+            if (ext.StartsWith("."))
+                return ext;
+
+            return "." + ext;
+        }
+
         #endregion
 
         #region SsmlFileTypeDescriptionLong Property Members
-        
+
         /// <summary>
         /// Defines the name for the <see cref="SsmlFileTypeDescriptionLong"/> dependency property.
         /// </summary>
@@ -691,7 +715,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// </summary>
         public static readonly DependencyProperty DefaultSpeechRateProperty = DependencyProperty.Register(DependencyPropertyName_DefaultSpeechRate, typeof(int), typeof(AppSettingsVM),
                 new PropertyMetadata(DefaultValue_DefaultSpeechRate,
-                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).DefaultSpeechRate_PropertyChanged((int)(e.OldValue), (int)(e.NewValue))));
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).DefaultSpeechRate_PropertyChanged((int)(e.OldValue), (int)(e.NewValue)),
+                    DefaultSpeechRate_CoerceValue));
 
         /// <summary>
         /// Default speech rate for speech generation.
@@ -710,16 +735,16 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="DefaultSpeechRate"/> property was changed.</param>
         protected virtual void DefaultSpeechRate_PropertyChanged(int oldValue, int newValue)
         {
-            if (newValue < SpeechRate_MinValue || newValue > SpeechRate_MaxValue)
-                SetValidation(DependencyPropertyName_DefaultSpeechRate, "Value cannot be less than -10 or greater than 10.");
-            else
-            {
-                SetValidation(DependencyPropertyName_DefaultSpeechRate, null);
-                Properties.Settings.Default.DefaultSpeechRate = newValue;
-                SavePropertiesAsync();
-            }
+            Properties.Settings.Default.DefaultSpeechRate = newValue;
+            SavePropertiesAsync();
         }
         
+        private static object DefaultSpeechRate_CoerceValue(DependencyObject d, object baseValue)
+        {
+            int? value = baseValue as int?;
+            return (value.HasValue) ? ((value.Value < SpeechRate_MinValue) ? SpeechRate_MinValue : ((value.Value < SpeechRate_MaxValue) ? SpeechRate_MaxValue : value.Value)) : DefaultValue_DefaultSpeechRate;
+        }
+
         #endregion
 
         #region DefaultSpeechVolume Property Members
@@ -746,7 +771,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// </summary>
         public static readonly DependencyProperty DefaultSpeechVolumeProperty = DependencyProperty.Register(DependencyPropertyName_DefaultSpeechVolume, typeof(int), typeof(AppSettingsVM),
                 new PropertyMetadata(DefaultValue_DefaultSpeechVolume,
-                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).DefaultSpeechVolume_PropertyChanged((int)(e.OldValue), (int)(e.NewValue))));
+                    (DependencyObject d, DependencyPropertyChangedEventArgs e) => (d as AppSettingsVM).DefaultSpeechVolume_PropertyChanged((int)(e.OldValue), (int)(e.NewValue)),
+                    DefaultSpeechVolume_CoerceValue));
 
         /// <summary>
         /// Default volume for speech generation
@@ -765,20 +791,20 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel
         /// <param name="newValue">The <seealso cref="int"/> value after the <seealso cref="DefaultSpeechVolume"/> property was changed.</param>
         protected virtual void DefaultSpeechVolume_PropertyChanged(int oldValue, int newValue)
         {
-            if (newValue < SpeechVolume_MinValue || newValue > SpeechVolume_MaxValue)
-                SetValidation(DependencyPropertyName_DefaultSpeechVolume, "Value cannot be less than 0 or greater than 100.");
-            else
-            {
-                SetValidation(DependencyPropertyName_DefaultSpeechVolume, null);
-                Properties.Settings.Default.DefaultSpeechVolume = newValue;
-                SavePropertiesAsync();
-            }
+            Properties.Settings.Default.DefaultSpeechVolume = newValue;
+            SavePropertiesAsync();
         }
-        
+
+        private static object DefaultSpeechVolume_CoerceValue(DependencyObject d, object baseValue)
+        {
+            int? value = baseValue as int?;
+            return (value.HasValue) ? ((value.Value < SpeechVolume_MinValue) ? SpeechVolume_MinValue : ((value.Value < SpeechVolume_MaxValue) ? SpeechVolume_MaxValue : value.Value)) : DefaultValue_DefaultSpeechVolume;
+        }
+
         #endregion
 
         #region DefaultVoiceName Property Members
-        
+
         /// <summary>
         /// Defines the name for the <see cref="DefaultVoiceName"/> dependency property.
         /// </summary>

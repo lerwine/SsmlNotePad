@@ -10,8 +10,32 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
     [ValueConversion(typeof(FindReplaceDisplayMode), typeof(Visibility))]
     public class FindReplaceModeToVisibilityConverter : ToValueConverterBase<FindReplaceDisplayMode, Visibility>
     {
+        #region NullSource Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_NullSource = "NullSource";
+
+        /// <summary>
+        /// Identifies the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty NullSourceProperty = DependencyProperty.Register(DependencyPropertyName_NullSource, typeof(Visibility?),
+            typeof(FindReplaceModeToVisibilityConverter), new PropertyMetadata(null));
+
+        /// <summary>
+        /// <see cref="Nullable{TTarget}"/> value to represent a null source value.
+        /// </summary>
+        public override Visibility? NullSource
+        {
+            get { return (Visibility?)(GetValue(NullSourceProperty)); }
+            set { SetValue(NullSourceProperty, value); }
+        }
+
+        #endregion
+
         #region None Property Members
-        
+
         /// <summary>
         /// Defines the name for the <see cref="None"/> dependency property.
         /// </summary>

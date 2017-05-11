@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
@@ -15,6 +11,30 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
     [ValueConversion(typeof(Model.SpeechProgressState), typeof(int))]
     public class SpeechProgressToIntConverter : ToValueConverterBase<Model.SpeechProgressState, int>
     {
+        #region NullSource Property Members
+
+        /// <summary>
+        /// Defines the name for the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public const string DependencyPropertyName_NullSource = "NullSource";
+
+        /// <summary>
+        /// Identifies the <see cref="NullSource"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty NullSourceProperty = DependencyProperty.Register(DependencyPropertyName_NullSource, typeof(int?),
+            typeof(SpeechProgressToIntConverter), new PropertyMetadata(null));
+
+        /// <summary>
+        /// <see cref="Nullable{TTarget}"/> value to represent a null source value.
+        /// </summary>
+        public override int? NullSource
+        {
+            get { return (int?)(GetValue(NullSourceProperty)); }
+            set { SetValue(NullSourceProperty, value); }
+        }
+
+        #endregion
+
         #region NotStarted Property Members
 
         public const string DependencyPropertyName_NotStarted = "NotStarted";

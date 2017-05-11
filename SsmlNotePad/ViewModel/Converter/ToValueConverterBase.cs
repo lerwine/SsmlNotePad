@@ -13,29 +13,10 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
     public abstract class ToValueConverterBase<TSource, TTarget> : DependencyObject, IValueConverter
         where TTarget : struct
     {
-        #region NullSource Property Members
-        
-        /// <summary>
-        /// Defines the name for the <see cref="NullSource"/> dependency property.
-        /// </summary>
-        public const string DependencyPropertyName_NullSource = "NullSource";
-
-        /// <summary>
-        /// Identifies the <see cref="NullSource"/> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty NullSourceProperty = DependencyProperty.Register(DependencyPropertyName_NullSource, typeof(TTarget?),
-            typeof(ToValueConverterBase<TSource, TTarget>), new PropertyMetadata(null));
-
         /// <summary>
         /// <see cref="Nullable{TTarget}"/> value to represent a null source value.
         /// </summary>
-        public TTarget? NullSource
-        {
-            get { return (TTarget?)(GetValue(NullSourceProperty)); }
-            set { SetValue(NullSourceProperty, value); }
-        }
-
-        #endregion
+        public abstract TTarget? NullSource { get; set; }
 
         /// <summary>
         /// Converts a <typeparamref name="TSource"/> value to a <typeparamref name="TTarget"/> value.

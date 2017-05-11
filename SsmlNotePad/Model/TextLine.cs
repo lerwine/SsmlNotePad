@@ -28,6 +28,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.Model
 
         public int LineNumber { get; private set; }
 
+        //public static Task<TextLine[]> SplitAsync(Workers.TextChangeArgs args) { return SplitAsync(args.SourceText, args.Token); }
+
         public static Task<TextLine[]> SplitAsync(string text, CancellationToken token)
         {
             return Task<TextLine[]>.Factory.StartNew(o => Split(o as string).ToArray(), text, token);
