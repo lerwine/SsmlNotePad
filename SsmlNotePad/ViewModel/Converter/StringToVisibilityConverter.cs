@@ -49,9 +49,11 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         public static readonly DependencyProperty NullProperty = DependencyProperty.Register(DependencyPropertyName_Null, typeof(Visibility?), typeof(StringToVisibilityConverter),
                 new PropertyMetadata(Visibility.Collapsed));
 
+        // TODO: Replace obsolete member
         /// <summary>
         /// <seealso cref="Nullable{Visibility}"/> value to represent a null source value.
         /// </summary>
+        [Obsolete("Use NullSource, instead")]
         public Visibility? Null
         {
             get { return GetValue(NullProperty) as Visibility?; }
@@ -126,8 +128,8 @@ namespace Erwine.Leonard.T.SsmlNotePad.ViewModel.Converter
         /// </summary>
         public Visibility? NonWhitespace
         {
-            get { return GetValue(WhitespaceProperty) as Visibility?; }
-            set { SetValue(WhitespaceProperty, value); }
+            get { return GetValue(NonWhitespaceProperty) as Visibility?; }
+            set { SetValue(NonWhitespaceProperty, value); }
         }
 
         #endregion
